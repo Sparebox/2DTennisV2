@@ -11,17 +11,19 @@ import org.jbox2d.dynamics.FixtureDef;
 import simulation.Simulation;
 import utils.Utils;
 
-public final class Ground extends Entity implements StaticEntity {
+public final class BoxBoundary extends Entity implements StaticEntity {
 
-    public Ground(int x, int y, float width, float height) {
+    private PolygonShape ps;
+
+    public BoxBoundary(int x, int y, int width, int height) {
         this.width = Utils.toWorld(width);
         this.height = Utils.toWorld(height);
         this.bd = new BodyDef();
         this.bd.type = BodyType.STATIC;
-        this.bd.position.set(x, Utils.toWorldY(y));
+        this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
 
         this.ps = new PolygonShape();
-        this.ps.setAsBox(Utils.toPixel(this.width / 2), Utils.toPixel(this.height / 2));
+        this.ps.setAsBox(this.width / 2, this.height / 2);
 
         this.fd = new FixtureDef();
         this.fd.shape = ps;
@@ -36,11 +38,7 @@ public final class Ground extends Entity implements StaticEntity {
     @Override
     public void render(Graphics2D g) {
         g.setColor(Color.WHITE);
-        g.drawRect((int) body.getPosition().x - Utils.toPixel(width/2), Utils.toViewY(body.getPosition().y) - Utils.toPixel(height/2), Utils.toPixel(width), Utils.toPixel(height));
-        g.setColor(Color.RED);
-        g.drawLine(0, 0, (int) body.getPosition().x, Utils.toViewY(body.getPosition().y));
-        g.drawLine(0, 0, (int) body.getPosition().x - Utils.toPixel(width/2), Utils.toViewY(body.getPosition().y) - Utils.toPixel(height/2));
-        // g.drawLine(0, 0, Utils.toPixelX(body.getPosition().x) - Utils.toPixel(width/2), Utils.toPixelY(body.getPosition().y));
+        g.drawRect(Utils.toPixel(body.getPosition().x - width/2), Utils.toPixel(body.getPosition().y) - Utils.toPixel(height/2), Utils.toPixel(width), Utils.toPixel(height));
     }
 
     @Override

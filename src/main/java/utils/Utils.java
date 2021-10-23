@@ -4,22 +4,14 @@ import window.Window;
 
 public final class Utils {
     
-    private static float pixelScale = 100f;
-
-    public static int toViewY(float y) {
-        return (int) (Window.W_HEIGHT - y);
-    }
-
-    public static float toWorldY(float y) {
-        return Window.W_HEIGHT - y;
-    }
+    public static final float PPM = 100f; // Pixels per meter
 
     public static float toWorld(float length) {
-        return (length / pixelScale);
+        return (length / PPM);
     }
 
     public static int toPixel(float length) {
-        return (int) (length * pixelScale);
+        return (int) (length * PPM);
     }
 
 }

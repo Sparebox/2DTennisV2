@@ -10,9 +10,11 @@ import java.util.Set;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 
+import entity.Ball;
 import entity.Box;
 import entity.Entity;
-import entity.Ground;
+import entity.LineBoundary;
+import entity.BoxBoundary;
 import timer.Timer;
 import utils.Utils;
 import window.Window;
@@ -23,7 +25,7 @@ public final class Simulation implements Runnable {
     public static final double NS_PER_TICK = 1e9 / FPS;
     public static final int VEL_ITERATIONS = 6;
     public static final int POS_ITERATIONS = 3;
-    public static final Vec2 GRAVITY = new Vec2(0f, Utils.toPixel(-9.8f));
+    public static final Vec2 GRAVITY = new Vec2(0f, 9.8f);
     
     public static World world;
     
@@ -47,16 +49,18 @@ public final class Simulation implements Runnable {
         this.secTimer = new Timer((int)1e3);
         world = new World(GRAVITY);
         this.entities = new HashSet<>();
-        System.out.println("WindowW: "+Window.W_WIDTH+" WindowH: "+Window.W_HEIGHT);
-        Entity box = new Box(290, 0, 100, 50);
-        box.getBody().setAngularVelocity(-15);
-        Entity ground = new Ground(200, 500, 100, 100);
-        Entity ground2 = new Ground(400, 700, 100, 100);
-        // //box.getBody().setTransform(box.getBody().getPosition(), (float) Math.toRadians(90));
-        // //box.getBody().setLinearVelocity(new Vec2(0f, -5f));
+        createBoundaries();
+        Entity box = new Box(200, 100, 100, 100);
+        Entity ball = new Ball(100, 25, 50);
+        ball.getBody().applyForceToCenter(new Vec2(60f,0));
+        box.getBody().setAngularVelocity(-1);
+        Entity platfrom = new BoxBoundary(100, 500, 100, 100);
+        Entity platfrom2 = new BoxBoundary(400, 700, 100, 100);
+        box.getBody().applyForceToCenter(new Vec2(1000f, 0));
         this.entities.add(box);
-        this.entities.add(ground);
-        this.entities.add(ground2);
+        this.entities.add(ball);
+        this.entities.add(platfrom);
+        this.entities.add(platfrom2);
     }
 
     @Override
@@ -72,7 +76,7 @@ public final class Simulation implements Runnable {
             lastTime = now;
             
             while(accumulator >= NS_PER_TICK) {
-                world.step(1f/FPS, VEL_ITERATIONS, POS_ITERATIONS);
+                world.step(1f/165f, VEL_ITERATIONS, POS_ITERATIONS);
                 update();
                 render();
                 accumulator -= NS_PER_TICK;
@@ -129,6 +133,17 @@ public final class Simulation implements Runnable {
             return;
         running = false;
         System.out.println("Stopped simulation"); 
+    }
+
+    private void createBoundaries() {
+        Entity ground = new LineBoundary(0, Window.W_HEIGHT, Window.W_WIDTH, Window.W_HEIGHT);
+        Entity leftWall = new LineBoundary(0, 0, 0, Window.W_HEIGHT);
+        Entity rightWall = new LineBoundary(Window.W_WIDTH, 0, Window.W_WIDTH, Window.W_HEIGHT);
+        Entity ceil = new LineBoundary(0, 0, Window.W_WIDTH, 0);
+        this.entities.add(ground);
+        this.entities.add(leftWall);
+        this.entities.add(rightWall);
+        this.entities.add(ceil);
     }
 
     public Thread getSimThread() {
