@@ -1,9 +1,17 @@
 package physics.jbox2d;
 
-import window.Window;
+import javax.swing.SwingUtilities;
+
+import window.MainMenu;
 
 public class Launcher {
+
     public static void main(String[] args) {
-        new Window();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new MainMenu();
+            }
+        });
+        
     }
 }

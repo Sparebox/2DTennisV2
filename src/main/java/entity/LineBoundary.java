@@ -9,7 +9,7 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
-import simulation.Simulation;
+import game.Game;
 import utils.Utils;
 
 public class LineBoundary extends Entity implements StaticEntity {
@@ -28,13 +28,12 @@ public class LineBoundary extends Entity implements StaticEntity {
         this.es = new EdgeShape();
         this.es.set(this.start, this.end);
         
-
         this.fd = new FixtureDef();
         this.fd.shape = es;
         this.fd.friction = 0.9f;
         this.fd.restitution = 0.9f;
 
-        this.body = Simulation.world.createBody(this.bd);
+        this.body = Game.physWorld.createBody(this.bd);
         this.body.createFixture(fd);
         
     }

@@ -1,37 +1,42 @@
-package simulation;
+package game;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.image.BufferStrategy;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.JFrame;
+
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
 
-import entity.Ball;
-import entity.Box;
 import entity.Entity;
 import entity.LineBoundary;
-import entity.BoxBoundary;
 import timer.Timer;
-import utils.Utils;
-import window.Window;
+import window.KeyManager;
+import window.MainMenu;
 
-public final class Simulation implements Runnable {
+public final class Game implements Runnable {
 
+    public static final int WIDTH = 1600;
+    public static final int HEIGHT = 800;
     public static final int FPS = 165;
     public static final double NS_PER_TICK = 1e9 / FPS;
     public static final int VEL_ITERATIONS = 6;
     public static final int POS_ITERATIONS = 3;
-    public static final Vec2 GRAVITY = new Vec2(0f, 9.8f);
+    public static final Vec2 GRAVITY = new Vec2(0f, 9.81f);
     
-    public static World world;
+    public static World physWorld;
     
     private Thread simThread;
+    private JFrame frame;
     private Canvas canvas;
-    private Window window;
+    private Color canvasColor;
+    private MainMenu window;
+    private KeyManager keyManager;
     private boolean running;
     private BufferStrategy bs;
     private String fps = "FPS: ";
@@ -39,28 +44,16 @@ public final class Simulation implements Runnable {
     private Timer secTimer;
     private int ticks;
     
-    public Simulation(Window window) {
+    public Game(MainMenu window) {
         this.window = window;
         init();
     }
 
     private void init() {
-        this.canvas = window.getCanvas();
         this.secTimer = new Timer((int)1e3);
-        world = new World(GRAVITY);
+        physWorld = new World(GRAVITY);
         this.entities = new HashSet<>();
         createBoundaries();
-        Entity box = new Box(200, 100, 100, 100);
-        Entity ball = new Ball(100, 25, 50);
-        ball.getBody().applyForceToCenter(new Vec2(60f,0));
-        box.getBody().setAngularVelocity(-1);
-        Entity platfrom = new BoxBoundary(100, 500, 100, 100);
-        Entity platfrom2 = new BoxBoundary(400, 700, 100, 100);
-        box.getBody().applyForceToCenter(new Vec2(1000f, 0));
-        this.entities.add(box);
-        this.entities.add(ball);
-        this.entities.add(platfrom);
-        this.entities.add(platfrom2);
     }
 
     @Override
@@ -76,7 +69,7 @@ public final class Simulation implements Runnable {
             lastTime = now;
             
             while(accumulator >= NS_PER_TICK) {
-                world.step(1f/165f, VEL_ITERATIONS, POS_ITERATIONS);
+                physWorld.step(1f/165f, VEL_ITERATIONS, POS_ITERATIONS);
                 update();
                 render();
                 accumulator -= NS_PER_TICK;
@@ -136,14 +129,25 @@ public final class Simulation implements Runnable {
     }
 
     private void createBoundaries() {
-        Entity ground = new LineBoundary(0, Window.W_HEIGHT, Window.W_WIDTH, Window.W_HEIGHT);
-        Entity leftWall = new LineBoundary(0, 0, 0, Window.W_HEIGHT);
-        Entity rightWall = new LineBoundary(Window.W_WIDTH, 0, Window.W_WIDTH, Window.W_HEIGHT);
-        Entity ceil = new LineBoundary(0, 0, Window.W_WIDTH, 0);
+        Entity ground = new LineBoundary(0, WIDTH, WIDTH, HEIGHT);
+        Entity leftWall = new LineBoundary(0, 0, 0, HEIGHT);
+        Entity rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT);
+        Entity ceil = new LineBoundary(0, 0, WIDTH, 0);
         this.entities.add(ground);
         this.entities.add(leftWall);
         this.entities.add(rightWall);
         this.entities.add(ceil);
+    }
+
+    private void createCanvas() {
+        this.canvasColor = new Color(0, 0, 0);
+        this.canvas = new Canvas();
+        this.canvas.setMinimumSize(new Dimension(WIDTH, HEIGHT));
+        this.canvas.setMaximumSize(new Dimension(WIDTH, HEIGHT));
+        this.canvas.setSize((new Dimension(WIDTH, HEIGHT)));
+        this.canvas.setBackground(canvasColor);
+        this.canvas.addKeyListener(keyManager);
+        
     }
 
     public Thread getSimThread() {
@@ -162,11 +166,11 @@ public final class Simulation implements Runnable {
         this.canvas = canvas;
     }
 
-    public Window getWindow() {
+    public MainMenu getWindow() {
         return window;
     }
 
-    public void setWindow(Window window) {
+    public void setWindow(MainMenu window) {
         this.window = window;
     }
 

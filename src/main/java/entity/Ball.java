@@ -8,7 +8,7 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
-import simulation.Simulation;
+import game.Game;
 import utils.Utils;
 
 public final class Ball extends Entity implements DynamicEntity {
@@ -32,7 +32,7 @@ public final class Ball extends Entity implements DynamicEntity {
         this.fd.friction = 0.1f;
         this.fd.restitution = 0.9f;
 
-        this.body = Simulation.world.createBody(this.bd);
+        this.body = Game.physWorld.createBody(this.bd);
         this.body.createFixture(this.fd);
     }
 

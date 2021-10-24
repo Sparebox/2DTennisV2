@@ -8,7 +8,7 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
-import simulation.Simulation;
+import game.Game;
 import utils.Utils;
 
 public final class BoxBoundary extends Entity implements StaticEntity {
@@ -30,7 +30,7 @@ public final class BoxBoundary extends Entity implements StaticEntity {
         this.fd.friction = 0.3f;
         this.fd.restitution = 0.1f;
 
-        this.body = Simulation.world.createBody(this.bd);
+        this.body = Game.physWorld.createBody(this.bd);
         this.body.createFixture(fd);
         
     }

@@ -9,14 +9,14 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
-import simulation.Simulation;
+import game.Game;
 import utils.Utils;
 
-public class Box extends Entity implements DynamicEntity {
+public class Tile extends Entity implements DynamicEntity {
     
     private PolygonShape ps;
 
-    public Box(int x, int y, int width, int height) {
+    public Tile(int x, int y, int width, int height) {
         this.width = Utils.toWorld(width);
         this.height = Utils.toWorld(height);
         this.bd = new BodyDef();
@@ -33,7 +33,7 @@ public class Box extends Entity implements DynamicEntity {
         this.fd.friction = 0.1f;
         this.fd.restitution = 0.1f;
 
-        this.body = Simulation.world.createBody(this.bd);
+        this.body = Game.physWorld.createBody(this.bd);
         this.body.createFixture(this.fd);
 
     }

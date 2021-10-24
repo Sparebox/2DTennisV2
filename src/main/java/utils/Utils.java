@@ -1,10 +1,10 @@
 package utils;
 
-import window.Window;
+import window.MainMenu;
 
 public final class Utils {
     
-    public static final float PPM = 100f; // Pixels per meter
+    public static final float PPM = 150f; // Pixels per meter
 
     public static float toWorld(float length) {
         return (length / PPM);
