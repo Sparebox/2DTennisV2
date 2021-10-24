@@ -4,12 +4,14 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 
 import org.jbox2d.collision.shapes.CircleShape;
+import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
 import utils.Utils;
+import window.MainMenu;
 
 public final class Ball extends Entity implements DynamicEntity {
 
@@ -29,8 +31,8 @@ public final class Ball extends Entity implements DynamicEntity {
         this.fd = new FixtureDef();
         this.fd.shape = cs;
         this.fd.density = 1f;
-        this.fd.friction = 0.1f;
-        this.fd.restitution = 0.9f;
+        this.fd.friction = 0f;
+        this.fd.restitution = 1f;
 
         this.body = Game.physWorld.createBody(this.bd);
         this.body.createFixture(this.fd);
@@ -44,8 +46,16 @@ public final class Ball extends Entity implements DynamicEntity {
 
     @Override
     public void update() {
-        
-        
+        Vec2 old = body.getLinearVelocity();
+        if(old.length() >= 5f) {
+            old.normalize();
+            body.setLinearVelocity(old.mul(5f));
+        }
+        if(Utils.toPixel(body.getPosition().y + radius) > Game.HEIGHT) {
+            MainMenu.currentGame.stop();
+            MainMenu.currentGame = null;
+            new MainMenu();
+        }
     }
     
 }

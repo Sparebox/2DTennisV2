@@ -5,12 +5,12 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.JFrame;
+import javax.swing.border.EtchedBorder;
 
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
@@ -19,6 +19,7 @@ import entity.Ball;
 import entity.Entity;
 import entity.LineBoundary;
 import entity.Racquet;
+import entity.Tile;
 import timer.Timer;
 import window.KeyManager;
 import window.MainMenu;
@@ -32,7 +33,7 @@ public final class Game implements Runnable {
     public static final double NS_PER_TICK = 1e9 / FPS;
     public static final int VEL_ITERATIONS = 6;
     public static final int POS_ITERATIONS = 3;
-    public static final Vec2 GRAVITY = new Vec2(0f, 9.81f);
+    public static final Vec2 GRAVITY = new Vec2(0, 0);
     
     public static World physWorld;
     
@@ -45,8 +46,13 @@ public final class Game implements Runnable {
     private BufferStrategy bs;
     private String fps = "FPS: ";
     private Set<Entity> entities;
+    private Set<Entity> entitiesToDelete;
     private Timer secTimer;
     private int ticks;
+    private int tileAmount = 50;
+    private int tileWidth = 40;
+    private int tileHeight = 20;
+    private int ballRadius = 20;
     
     public Game() {
         init();
@@ -60,8 +66,13 @@ public final class Game implements Runnable {
         this.secTimer = new Timer((int)1e3);
         physWorld = new World(GRAVITY);
         this.entities = new HashSet<>();
+        this.entitiesToDelete = new HashSet<>();
         createBoundaries(false);
         this.entities.add(new Racquet(WIDTH/2, 200, 20));
+        int lastTileY = createTiles();
+        Entity ball = new Ball(WIDTH/2, lastTileY + ballRadius/2, ballRadius);
+        ball.getBody().setLinearVelocity(new Vec2(5, 5));
+        this.entities.add(ball);
     }
 
     private void initFrame() {
@@ -133,12 +144,18 @@ public final class Game implements Runnable {
     }
 
     private void update() {
+        if(!entitiesToDelete.isEmpty()) {
+            entities.removeAll(entitiesToDelete);
+            entitiesToDelete.clear();
+        }
         for(Entity e : entities) {
             e.update();
         }
     }
 
     private void render() {
+        if(!running)
+            return;
         bs = canvas.getBufferStrategy();
         if(bs == null) {
             canvas.createBufferStrategy(3);
@@ -163,14 +180,27 @@ public final class Game implements Runnable {
     }
 
     private void createBoundaries(boolean visible) {
-        Entity ground = new LineBoundary(0, HEIGHT, WIDTH, HEIGHT, visible);
         Entity leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
         Entity rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
         Entity ceil = new LineBoundary(0, 0, WIDTH, 0, visible);
-        this.entities.add(ground);
         this.entities.add(leftWall);
         this.entities.add(rightWall);
         this.entities.add(ceil);
+    }
+
+    private int createTiles() {
+        int tileGap = 10;
+        int lastX = 0;
+        int lastY = tileHeight/2;
+        for(int i = 0; i < tileAmount; i++) {
+            if(lastX >= WIDTH) {
+                lastY += tileGap + tileHeight;
+                lastX = 0; 
+            }
+            this.entities.add(new Tile(lastX, lastY, tileWidth, tileHeight));
+            lastX += tileGap + tileWidth;
+        }
+        return lastY;
     }
 
     public Thread getSimThread() {
@@ -229,6 +259,13 @@ public final class Game implements Runnable {
         return keyManager;
     }
 
+    public Set<Entity> getEntities() {
+        return entities;
+    }
+
+    public Set<Entity> getEntitiesToDelete() {
+        return entitiesToDelete;
+    }
     
 }
 

@@ -32,8 +32,8 @@ public class LineBoundary extends Entity implements StaticEntity {
         
         this.fd = new FixtureDef();
         this.fd.shape = es;
-        this.fd.friction = 0.9f;
-        this.fd.restitution = 0.9f;
+        this.fd.friction = 0f;
+        this.fd.restitution = 1f;
 
         this.body = Game.physWorld.createBody(this.bd);
         this.body.createFixture(fd);

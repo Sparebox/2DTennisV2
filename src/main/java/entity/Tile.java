@@ -11,6 +11,7 @@ import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
 import utils.Utils;
+import window.MainMenu;
 
 public class Tile extends Entity implements DynamicEntity {
     
@@ -23,6 +24,7 @@ public class Tile extends Entity implements DynamicEntity {
         this.bd.type = BodyType.DYNAMIC;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
         this.bd.allowSleep = true;
+        this.bd.gravityScale = 0f;
 
         this.ps = new PolygonShape();
         this.ps.setAsBox(this.width / 2, this.height / 2);
@@ -30,17 +32,19 @@ public class Tile extends Entity implements DynamicEntity {
         this.fd = new FixtureDef();
         this.fd.shape = ps;
         this.fd.density = 1f;
-        this.fd.friction = 0.1f;
-        this.fd.restitution = 0.1f;
+        this.fd.friction = 0f;
+        this.fd.restitution = 1f;
 
         this.body = Game.physWorld.createBody(this.bd);
         this.body.createFixture(this.fd);
-
     }
 
     @Override
     public void update() {
-        
+        if(Utils.toPixel(body.getPosition().y - height/2) > Game.HEIGHT) {
+            Game.physWorld.destroyBody(body);
+            MainMenu.currentGame.getEntitiesToDelete().add(this);
+        }
     }
 
     @Override

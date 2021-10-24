@@ -17,6 +17,7 @@ public final class KeyManager extends KeyAdapter {
         this.keys.put(KeyEvent.VK_LEFT, false);
         this.keys.put(KeyEvent.VK_RIGHT, false);
         this.keys.put(KeyEvent.VK_UP, false);
+        this.keys.put(KeyEvent.VK_SHIFT, false);
     }
 
     public KeyManager(MainMenu menu) {

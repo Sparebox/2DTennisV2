@@ -14,16 +14,19 @@ import game.Game;
 import utils.Utils;
 import window.MainMenu;
 
-public class Racquet extends Entity implements KinematicEntity{
+public class Racquet extends Entity implements KinematicEntity {
+
+    public static int moveSpeed = 3;
 
     private PolygonShape ps;
-
+   
     public Racquet(int x, int width, int height) {
         this.width = Utils.toWorld(width);
         this.height = Utils.toWorld(height);
         this.bd = new BodyDef();
-        this.bd.type = BodyType.STATIC;
+        this.bd.type = BodyType.KINEMATIC;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(Game.HEIGHT - 50));
+        this.bd.allowSleep = false;
 
         this.ps = new PolygonShape();
         this.ps.setAsBox(this.width / 2, this.height / 2);
@@ -46,17 +49,26 @@ public class Racquet extends Entity implements KinematicEntity{
 
     @Override
     public void update() {
-        if(MainMenu.currentGame.getKeyManager().getKeys().get(KeyEvent.VK_LEFT)) {
-            if(Utils.toPixel(body.getPosition().x - width/2) > 0)
-                body.getPosition().addLocal(Utils.toWorld(-5), 0);
+        if(MainMenu.currentGame == null)
+            return;
+        var keys = MainMenu.currentGame.getKeyManager().getKeys();
+        int speed = keys.get(KeyEvent.VK_SHIFT) ? moveSpeed * 3 : moveSpeed;
+        if(keys.get(KeyEvent.VK_LEFT)) {
+            if(Utils.toPixel(body.getPosition().x - width/2) > 0) {
+                body.setLinearVelocity(new Vec2(-speed,0));
+            } else {
+                body.getLinearVelocity().setZero();
+            }
+        } else if(keys.get(KeyEvent.VK_RIGHT)) {
+            if(Utils.toPixel(body.getPosition().x + width/2) < Game.WIDTH - 1) {
+                body.setLinearVelocity(new Vec2(speed,0));
+            } else {
+                body.getLinearVelocity().setZero();
+            }
+        } else {
+            body.getLinearVelocity().setZero();
         }
-        if(MainMenu.currentGame.getKeyManager().getKeys().get(KeyEvent.VK_RIGHT)) {
-            if(Utils.toPixel(body.getPosition().x + width/2) < Game.WIDTH - 1)
-                body.getPosition().addLocal(Utils.toWorld(5), 0);
-        }
-        // if(MainMenu.currentGame.getKeyManager().getKeys().get(KeyEvent.VK_LEFT)) {
-        //     body.setLinearVelocity(new Vec2(-5, 0));
-        // }
+            
         
     }
     
