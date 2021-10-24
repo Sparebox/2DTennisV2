@@ -14,13 +14,15 @@ import utils.Utils;
 
 public class LineBoundary extends Entity implements StaticEntity {
 
+    private boolean visible;
     private EdgeShape es;
     private Vec2 start;
     private Vec2 end;
 
-    public LineBoundary(int x1, int y1, int x2, int y2) {
+    public LineBoundary(int x1, int y1, int x2, int y2, boolean visible) {
         this.start = new Vec2(Utils.toWorld(x1), Utils.toWorld(y1));
         this.end = new Vec2(Utils.toWorld(x2), Utils.toWorld(y2));
+        this.visible = visible;
         this.bd = new BodyDef();
         this.bd.type = BodyType.STATIC;
         this.bd.position.set(0, 0);
@@ -35,11 +37,12 @@ public class LineBoundary extends Entity implements StaticEntity {
 
         this.body = Game.physWorld.createBody(this.bd);
         this.body.createFixture(fd);
-        
     }
 
     @Override
     public void render(Graphics2D g) {
+        if(!visible)
+            return;
         g.setColor(Color.WHITE);
         g.drawLine(Utils.toPixel(start.x), Utils.toPixel(start.y), Utils.toPixel(end.x), Utils.toPixel(end.y));
     }
@@ -48,4 +51,9 @@ public class LineBoundary extends Entity implements StaticEntity {
     public void update() {
         
     }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
 }

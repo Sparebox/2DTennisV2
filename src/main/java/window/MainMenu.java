@@ -8,6 +8,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,7 +21,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import game.Game;
 
-public final class MainMenu extends JFrame{
+public final class MainMenu extends JFrame implements ActionListener{
     
     public static Game currentGame;
 
@@ -27,19 +29,19 @@ public final class MainMenu extends JFrame{
     public static final int HEIGHT = 700;
     public static final Color BACKGROUND_COLOR = new Color(50, 111, 168);
 
-    private String frameTitle = "2DTennisV2 Main Menu";
-    private MouseManager mouseManager;
+    private String frameTitle = "2DTennis V2 Main Menu";
     private GridBagConstraints gbc;
     private Font titleFont = new Font("SansSerif", Font.BOLD, 60);
     private Font font = new Font("SansSerif", Font.PLAIN, 50);
     private JPanel buttonsPanel, titlePanel, creditPanel, settingsPanel, tutorialPanel;
-    private JButton start, settings, tutorial, back, exit;
-    private JLabel title;
-    private JLabel author;
+    private JButton start, settings, tutorial, exit, back;
+    private JLabel title, author;
     private JTextArea tutorialText;
     private Dimension buttonDimensions = new Dimension(300, 70);
+    private KeyManager keyManager;
 
     public MainMenu() {
+        this.keyManager = new KeyManager(this);
         initFrame();
         createMainMenu();
     }
@@ -50,10 +52,10 @@ public final class MainMenu extends JFrame{
         this.setTitle(frameTitle);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
-        this.setLayout(new GridBagLayout());
+        this.setLayout(new BorderLayout());
         this.getContentPane().setBackground(BACKGROUND_COLOR);
+        this.addKeyListener(keyManager);
         this.setVisible(true);
-        this.mouseManager = new MouseManager();
         this.gbc = new GridBagConstraints();
     }
 
@@ -91,60 +93,89 @@ public final class MainMenu extends JFrame{
         titlePanel.add(v2, gbc);
 
         start = new JButton("Start");
-        setButtonSettings(start);
+        setButtonSettings(start, "start");
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.insets = new Insets(0, 0, 10, 0);
         buttonsPanel.add(start, gbc);
 
         settings = new JButton("Settings");
-        setButtonSettings(settings);
+        setButtonSettings(settings, "settings");
         gbc.gridx = 0;
         gbc.gridy = 2;
         buttonsPanel.add(settings, gbc);
 
         tutorial = new JButton("Tutorial");
-        setButtonSettings(tutorial);
+        setButtonSettings(tutorial, "tutorial");
         gbc.gridx = 0;
         gbc.gridy = 3;
         buttonsPanel.add(tutorial, gbc);
 
         exit = new JButton("Exit");
-        setButtonSettings(exit);
+        setButtonSettings(exit, "exit");
         gbc.gridx = 0;
         gbc.gridy = 4;
         buttonsPanel.add(exit, gbc);
+        gbc.insets = new Insets(0, 0, 0, 0);
 
         author = new JLabel("Oskari Ojamaa 2021");
         author.setFont(new Font("SansSerif", Font.PLAIN, 10));
-        creditPanel.add(author, BorderLayout.LINE_START);
+        creditPanel.add(author, BorderLayout.CENTER);
 
-        gbc.insets = new Insets(0, 0, 50, 0);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        this.add(titlePanel, gbc);
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        this.add(buttonsPanel, gbc);
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        this.add(creditPanel, gbc);
-
+        this.add(titlePanel, BorderLayout.PAGE_START);
+        this.add(buttonsPanel, BorderLayout.CENTER);
+        this.add(creditPanel, BorderLayout.PAGE_END);
+        this.requestFocusInWindow();
     }
 
     private void startGame() {
-        if(currentGame != null)
+        if(MainMenu.currentGame != null)
             return;
-        currentGame = new Game(this);
-        currentGame.start();
+        MainMenu.currentGame = new Game();
+        MainMenu.currentGame.start();
     }
 
-    private void setButtonSettings(JButton button) {
+    private void setButtonSettings(JButton button, String actionCommand) {
         button.setBackground(Color.BLACK);
         button.setFocusPainted(false);
         button.setFont(font);
         button.setPreferredSize(buttonDimensions);
+        button.setActionCommand(actionCommand);
+        button.addActionListener(this);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        switch(e.getActionCommand()) {
+            case "start" :
+                this.setVisible(false);
+                this.dispose();
+                startGame();
+                break;
+            case "settings" :
+                titlePanel.setVisible(false);
+                buttonsPanel.setVisible(false);
+                showSettings();
+                break;
+            case "back" :
+                settingsPanel.setVisible(false);
+                titlePanel.setVisible(true);
+                buttonsPanel.setVisible(true);
+                break;
+            case "exit" :
+                System.exit(0);
+        }
+    }
+
+    private void showSettings() {
+        settingsPanel = new JPanel();
+        settingsPanel.setBackground(BACKGROUND_COLOR);
+        back = new JButton("Back");
+        setButtonSettings(back, "back");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        settingsPanel.add(back, gbc);
+        this.add(settingsPanel, BorderLayout.CENTER);
     }
 
 }
