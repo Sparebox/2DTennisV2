@@ -40,7 +40,6 @@ public final class Game implements Runnable {
     private Thread gameThread;
     private JFrame frame;
     private Canvas canvas;
-    private MainMenu window;
     private KeyManager keyManager;
     private boolean running;
     private BufferStrategy bs;
@@ -226,14 +225,6 @@ public final class Game implements Runnable {
 
     public void setCanvas(Canvas canvas) {
         this.canvas = canvas;
-    }
-
-    public MainMenu getWindow() {
-        return window;
-    }
-
-    public void setWindow(MainMenu window) {
-        this.window = window;
     }
 
     public boolean isRunning() {

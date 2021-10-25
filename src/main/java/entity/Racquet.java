@@ -56,23 +56,23 @@ public class Racquet extends Entity implements KinematicEntity {
             return;
         var keys = MainMenu.currentGame.getKeyManager().getKeys();
         int speed = keys.get(KeyEvent.VK_SHIFT) ? moveSpeed * 3 : moveSpeed;
-        if(keys.get(KeyEvent.VK_LEFT)) {
+        if(keys.get(KeyEvent.VK_LEFT) || keys.get(KeyEvent.VK_A)) {
             if(Utils.toPixel(body.getPosition().x - width/2) > 0)
                 body.setTransform(body.getPosition().addLocal(Utils.toWorld(-speed), 0), 0f);
         }
-        if(keys.get(KeyEvent.VK_RIGHT)) {
+        if(keys.get(KeyEvent.VK_RIGHT) || keys.get(KeyEvent.VK_D)) {
             if(Utils.toPixel(body.getPosition().x + width/2) < Game.WIDTH - 1)
                 body.setTransform(body.getPosition().addLocal(Utils.toWorld(speed), 0), 0f);
         }
-        if(keys.get(KeyEvent.VK_UP)) {
+        if(keys.get(KeyEvent.VK_SPACE)) {
             if(Utils.toPixel(body.getPosition().y) > Game.HEIGHT - 100)
                 body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(-speed)), 0f);
         } else if(Utils.toPixel(body.getPosition().y) < Game.HEIGHT - 50)
             body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(speed)), 0f);
 
-        if(keys.get(KeyEvent.VK_COMMA)) {
+        if(keys.get(KeyEvent.VK_COMMA) || keys.get(KeyEvent.VK_Q)) {
             body.setTransform(body.getPosition(), (float) Math.toRadians(-5));
-        } else if(keys.get(KeyEvent.VK_PERIOD)) {
+        } else if(keys.get(KeyEvent.VK_PERIOD) || keys.get(KeyEvent.VK_E)) {
             body.setTransform(body.getPosition(), (float) Math.toRadians(5));
         } else
             body.setTransform(body.getPosition(), 0f);

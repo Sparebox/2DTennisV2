@@ -14,12 +14,16 @@ public final class KeyManager extends KeyAdapter {
 
     public KeyManager(Game currentGame) {
         this.currentGame = currentGame;
+        this.keys.put(KeyEvent.VK_SHIFT, false);
         this.keys.put(KeyEvent.VK_LEFT, false);
         this.keys.put(KeyEvent.VK_RIGHT, false);
-        this.keys.put(KeyEvent.VK_UP, false);
-        this.keys.put(KeyEvent.VK_SHIFT, false);
+        this.keys.put(KeyEvent.VK_SPACE, false);
         this.keys.put(KeyEvent.VK_COMMA, false);
         this.keys.put(KeyEvent.VK_PERIOD, false);
+        this.keys.put(KeyEvent.VK_A, false);
+        this.keys.put(KeyEvent.VK_D, false);
+        this.keys.put(KeyEvent.VK_Q, false);
+        this.keys.put(KeyEvent.VK_E, false);
     }
 
     public KeyManager(MainMenu menu) {

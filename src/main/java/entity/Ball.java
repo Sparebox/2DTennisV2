@@ -55,10 +55,12 @@ public final class Ball extends Entity implements DynamicEntity {
             body.setLinearVelocity(old.mul(5f));
         }
         if(Utils.toPixel(body.getPosition().y + radius) > Game.HEIGHT) {
-            MainMenu.currentGame.stop();
-            new MainMenu();
+            if(MainMenu.currentGame != null) {
+                MainMenu.currentGame.stop();
+                MainMenu.currentGame = null;
+                new MainMenu();
+            }
         }
-        
     }
     
 }
