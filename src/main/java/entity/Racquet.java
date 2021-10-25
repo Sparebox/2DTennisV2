@@ -54,22 +54,18 @@ public class Racquet extends Entity implements KinematicEntity {
         var keys = MainMenu.currentGame.getKeyManager().getKeys();
         int speed = keys.get(KeyEvent.VK_SHIFT) ? moveSpeed * 3 : moveSpeed;
         if(keys.get(KeyEvent.VK_LEFT)) {
-            if(Utils.toPixel(body.getPosition().x - width/2) > 0) {
-                body.setLinearVelocity(new Vec2(-speed,0));
-            } else {
-                body.getLinearVelocity().setZero();
-            }
-        } else if(keys.get(KeyEvent.VK_RIGHT)) {
-            if(Utils.toPixel(body.getPosition().x + width/2) < Game.WIDTH - 1) {
-                body.setLinearVelocity(new Vec2(speed,0));
-            } else {
-                body.getLinearVelocity().setZero();
-            }
-        } else {
-            body.getLinearVelocity().setZero();
+            if(Utils.toPixel(body.getPosition().x - width/2) > 0)
+                body.setTransform(body.getPosition().addLocal(Utils.toWorld(-speed), 0), 0f);
         }
-            
-        
+        if(keys.get(KeyEvent.VK_RIGHT)) {
+            if(Utils.toPixel(body.getPosition().x + width/2) < Game.WIDTH - 1)
+                body.setTransform(body.getPosition().addLocal(Utils.toWorld(speed), 0), 0f);
+        }
+        if(keys.get(KeyEvent.VK_UP)) {
+            if(Utils.toPixel(body.getPosition().y) > Game.HEIGHT - 100)
+                body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(-speed)), 0f);
+        } else if(Utils.toPixel(body.getPosition().y) < Game.HEIGHT - 50)
+            body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(speed)), 0f);
     }
     
 }

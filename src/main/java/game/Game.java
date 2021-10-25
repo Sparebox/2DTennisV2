@@ -33,7 +33,7 @@ public final class Game implements Runnable {
     public static final double NS_PER_TICK = 1e9 / FPS;
     public static final int VEL_ITERATIONS = 6;
     public static final int POS_ITERATIONS = 3;
-    public static final Vec2 GRAVITY = new Vec2(0, 0);
+    public static final Vec2 GRAVITY = new Vec2(0, 9.81f);
     
     public static World physWorld;
     
@@ -70,7 +70,7 @@ public final class Game implements Runnable {
         createBoundaries(false);
         this.entities.add(new Racquet(WIDTH/2, 200, 20));
         int lastTileY = createTiles();
-        Entity ball = new Ball(WIDTH/2, lastTileY + ballRadius/2, ballRadius);
+        Entity ball = new Ball(WIDTH/2, lastTileY + 2 * ballRadius, ballRadius);
         ball.getBody().setLinearVelocity(new Vec2(5, 5));
         this.entities.add(ball);
     }
@@ -190,12 +190,14 @@ public final class Game implements Runnable {
 
     private int createTiles() {
         int tileGap = 10;
-        int lastX = 0;
-        int lastY = tileHeight/2;
+        int lastX = tileWidth/2;
+        int lastY = tileHeight*4;
+        int row = 1;
         for(int i = 0; i < tileAmount; i++) {
-            if(lastX >= WIDTH) {
+            if(lastX + tileWidth/2 >= WIDTH) {
+                row++;
                 lastY += tileGap + tileHeight;
-                lastX = 0; 
+                lastX = row % 2 == 0 ? tileWidth/2 + tileGap*2 : tileWidth/2;
             }
             this.entities.add(new Tile(lastX, lastY, tileWidth, tileHeight));
             lastX += tileGap + tileWidth;

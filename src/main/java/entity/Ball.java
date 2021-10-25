@@ -24,13 +24,16 @@ public final class Ball extends Entity implements DynamicEntity {
         this.bd.type = BodyType.DYNAMIC;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
         this.bd.allowSleep = true;
+        this.bd.gravityScale = 0f;
 
         this.cs = new CircleShape();
         this.cs.setRadius(this.radius/2);
 
         this.fd = new FixtureDef();
+        this.fd.filter.categoryBits = CollisionCategory.BALL.BIT;
+        this.fd.filter.maskBits = CollisionCategory.TILE.BIT;
         this.fd.shape = cs;
-        this.fd.density = 1f;
+        this.fd.density = 0.1f;
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
 
@@ -41,7 +44,7 @@ public final class Ball extends Entity implements DynamicEntity {
     @Override
     public void render(Graphics2D g) {
         g.setColor(Color.WHITE);
-        g.drawOval(Utils.toPixel(body.getPosition().x - radius/2), Utils.toPixel(body.getPosition().y - radius/2), Utils.toPixel(radius), Utils.toPixel(radius));
+        g.fillOval(Utils.toPixel(body.getPosition().x - radius/2), Utils.toPixel(body.getPosition().y - radius/2), Utils.toPixel(radius), Utils.toPixel(radius));
     }
 
     @Override
