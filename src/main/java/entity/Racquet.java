@@ -3,9 +3,9 @@ package entity;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.geom.AffineTransform;
 
 import org.jbox2d.collision.shapes.PolygonShape;
-import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
@@ -44,7 +44,10 @@ public class Racquet extends Entity implements KinematicEntity {
     @Override
     public void render(Graphics2D g) {
         g.setColor(Color.WHITE);
+        AffineTransform old = g.getTransform();
+        g.rotate(body.getAngle(), Utils.toPixel(body.getPosition().x), Utils.toPixel(body.getPosition().y));
         g.drawRect(Utils.toPixel(body.getPosition().x - width/2), Utils.toPixel(body.getPosition().y - height/2), Utils.toPixel(width), Utils.toPixel(height));
+        g.setTransform(old);
     }
 
     @Override
@@ -66,6 +69,13 @@ public class Racquet extends Entity implements KinematicEntity {
                 body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(-speed)), 0f);
         } else if(Utils.toPixel(body.getPosition().y) < Game.HEIGHT - 50)
             body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(speed)), 0f);
+
+        if(keys.get(KeyEvent.VK_COMMA)) {
+            body.setTransform(body.getPosition(), (float) Math.toRadians(-5));
+        } else if(keys.get(KeyEvent.VK_PERIOD)) {
+            body.setTransform(body.getPosition(), (float) Math.toRadians(5));
+        } else
+            body.setTransform(body.getPosition(), 0f);
     }
     
 }

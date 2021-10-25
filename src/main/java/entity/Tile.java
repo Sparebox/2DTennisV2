@@ -49,7 +49,7 @@ public class Tile extends Entity implements DynamicEntity {
             Game.physWorld.destroyBody(body);
             MainMenu.currentGame.getEntitiesToDelete().add(this);
         }
-        if(body.getLinearVelocity().length() > 0.01f) {
+        if(body.getLinearVelocity().length() > 0.001f) {
             body.setGravityScale(1f);
             Fixture fixtureList = body.getFixtureList();
             if(fixtureList != null) {

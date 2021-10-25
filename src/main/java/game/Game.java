@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.JFrame;
-import javax.swing.border.EtchedBorder;
 
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.World;
@@ -29,12 +28,13 @@ public final class Game implements Runnable {
     public static final int WIDTH = 800;
     public static final int HEIGHT = 1000;
     public static final Color BACKGROUND_COLOR = Color.BLACK;
-    public static final int FPS = 165;
-    public static final double NS_PER_TICK = 1e9 / FPS;
+    public static final int FPS_MAX = 300;
+    public static final int FPS_MIN = 1;
     public static final int VEL_ITERATIONS = 6;
     public static final int POS_ITERATIONS = 3;
     public static final Vec2 GRAVITY = new Vec2(0, 9.81f);
-    
+
+    public static double nsPerUpdate;
     public static World physWorld;
     
     private Thread gameThread;
@@ -44,12 +44,13 @@ public final class Game implements Runnable {
     private KeyManager keyManager;
     private boolean running;
     private BufferStrategy bs;
-    private String fps = "FPS: ";
+    private String fpsString = "FPS: ";
+
     private Set<Entity> entities;
     private Set<Entity> entitiesToDelete;
     private Timer secTimer;
     private int ticks;
-    private int tileAmount = 50;
+    private int tileAmount = 100;
     private int tileWidth = 40;
     private int tileHeight = 20;
     private int ballRadius = 20;
@@ -60,6 +61,7 @@ public final class Game implements Runnable {
 
 
     private void init() {
+        nsPerUpdate = 1e9 / MainMenu.fpsTarget;
         this.keyManager = new KeyManager(this);
         initFrame();
         initCanvas();
@@ -123,21 +125,26 @@ public final class Game implements Runnable {
         long now;
         long lastTime = System.nanoTime();
         long accumulator = 0;
+        long updateAccumulator = 0;
         while(running) {
             now = System.nanoTime();
             delta = now - lastTime;
             accumulator += delta;
+            updateAccumulator += delta;
             lastTime = now;
             
-            while(accumulator >= NS_PER_TICK) {
-                physWorld.step(1f/165f, VEL_ITERATIONS, POS_ITERATIONS);
-                update();
+            while(accumulator >= nsPerUpdate) {
+                physWorld.step(1f/MainMenu.fpsTarget, VEL_ITERATIONS, POS_ITERATIONS);
+                while(updateAccumulator >= 1e9 / 100f) {
+                    update();
+                    updateAccumulator -= 1e9 / 100f;
+                }
                 render();
-                accumulator -= NS_PER_TICK;
+                accumulator -= nsPerUpdate;
                 ticks++;
             }
             if(secTimer.tick()) {
-                fps = "FPS: "+ticks;
+                fpsString = "FPS: "+ticks;
                 ticks = 0;
             }
         }
@@ -167,7 +174,7 @@ public final class Game implements Runnable {
         renderEntities(g);
 
         g.setColor(Color.WHITE);
-        g.drawString(fps, 20, 20);
+        g.drawString(fpsString, 20, 20);
 
         bs.show();
         g.dispose();

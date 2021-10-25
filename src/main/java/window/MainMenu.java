@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -15,9 +14,12 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import game.Game;
 
@@ -28,6 +30,8 @@ public final class MainMenu extends JFrame implements ActionListener{
     public static final int WIDTH = 500;
     public static final int HEIGHT = 700;
     public static final Color BACKGROUND_COLOR = new Color(50, 111, 168);
+
+    public static float fpsTarget;
 
     private String frameTitle = "2DTennis V2 Main Menu";
     private GridBagConstraints gbc;
@@ -129,8 +133,6 @@ public final class MainMenu extends JFrame implements ActionListener{
     }
 
     private void startGame() {
-        if(MainMenu.currentGame != null)
-            return;
         MainMenu.currentGame = new Game();
         MainMenu.currentGame.start();
     }
@@ -148,6 +150,7 @@ public final class MainMenu extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         switch(e.getActionCommand()) {
             case "start" :
+                fpsTarget = fpsTarget <= 0f ? 60f : fpsTarget;
                 this.setVisible(false);
                 this.dispose();
                 startGame();
@@ -170,10 +173,35 @@ public final class MainMenu extends JFrame implements ActionListener{
     private void showSettings() {
         settingsPanel = new JPanel();
         settingsPanel.setBackground(BACKGROUND_COLOR);
+        Font font = new Font("SansSerif", Font.PLAIN, 30);
+        JLabel fps = new JLabel("FPS");
+        fps.setFont(font);
+        JSlider fpsSlider = new JSlider(Game.FPS_MIN, Game.FPS_MAX, 60);
+        fpsSlider.setMajorTickSpacing(10);
+        fpsSlider.setMinorTickSpacing(5);
+        fpsSlider.setPaintTicks(true);
+        fpsSlider.setFocusable(false);
+        fpsSlider.setPreferredSize(new Dimension((int) buttonDimensions.getWidth(), 50));
+        fpsSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                var source = (JSlider) e.getSource();
+                fpsTarget = source.getValue();
+                System.out.println(fpsTarget);
+            }
+        });
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        settingsPanel.add(fps, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        settingsPanel.add(fpsSlider, gbc);
+
         back = new JButton("Back");
         setButtonSettings(back, "back");
         gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridy = 3;
         settingsPanel.add(back, gbc);
         this.add(settingsPanel, BorderLayout.CENTER);
     }

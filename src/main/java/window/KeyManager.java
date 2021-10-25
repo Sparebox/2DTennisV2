@@ -18,6 +18,8 @@ public final class KeyManager extends KeyAdapter {
         this.keys.put(KeyEvent.VK_RIGHT, false);
         this.keys.put(KeyEvent.VK_UP, false);
         this.keys.put(KeyEvent.VK_SHIFT, false);
+        this.keys.put(KeyEvent.VK_COMMA, false);
+        this.keys.put(KeyEvent.VK_PERIOD, false);
     }
 
     public KeyManager(MainMenu menu) {
