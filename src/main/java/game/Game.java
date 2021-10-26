@@ -41,10 +41,11 @@ public final class Game implements Runnable {
     private JFrame frame;
     private Canvas canvas;
     private KeyManager keyManager;
+    private CustomContactListener customContactListener;
+    private PickupGen pickUpGen;
     private boolean running;
     private BufferStrategy bs;
     private String fpsString = "FPS: ";
-
     private Set<Entity> entities;
     private Set<Entity> entitiesToDelete;
     private Timer secTimer;
@@ -58,19 +59,21 @@ public final class Game implements Runnable {
         init();
     }
 
-
     private void init() {
         nsPerUpdate = 1e9 / MainMenu.fpsTarget;
         this.keyManager = new KeyManager(this);
-        initFrame();
-        initCanvas();
+        this.pickUpGen = new PickupGen(this);
         this.secTimer = new Timer((int)1e3);
-        physWorld = new World(GRAVITY);
         this.entities = new HashSet<>();
         this.entitiesToDelete = new HashSet<>();
+        this.customContactListener = new CustomContactListener();
+        physWorld = new World(GRAVITY);
+        physWorld.setContactListener(this.customContactListener);
+        initFrame();
+        initCanvas();
         createBoundaries(false);
-        this.entities.add(new Racquet(WIDTH/2, 200, 20));
         int lastTileY = createTiles();
+        this.entities.add(new Racquet(WIDTH/2, 200, 20));
         Entity ball = new Ball(WIDTH/2, lastTileY + 2 * ballRadius, ballRadius);
         ball.getBody().setLinearVelocity(new Vec2(5, 5));
         this.entities.add(ball);
@@ -98,7 +101,6 @@ public final class Game implements Runnable {
         this.frame.add(canvas);
         this.frame.pack();
         this.canvas.requestFocusInWindow();
-        
     }
 
     public synchronized void start() {
@@ -107,7 +109,6 @@ public final class Game implements Runnable {
         running = true;
         gameThread = new Thread(this, "SimThread");
         gameThread.start();
-        System.out.println("Started game");
     }
 
     public synchronized void stop() {
@@ -115,7 +116,7 @@ public final class Game implements Runnable {
             return;
         running = false;
         this.frame.dispose();
-        System.out.println("Stopped game"); 
+        MainMenu.currentGame = null;
     }
 
     @Override
@@ -157,6 +158,7 @@ public final class Game implements Runnable {
         for(Entity e : entities) {
             e.update();
         }
+        pickUpGen.update();
     }
 
     private void render() {

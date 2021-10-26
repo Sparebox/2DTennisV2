@@ -1,9 +1,13 @@
 package entity;
 
 public enum CollisionCategory {
-    BALL(2),
+    
+    NO_COLLISION(0),
     TILE(1),
-    BOUNDARY(3);
+    BALL(2),
+    BOUNDARY(3),
+    PICK_UP(4),
+    RACQUET(5);
 
     public final int BIT;
 

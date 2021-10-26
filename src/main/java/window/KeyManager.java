@@ -14,6 +14,7 @@ public final class KeyManager extends KeyAdapter {
 
     public KeyManager(Game currentGame) {
         this.currentGame = currentGame;
+        this.keys.put(KeyEvent.VK_ENTER, false);
         this.keys.put(KeyEvent.VK_SHIFT, false);
         this.keys.put(KeyEvent.VK_LEFT, false);
         this.keys.put(KeyEvent.VK_RIGHT, false);
@@ -35,12 +36,19 @@ public final class KeyManager extends KeyAdapter {
         keys.put(e.getKeyCode(), true);
         switch(e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE :
-                if(currentGame != null) {
-                    currentGame.stop();
-                    MainMenu.currentGame = null;
+                if(this.currentGame != null) {
+                    this.currentGame.stop();
                     new MainMenu();
                 } else if(menu != null) {
                     System.exit(0);
+                }
+                break;
+            case KeyEvent.VK_ENTER :
+                if(menu != null) {
+                    MainMenu.fpsTarget = MainMenu.fpsTarget <= 0f ? 60f : MainMenu.fpsTarget;
+                    menu.setVisible(false);
+                    menu.dispose();
+                    menu.startGame();
                 }
                 break;
         }

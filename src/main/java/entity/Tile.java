@@ -14,7 +14,7 @@ import game.Game;
 import utils.Utils;
 import window.MainMenu;
 
-public class Tile extends Entity implements DynamicEntity {
+public class Tile extends Entity {
     
     private PolygonShape ps;
 
@@ -45,6 +45,8 @@ public class Tile extends Entity implements DynamicEntity {
 
     @Override
     public void update() {
+        if(MainMenu.currentGame == null)
+            return;
         if(Utils.toPixel(body.getPosition().y - width/2) > Game.HEIGHT) {
             Game.physWorld.destroyBody(body);
             MainMenu.currentGame.getEntitiesToDelete().add(this);
@@ -53,8 +55,8 @@ public class Tile extends Entity implements DynamicEntity {
             body.setGravityScale(1f);
             Fixture fixtureList = body.getFixtureList();
             if(fixtureList != null) {
-                this.fd.filter.maskBits = 0;
-                fixtureList.setFilterData(this.fd.filter);
+                this.fd.filter.maskBits = CollisionCategory.NO_COLLISION.BIT;
+                fixtureList.refilter();
             }
         }
     }

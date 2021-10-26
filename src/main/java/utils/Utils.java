@@ -1,7 +1,5 @@
 package utils;
 
-import window.MainMenu;
-
 public final class Utils {
     
     public static final float PPM = 150f; // Pixels per meter

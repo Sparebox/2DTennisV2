@@ -14,7 +14,7 @@ import game.Game;
 import utils.Utils;
 import window.MainMenu;
 
-public class Racquet extends Entity implements KinematicEntity {
+public class Racquet extends Entity {
 
     public static int moveSpeed = 3;
 
@@ -36,6 +36,8 @@ public class Racquet extends Entity implements KinematicEntity {
         this.fd.density = 1f;
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
+        this.fd.filter.categoryBits = CollisionCategory.RACQUET.BIT;
+        this.fd.filter.maskBits = CollisionCategory.PICK_UP.BIT + CollisionCategory.BALL.BIT;
 
         this.body = Game.physWorld.createBody(this.bd);
         this.body.createFixture(this.fd);

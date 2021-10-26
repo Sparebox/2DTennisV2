@@ -12,7 +12,7 @@ import org.jbox2d.dynamics.FixtureDef;
 import game.Game;
 import utils.Utils;
 
-public class LineBoundary extends Entity implements StaticEntity {
+public class LineBoundary extends Entity {
 
     private boolean visible;
     private EdgeShape es;

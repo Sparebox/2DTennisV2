@@ -52,6 +52,11 @@ public final class MainMenu extends JFrame implements ActionListener{
         createMainMenu();
     }
 
+    public void startGame() {
+        MainMenu.currentGame = new Game();
+        MainMenu.currentGame.start();
+    }
+
     private void initFrame() {
         this.setSize(WIDTH, HEIGHT);
         this.setResizable(false);
@@ -132,11 +137,6 @@ public final class MainMenu extends JFrame implements ActionListener{
         this.add(buttonsPanel, BorderLayout.CENTER);
         this.add(creditPanel, BorderLayout.PAGE_END);
         this.requestFocusInWindow();
-    }
-
-    private void startGame() {
-        MainMenu.currentGame = new Game();
-        MainMenu.currentGame.start();
     }
 
     private void setButtonSettings(JButton button, String actionCommand) {

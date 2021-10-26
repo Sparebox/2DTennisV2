@@ -10,10 +10,13 @@ import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
+import timer.Timer;
 import utils.Utils;
 import window.MainMenu;
 
-public final class Ball extends Entity implements DynamicEntity {
+public final class Ball extends Entity {
+
+    public static final float VEL = 5f;
 
     private CircleShape cs;
     private float radius;
@@ -49,15 +52,14 @@ public final class Ball extends Entity implements DynamicEntity {
 
     @Override
     public void update() {
-        Vec2 old = body.getLinearVelocity();
-        if(old.length() >= 5f) {
-            old.normalize();
-            body.setLinearVelocity(old.mul(5f));
+        Vec2 vel = body.getLinearVelocity();
+        if(vel.length() != VEL) {
+            vel.normalize();
+            vel.mulLocal(VEL);
         }
         if(Utils.toPixel(body.getPosition().y + radius) > Game.HEIGHT) {
             if(MainMenu.currentGame != null) {
                 MainMenu.currentGame.stop();
-                MainMenu.currentGame = null;
                 new MainMenu();
             }
         }

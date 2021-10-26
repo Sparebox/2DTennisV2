@@ -11,7 +11,7 @@ import org.jbox2d.dynamics.FixtureDef;
 import game.Game;
 import utils.Utils;
 
-public final class BoxBoundary extends Entity implements StaticEntity {
+public final class BoxBoundary extends Entity {
 
     private PolygonShape ps;
 
