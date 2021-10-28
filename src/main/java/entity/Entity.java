@@ -6,6 +6,9 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.FixtureDef;
 
+import game.Game;
+import window.MainMenu;
+
 public abstract class Entity {
     
     protected Body body;
@@ -17,6 +20,11 @@ public abstract class Entity {
     public abstract void render(Graphics2D g);
 
     public abstract void update();
+
+    public void destroy() {
+        Game.physWorld.destroyBody(this.body);
+        MainMenu.currentGame.getEntitiesToDelete().add(this);
+    }
 
     public Body getBody() {
         return body;

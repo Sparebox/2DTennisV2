@@ -7,6 +7,7 @@ import org.jbox2d.dynamics.contacts.Contact;
 
 import entity.CollisionCategory;
 import entity.Pickup;
+import entity.Rocket;
 
 public class CustomContactListener implements ContactListener{
 
@@ -21,6 +22,16 @@ public class CustomContactListener implements ContactListener{
             Pickup p = (Pickup) contact.getFixtureB().getBody().getUserData();
             PickupGen.pickedUp(p);
         }
+
+        if(a == CollisionCategory.ROCKET.BIT && b == CollisionCategory.TILE.BIT) {
+            Rocket r = (Rocket) contact.getFixtureA().getBody().getUserData();
+            r.explode();
+            
+        } else if(a == CollisionCategory.TILE.BIT && b == CollisionCategory.ROCKET.BIT) {
+            Rocket r = (Rocket) contact.getFixtureB().getBody().getUserData();
+            r.explode();
+        }
+        
             
     }
        

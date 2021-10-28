@@ -3,11 +3,9 @@ package entity;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.io.IOException;
 
 import javax.swing.ImageIcon;
 
-import org.jbox2d.collision.Manifold;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.BodyDef;
@@ -65,11 +63,6 @@ public class Pickup extends Entity {
     public void update() {
         if(Utils.toPixel(body.getPosition().y - height/2) > Game.HEIGHT)
             destroy();
-    }
-
-    public void destroy() {
-        Game.physWorld.destroyBody(body);
-        MainMenu.currentGame.getEntitiesToDelete().add(this);
     }
 
     public PickUpType getPickUpType() {

@@ -18,6 +18,7 @@ import entity.Ball;
 import entity.Entity;
 import entity.LineBoundary;
 import entity.Racquet;
+import entity.Rocket;
 import entity.Tile;
 import timer.Timer;
 import window.KeyManager;
@@ -73,10 +74,13 @@ public final class Game implements Runnable {
         initCanvas();
         createBoundaries(false);
         int lastTileY = createTiles();
-        this.entities.add(new Racquet(WIDTH/2, 200, 20));
         Entity ball = new Ball(WIDTH/2, lastTileY + 2 * ballRadius, ballRadius);
         ball.getBody().setLinearVelocity(new Vec2(5, 5));
+        Entity rocket = new Rocket(WIDTH/2, HEIGHT/2, 25, 50);
+        rocket.getBody().setLinearVelocity(new Vec2(0, -1f));
+        this.entities.add(new Racquet(WIDTH/2, 200, 20));
         this.entities.add(ball);
+        this.entities.add(rocket);
     }
 
     private void initFrame() {

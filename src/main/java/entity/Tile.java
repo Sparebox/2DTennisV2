@@ -17,6 +17,7 @@ import window.MainMenu;
 public class Tile extends Entity {
     
     private PolygonShape ps;
+    private boolean dropped;
 
     public Tile(int x, int y, int width, int height) {
         this.width = Utils.toWorld(width);
@@ -51,13 +52,14 @@ public class Tile extends Entity {
             Game.physWorld.destroyBody(body);
             MainMenu.currentGame.getEntitiesToDelete().add(this);
         }
-        if(body.getLinearVelocity().length() > 0.001f) {
+        if(body.getLinearVelocity().length() > 0.001f && !dropped) {
             body.setGravityScale(1f);
             Fixture fixtureList = body.getFixtureList();
             if(fixtureList != null) {
-                this.fd.filter.maskBits = CollisionCategory.NO_COLLISION.BIT;
+                fixtureList.setSensor(true);
                 fixtureList.refilter();
             }
+            dropped = true;
         }
     }
 
