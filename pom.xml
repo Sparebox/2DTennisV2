@@ -7,7 +7,7 @@
     <version>0.1</version>
     <packaging>war</packaging>
 
-    <name>MVC 1.0 Blank Project (from https://github.com/making/mvc-1.0-blank)</name>
+    <name>2DTennis V2</name>
 
 
     <properties>
@@ -27,7 +27,7 @@
             <artifactId>timer</artifactId>
             <version>1.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/timer.jar</systemPath>
+            <systemPath>${basedir}/lib/Timer.jar</systemPath>
         </dependency>
 
     </dependencies>
