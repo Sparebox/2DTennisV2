@@ -23,7 +23,8 @@ public class Pickup extends Entity {
 
     public Pickup(int x, int y, int width, int height, PickUpType pickUpType) {
         this.pickUpType = pickUpType;
-        this.icon = new ImageIcon("src/main/resources/pickup.png").getImage();
+        //this.icon = new ImageIcon("./resources/pickup.png").getImage();
+        this.icon = new ImageIcon(getClass().getResource("/pickup.png")).getImage();
         this.width = Utils.toWorld(width);
         this.height = Utils.toWorld(height);
         this.bd = new BodyDef();
