@@ -53,14 +53,12 @@ public final class Game implements Runnable {
     private Set<Entity> entitiesToAdd;
     private Timer secTimer;
     private int ticks;
-    private int tileAmount;
     private int tileWidth = 40;
     private int tileHeight = 20;
     private int ballRadius = 20;
     private int score;
     
-    public Game(int tileAmount) {
-        this.tileAmount = tileAmount;
+    public Game() {
         init();
     }
 
@@ -80,10 +78,8 @@ public final class Game implements Runnable {
         initCanvas();
         createBoundaries(false);
         int lastTileY = createTiles();
-        Entity ball = new Ball(WIDTH/2, lastTileY + 2 * ballRadius, ballRadius);
-        ball.getBody().setLinearVelocity(new Vec2(Ball.VEL, Ball.VEL));
-        this.entities.add(new Racquet(WIDTH/2, 200, 20));
-        this.entities.add(ball);
+        entitiesToAdd.add(new Racquet(WIDTH/2, 200, 20));
+        entitiesToAdd.add(new Ball(WIDTH/2, lastTileY + 2 * ballRadius, ballRadius));
     }
 
     private void initFrame() {
@@ -139,7 +135,6 @@ public final class Game implements Runnable {
             accumulator += delta;
             updateAccumulator += delta;
             lastTime = now;
-            
             while(accumulator >= nsPerUpdate) {
                 physWorld.step(1f/MainMenu.fpsTarget, VEL_ITERATIONS, POS_ITERATIONS);
                 while(updateAccumulator >= 1e9 / 100f) {
@@ -158,17 +153,23 @@ public final class Game implements Runnable {
     }
 
     private void update() {
-        if(score == tileAmount) {
+        if(score == MainMenu.tileAmount) {
             stop();
             new MainMenu();
         }
-            
         if(!entitiesToDelete.isEmpty()) {
-            entities.removeAll(entitiesToDelete);
+            for(Entity e : entitiesToDelete) {
+                physWorld.destroyBody(e.getBody());
+                entities.remove(e);
+            }
             entitiesToDelete.clear();
         }
         if(!entitiesToAdd.isEmpty()) {
-            entities.addAll(entitiesToAdd);
+            for(Entity e : entitiesToAdd) {
+                e.setBody(physWorld.createBody(e.getBd()));
+                e.getBody().createFixture(e.getFd());
+                entities.add(e);
+            }
             entitiesToAdd.clear();
         }
         for(Entity e : entities) {
@@ -208,9 +209,9 @@ public final class Game implements Runnable {
         Entity leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
         Entity rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
         Entity ceil = new LineBoundary(0, 0, WIDTH, 0, visible);
-        this.entities.add(leftWall);
-        this.entities.add(rightWall);
-        this.entities.add(ceil);
+        entitiesToAdd.add(leftWall);
+        entitiesToAdd.add(rightWall);
+        entitiesToAdd.add(ceil);
     }
 
     private int createTiles() {
@@ -218,20 +219,16 @@ public final class Game implements Runnable {
         int lastX = tileWidth/2;
         int lastY = tileHeight*4;
         int row = 1;
-        for(int i = 0; i < tileAmount; i++) {
+        for(int i = 0; i < MainMenu.tileAmount; i++) {
             if(lastX + tileWidth/2 >= WIDTH) {
                 row++;
                 lastY += tileGap + tileHeight;
                 lastX = row % 2 == 0 ? tileWidth/2 + tileGap*2 : tileWidth/2;
             }
-            this.entities.add(new Tile(lastX, lastY, tileWidth, tileHeight));
+            entitiesToAdd.add(new Tile(lastX, lastY, tileWidth, tileHeight));
             lastX += tileGap + tileWidth;
         }
         return lastY;
-    }
-
-    public void addEntity(Entity e) {
-        this.entitiesToAdd.add(e);
     }
 
     public int getScore() {
@@ -296,6 +293,10 @@ public final class Game implements Runnable {
 
     public Set<Entity> getEntities() {
         return entities;
+    }
+
+    public Set<Entity> getEntitiesToAdd() {
+        return entitiesToAdd;
     }
 
     public Set<Entity> getEntitiesToDelete() {

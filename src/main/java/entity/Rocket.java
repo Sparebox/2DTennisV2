@@ -14,13 +14,12 @@ import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
 import game.AreaQueryCallback;
-import game.Game;
 import utils.Utils;
 
 public final class Rocket extends Entity{
 
-    public static final int BLAST_RADIUS = 50; // In pixels
-    public static final float BLAST_POWER = 1f;
+    public static final int BLAST_RADIUS = 100; // In pixels
+    public static final float BLAST_POWER = 0.5f;
     public static final int WIDTH = 25;
     public static final int HEIGHT = 50;
 
@@ -34,6 +33,9 @@ public final class Rocket extends Entity{
         this.bd.type = BodyType.DYNAMIC;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
         this.bd.allowSleep = false;
+        this.bd.gravityScale = 0f;
+        this.bd.userData = this;
+        this.bd.linearVelocity = new Vec2(0, -5f);
 
         this.ps = new PolygonShape();
         this.ps.setAsBox(this.width / 2, this.height / 2);
@@ -45,8 +47,6 @@ public final class Rocket extends Entity{
         this.fd.density = 10f;
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
-
-        
     }
 
     @Override
@@ -74,7 +74,6 @@ public final class Rocket extends Entity{
     @Override
     public void update() {
         
-        
     }
 
     public void explode() {
@@ -85,12 +84,12 @@ public final class Rocket extends Entity{
         for(Body b : callBack.getFoundBodies()) {
             if(b == this.body)
                 continue;
-            Vec2 bCOM = b.getPosition();
+            Vec2 bCOM = b.getPosition().add(new Vec2(0.1f, 0));
             if(bCOM.sub(this.body.getPosition()).length() >= Utils.toWorld(BLAST_RADIUS))
                 continue;
-            applyBlast(b, this.body.getPosition(), bCOM, Utils.toWorld(BLAST_POWER));
+            applyBlast(b, this.body.getPosition(), bCOM, BLAST_POWER);
         }
-        destroy();
+        currentGame.getEntitiesToDelete().add(this);
     }
 
     private void applyBlast(Body b, Vec2 blastCenter, Vec2 applyPoint, float blastPower) {
@@ -101,7 +100,6 @@ public final class Rocket extends Entity{
         float invDistance = 1 / distance;
         float impulseMag = blastPower * invDistance * invDistance;
         b.applyLinearImpulse(blastDir.mul(impulseMag), applyPoint);
-        System.out.println("Applied blast");
     }
     
 }

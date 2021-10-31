@@ -8,7 +8,6 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
-import game.Game;
 import utils.Utils;
 
 public final class BoxBoundary extends Entity {
@@ -29,10 +28,6 @@ public final class BoxBoundary extends Entity {
         this.fd.shape = ps;
         this.fd.friction = 0.3f;
         this.fd.restitution = 0.1f;
-
-        this.body = currentGame.getPhysWorld().createBody(this.bd);
-        this.body.createFixture(fd);
-        
     }
 
     @Override

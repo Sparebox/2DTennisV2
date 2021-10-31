@@ -38,9 +38,6 @@ public class Racquet extends Entity {
         this.fd.restitution = 1f;
         this.fd.filter.categoryBits = CollisionCategory.RACQUET.BIT;
         this.fd.filter.maskBits = CollisionCategory.PICK_UP.BIT + CollisionCategory.BALL.BIT;
-
-        this.body = currentGame.getPhysWorld().createBody(this.bd);
-        this.body.createFixture(this.fd);
     }
 
     @Override

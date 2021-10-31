@@ -9,7 +9,6 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
-import game.Game;
 import utils.Utils;
 
 public class LineBoundary extends Entity {
@@ -36,9 +35,6 @@ public class LineBoundary extends Entity {
         this.fd.restitution = 1f;
         this.fd.filter.categoryBits = CollisionCategory.BOUNDARY.BIT;
         this.fd.filter.maskBits = 2;
-
-        this.body = currentGame.getPhysWorld().createBody(this.bd);
-        this.body.createFixture(fd);
     }
 
     @Override

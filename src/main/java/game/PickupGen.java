@@ -29,7 +29,8 @@ public final class PickupGen {
     public PickupGen(Game currentGame) {
         PickupGen.currentGame = currentGame;
         this.random = new Random();
-        this.randomTimer = new Timer((int)1e3);
+        int randomTime = Math.min(maxInterval, Math.max(random.nextInt(maxInterval+1), minInterval));
+        this.randomTimer = new Timer((int) (randomTime*1e3));
     }
 
     public void update() {
@@ -40,20 +41,18 @@ public final class PickupGen {
             else if(x + PICKUP_WIDTH/2 > Game.WIDTH)
                 x = Game.WIDTH - PICKUP_WIDTH/2;
             currentPickup = new Pickup(x, PICKUP_HEIGTH/2, PICKUP_WIDTH, PICKUP_HEIGTH, PickUpType.ROCKET);
-            currentGame.getEntities().add(currentPickup);
+            currentGame.getEntitiesToAdd().add(currentPickup);
             setNewRandomInterval();
         }
     }
 
     public static void pickedUp(Pickup p) {
-        //applyPickup(p);
-        p.destroy();
+        applyPickup(p);
+        currentGame.getEntitiesToDelete().add(p);
     }
 
     private void setNewRandomInterval() {
-        int randomTime = random.nextInt(maxInterval+1);
-        if(randomTime < minInterval)
-            randomTime = minInterval;
+        int randomTime = Math.min(maxInterval, Math.max(random.nextInt(maxInterval+1), minInterval));
         randomTimer.setIntervalMs((int) (randomTime*1e3));
     }
 
@@ -62,12 +61,7 @@ public final class PickupGen {
             case ROCKET :
                 Entity rocket = new Rocket(Utils.toPixel(pickup.getBody().getPosition().x), Utils.toPixel(pickup.getBody().getPosition().y),
                 Rocket.WIDTH, Rocket.HEIGHT);
-                rocket.setBody(currentGame.getPhysWorld().createBody(rocket.getBd()));
-                rocket.getBody().createFixture(rocket.getFd());
-                rocket.getBody().setGravityScale(0f);
-                rocket.getBody().setUserData(rocket);
-                rocket.getBody().setLinearVelocity(new Vec2(0, -5f));
-                currentGame.addEntity(rocket); 
+                currentGame.getEntitiesToAdd().add(rocket);
                 break;
         }
     }

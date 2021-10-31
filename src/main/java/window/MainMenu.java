@@ -34,7 +34,7 @@ public final class MainMenu extends JFrame implements ActionListener{
     public static final Color BACKGROUND_COLOR = new Color(50, 111, 168);
 
     public static int fpsTarget = Game.FPS_DEFAULT;
-    private static int tileAmount = Game.DEFAULT_TILES;
+    public static int tileAmount = Game.DEFAULT_TILES;
 
     private String frameTitle = "2DTennis V2 Main Menu";
     private GridBagConstraints gbc;
@@ -54,7 +54,7 @@ public final class MainMenu extends JFrame implements ActionListener{
     }
 
     public void startGame() {
-        MainMenu.currentGame = new Game(tileAmount);
+        MainMenu.currentGame = new Game();
         MainMenu.currentGame.start();
     }
 
@@ -187,7 +187,7 @@ public final class MainMenu extends JFrame implements ActionListener{
         JTextField selectedFps = new JTextField(Integer.toString(fpsTarget), 3);
         selectedFps.setHorizontalAlignment(SwingConstants.CENTER);
         selectedFps.setFont(font);
-        JTextField tileField = new JTextField(Integer.toString(Game.DEFAULT_TILES), 3);
+        JTextField tileField = new JTextField(Integer.toString(tileAmount), 3);
         tileField.setHorizontalAlignment(SwingConstants.CENTER);
         tileField.setFont(font);
         JSlider fpsSlider = new JSlider(Game.FPS_MIN, Game.FPS_MAX, fpsTarget);

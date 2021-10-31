@@ -23,11 +23,6 @@ public abstract class Entity {
 
     public abstract void update();
 
-    public void destroy() {
-        currentGame.getPhysWorld().destroyBody(this.body);
-        MainMenu.currentGame.getEntitiesToDelete().add(this);
-    }
-
     public Body getBody() {
         return body;
     }

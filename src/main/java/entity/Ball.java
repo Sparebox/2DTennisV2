@@ -27,6 +27,7 @@ public final class Ball extends Entity {
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
         this.bd.allowSleep = true;
         this.bd.gravityScale = 0f;
+        this.bd.linearVelocity = new Vec2(VEL, VEL);
 
         this.cs = new CircleShape();
         this.cs.setRadius(this.radius/2);
@@ -38,9 +39,6 @@ public final class Ball extends Entity {
         this.fd.density = 0.1f;
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
-
-        this.body = currentGame.getPhysWorld().createBody(this.bd);
-        this.body.createFixture(this.fd);
     }
 
     @Override

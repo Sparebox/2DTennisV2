@@ -23,7 +23,6 @@ public class Pickup extends Entity {
 
     public Pickup(int x, int y, int width, int height, PickUpType pickUpType) {
         this.pickUpType = pickUpType;
-        //this.icon = new ImageIcon("./resources/pickup.png").getImage();
         this.icon = new ImageIcon(getClass().getResource("/pickup.png")).getImage();
         this.width = Utils.toWorld(width);
         this.height = Utils.toWorld(height);
@@ -31,6 +30,9 @@ public class Pickup extends Entity {
         this.bd.type = BodyType.DYNAMIC;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
         this.bd.allowSleep = false;
+        this.bd.gravityScale = 0f;
+        this.bd.linearVelocity = new Vec2(0, 2f);
+        this.bd.userData = this;
 
         this.ps = new PolygonShape();
         this.ps.setAsBox(this.width / 2, this.height / 2);
@@ -40,12 +42,6 @@ public class Pickup extends Entity {
         this.fd.filter.maskBits = CollisionCategory.RACQUET.BIT;
         this.fd.isSensor = true;
         this.fd.shape = ps;
-
-        this.body = currentGame.getPhysWorld().createBody(this.bd);
-        this.body.createFixture(this.fd);
-        this.body.setGravityScale(0f);
-        this.body.setLinearVelocity(new Vec2(0, 2f));
-        this.body.setUserData(this);
     }
 
     @Override
@@ -62,7 +58,7 @@ public class Pickup extends Entity {
     @Override
     public void update() {
         if(Utils.toPixel(body.getPosition().y - height/2) > Game.HEIGHT)
-            destroy();
+            currentGame.getEntitiesToDelete().add(this);
     }
 
     public PickUpType getPickUpType() {
