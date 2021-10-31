@@ -30,7 +30,7 @@ public final class BoxBoundary extends Entity {
         this.fd.friction = 0.3f;
         this.fd.restitution = 0.1f;
 
-        this.body = Game.physWorld.createBody(this.bd);
+        this.body = currentGame.getPhysWorld().createBody(this.bd);
         this.body.createFixture(fd);
         
     }

@@ -45,7 +45,6 @@ public final class KeyManager extends KeyAdapter {
                 break;
             case KeyEvent.VK_ENTER :
                 if(menu != null) {
-                    MainMenu.fpsTarget = MainMenu.fpsTarget <= 0f ? 60f : MainMenu.fpsTarget;
                     menu.setVisible(false);
                     menu.dispose();
                     menu.startGame();

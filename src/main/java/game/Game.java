@@ -18,9 +18,8 @@ import entity.Ball;
 import entity.Entity;
 import entity.LineBoundary;
 import entity.Racquet;
-import entity.Rocket;
 import entity.Tile;
-import timer.Timer;
+import utils.Timer;
 import window.KeyManager;
 import window.MainMenu;
 
@@ -31,13 +30,15 @@ public final class Game implements Runnable {
     public static final Color BACKGROUND_COLOR = Color.BLACK;
     public static final int FPS_MAX = 300;
     public static final int FPS_MIN = 1;
+    public static final int FPS_DEFAULT = 60;
     public static final int VEL_ITERATIONS = 6;
     public static final int POS_ITERATIONS = 3;
     public static final Vec2 GRAVITY = new Vec2(0, 9.81f);
+    public static final int DEFAULT_TILES = 50;
 
     public static double nsPerUpdate;
-    public static World physWorld;
-    
+
+    private World physWorld;
     private Thread gameThread;
     private JFrame frame;
     private Canvas canvas;
@@ -49,14 +50,17 @@ public final class Game implements Runnable {
     private String fpsString = "FPS: ";
     private Set<Entity> entities;
     private Set<Entity> entitiesToDelete;
+    private Set<Entity> entitiesToAdd;
     private Timer secTimer;
     private int ticks;
-    private int tileAmount = 100;
+    private int tileAmount;
     private int tileWidth = 40;
     private int tileHeight = 20;
     private int ballRadius = 20;
+    private int score;
     
-    public Game() {
+    public Game(int tileAmount) {
+        this.tileAmount = tileAmount;
         init();
     }
 
@@ -67,20 +71,19 @@ public final class Game implements Runnable {
         this.secTimer = new Timer((int)1e3);
         this.entities = new HashSet<>();
         this.entitiesToDelete = new HashSet<>();
+        this.entitiesToAdd = new HashSet<>();
         this.customContactListener = new CustomContactListener();
         physWorld = new World(GRAVITY);
         physWorld.setContactListener(this.customContactListener);
+        Entity.setCurrentGame(this);
         initFrame();
         initCanvas();
         createBoundaries(false);
         int lastTileY = createTiles();
         Entity ball = new Ball(WIDTH/2, lastTileY + 2 * ballRadius, ballRadius);
-        ball.getBody().setLinearVelocity(new Vec2(5, 5));
-        Entity rocket = new Rocket(WIDTH/2, HEIGHT/2, 25, 50);
-        rocket.getBody().setLinearVelocity(new Vec2(0, -1f));
+        ball.getBody().setLinearVelocity(new Vec2(Ball.VEL, Ball.VEL));
         this.entities.add(new Racquet(WIDTH/2, 200, 20));
         this.entities.add(ball);
-        this.entities.add(rocket);
     }
 
     private void initFrame() {
@@ -155,9 +158,18 @@ public final class Game implements Runnable {
     }
 
     private void update() {
+        if(score == tileAmount) {
+            stop();
+            new MainMenu();
+        }
+            
         if(!entitiesToDelete.isEmpty()) {
             entities.removeAll(entitiesToDelete);
             entitiesToDelete.clear();
+        }
+        if(!entitiesToAdd.isEmpty()) {
+            entities.addAll(entitiesToAdd);
+            entitiesToAdd.clear();
         }
         for(Entity e : entities) {
             e.update();
@@ -180,6 +192,7 @@ public final class Game implements Runnable {
 
         g.setColor(Color.WHITE);
         g.drawString(fpsString, 20, 20);
+        g.drawString("Score: "+score, 20, 40);
 
         bs.show();
         g.dispose();
@@ -215,6 +228,22 @@ public final class Game implements Runnable {
             lastX += tileGap + tileWidth;
         }
         return lastY;
+    }
+
+    public void addEntity(Entity e) {
+        this.entitiesToAdd.add(e);
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public World getPhysWorld() {
+        return physWorld;
     }
 
     public Thread getSimThread() {

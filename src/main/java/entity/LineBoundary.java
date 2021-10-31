@@ -37,7 +37,7 @@ public class LineBoundary extends Entity {
         this.fd.filter.categoryBits = CollisionCategory.BOUNDARY.BIT;
         this.fd.filter.maskBits = 2;
 
-        this.body = Game.physWorld.createBody(this.bd);
+        this.body = currentGame.getPhysWorld().createBody(this.bd);
         this.body.createFixture(fd);
     }
 

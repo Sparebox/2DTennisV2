@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
 import org.jbox2d.collision.shapes.PolygonShape;
+import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.Fixture;
@@ -39,7 +40,7 @@ public class Tile extends Entity {
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
 
-        this.body = Game.physWorld.createBody(this.bd);
+        this.body = currentGame.getPhysWorld().createBody(this.bd);
         this.body.createFixture(this.fd);
         this.body.setGravityScale(0f);
     }
@@ -49,7 +50,7 @@ public class Tile extends Entity {
         if(MainMenu.currentGame == null)
             return;
         if(Utils.toPixel(body.getPosition().y - width/2) > Game.HEIGHT) {
-            Game.physWorld.destroyBody(body);
+            currentGame.getPhysWorld().destroyBody(body);
             MainMenu.currentGame.getEntitiesToDelete().add(this);
         }
         if(body.getLinearVelocity().length() > 0.001f && !dropped) {
@@ -60,6 +61,7 @@ public class Tile extends Entity {
                 fixtureList.refilter();
             }
             dropped = true;
+            currentGame.setScore(currentGame.getScore() + 1);
         }
     }
 

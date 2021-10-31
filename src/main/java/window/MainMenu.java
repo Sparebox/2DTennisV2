@@ -33,7 +33,8 @@ public final class MainMenu extends JFrame implements ActionListener{
     public static final int HEIGHT = 700;
     public static final Color BACKGROUND_COLOR = new Color(50, 111, 168);
 
-    public static float fpsTarget;
+    public static int fpsTarget = Game.FPS_DEFAULT;
+    private static int tileAmount = Game.DEFAULT_TILES;
 
     private String frameTitle = "2DTennis V2 Main Menu";
     private GridBagConstraints gbc;
@@ -53,7 +54,7 @@ public final class MainMenu extends JFrame implements ActionListener{
     }
 
     public void startGame() {
-        MainMenu.currentGame = new Game();
+        MainMenu.currentGame = new Game(tileAmount);
         MainMenu.currentGame.start();
     }
 
@@ -152,7 +153,6 @@ public final class MainMenu extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         switch(e.getActionCommand()) {
             case "start" :
-                fpsTarget = fpsTarget <= 0f ? 60f : fpsTarget;
                 this.setVisible(false);
                 this.dispose();
                 startGame();
@@ -181,20 +181,16 @@ public final class MainMenu extends JFrame implements ActionListener{
         JLabel fps = new JLabel("Target FPS");
         fps.setForeground(Color.ORANGE);
         fps.setFont(font);
-        JTextField selectedFps = new JTextField("60");
-        selectedFps.setColumns(3);
+        JLabel tilesLabel = new JLabel("Tiles amount");
+        tilesLabel.setForeground(Color.ORANGE);
+        tilesLabel.setFont(font);
+        JTextField selectedFps = new JTextField(Integer.toString(fpsTarget), 3);
         selectedFps.setHorizontalAlignment(SwingConstants.CENTER);
         selectedFps.setFont(font);
-        JButton setBtn = new JButton("Set");
-        setButtonSettings(setBtn, "");
-        setBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                float fps = Integer.parseInt(selectedFps.getText());
-                fpsTarget = fps <= Game.FPS_MAX ? fps : Game.FPS_MAX;
-            }
-        });
-        JSlider fpsSlider = new JSlider(Game.FPS_MIN, Game.FPS_MAX, 60);
+        JTextField tileField = new JTextField(Integer.toString(Game.DEFAULT_TILES), 3);
+        tileField.setHorizontalAlignment(SwingConstants.CENTER);
+        tileField.setFont(font);
+        JSlider fpsSlider = new JSlider(Game.FPS_MIN, Game.FPS_MAX, fpsTarget);
         fpsSlider.setMajorTickSpacing(10);
         fpsSlider.setMinorTickSpacing(5);
         fpsSlider.setPaintTicks(true);
@@ -208,6 +204,7 @@ public final class MainMenu extends JFrame implements ActionListener{
                 selectedFps.setText(Integer.toString(source.getValue()));
             }
         });
+        
         gbc.insets = new Insets(0, 0, 25, 0);
         
         gbc.gridx = 0;
@@ -224,14 +221,27 @@ public final class MainMenu extends JFrame implements ActionListener{
 
         gbc.gridx = 0;
         gbc.gridy = 4;
-        settingsPanel.add(setBtn, gbc);
+        settingsPanel.add(tilesLabel, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        settingsPanel.add(tileField, gbc);
 
         gbc.insets = new Insets(0, 0, 50, 0);
 
         back = new JButton("Back");
         setButtonSettings(back, "back");
+        back.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int fps = Integer.parseInt(selectedFps.getText());
+                fpsTarget = Math.min(Game.FPS_MAX, Math.max(fps, Game.FPS_MIN));
+                int tiles = Integer.parseInt(tileField.getText());
+                tileAmount = tiles <= 0 ? Game.DEFAULT_TILES : tiles;
+            }
+        });
         gbc.gridx = 0;
-        gbc.gridy = 5;
+        gbc.gridy = 6;
         settingsPanel.add(back, gbc);
         this.add(settingsPanel, BorderLayout.CENTER);
     }

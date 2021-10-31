@@ -19,8 +19,10 @@ import utils.Utils;
 
 public final class Rocket extends Entity{
 
-    public static final int BLAST_RADIUS = 100; // In pixels
+    public static final int BLAST_RADIUS = 50; // In pixels
     public static final float BLAST_POWER = 1f;
+    public static final int WIDTH = 25;
+    public static final int HEIGHT = 50;
 
     private PolygonShape ps;
     private Polygon polygon = new Polygon();
@@ -44,10 +46,7 @@ public final class Rocket extends Entity{
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
 
-        this.body = Game.physWorld.createBody(this.bd);
-        this.body.createFixture(this.fd);
-        this.body.setGravityScale(0f);
-        this.body.setUserData(this);
+        
     }
 
     @Override
@@ -80,16 +79,15 @@ public final class Rocket extends Entity{
 
     public void explode() {
         AreaQueryCallback callBack = new AreaQueryCallback();
-        AABB area = new AABB(body.getPosition().add(new Vec2(Utils.toWorld(BLAST_RADIUS), Utils.toWorld(BLAST_RADIUS))),
-                             body.getPosition().sub(new Vec2(Utils.toWorld(BLAST_RADIUS), Utils.toWorld(BLAST_RADIUS))));
-        Game.physWorld.queryAABB(callBack, area);
-        System.out.println("ass");
+        AABB area = new AABB(body.getPosition().sub(new Vec2(Utils.toWorld(BLAST_RADIUS), Utils.toWorld(BLAST_RADIUS))),
+                             body.getPosition().add(new Vec2(Utils.toWorld(BLAST_RADIUS), Utils.toWorld(BLAST_RADIUS))));
+        currentGame.getPhysWorld().queryAABB(callBack, area);
         for(Body b : callBack.getFoundBodies()) {
             if(b == this.body)
                 continue;
             Vec2 bCOM = b.getPosition();
-            // if(bCOM.sub(this.body.getPosition()).length() >= Utils.toWorld(BLAST_RADIUS))
-            //      continue;
+            if(bCOM.sub(this.body.getPosition()).length() >= Utils.toWorld(BLAST_RADIUS))
+                continue;
             applyBlast(b, this.body.getPosition(), bCOM, Utils.toWorld(BLAST_POWER));
         }
         destroy();
@@ -98,7 +96,6 @@ public final class Rocket extends Entity{
     private void applyBlast(Body b, Vec2 blastCenter, Vec2 applyPoint, float blastPower) {
         Vec2 blastDir = applyPoint.sub(blastCenter);
         float distance = blastDir.normalize();
-        System.out.println(distance);
         if(distance == 0)
             return;
         float invDistance = 1 / distance;

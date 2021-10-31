@@ -10,13 +10,12 @@ import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
-import timer.Timer;
 import utils.Utils;
 import window.MainMenu;
 
 public final class Ball extends Entity {
 
-    public static final float VEL = 5f;
+    public static final float VEL = 2.5f;
 
     private CircleShape cs;
     private float radius;
@@ -40,7 +39,7 @@ public final class Ball extends Entity {
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
 
-        this.body = Game.physWorld.createBody(this.bd);
+        this.body = currentGame.getPhysWorld().createBody(this.bd);
         this.body.createFixture(this.fd);
     }
 

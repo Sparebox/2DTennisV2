@@ -14,7 +14,6 @@ import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
 import utils.Utils;
-import window.MainMenu;
 
 public class Pickup extends Entity {
 
@@ -41,7 +40,7 @@ public class Pickup extends Entity {
         this.fd.isSensor = true;
         this.fd.shape = ps;
 
-        this.body = Game.physWorld.createBody(this.bd);
+        this.body = currentGame.getPhysWorld().createBody(this.bd);
         this.body.createFixture(this.fd);
         this.body.setGravityScale(0f);
         this.body.setLinearVelocity(new Vec2(0, 2f));

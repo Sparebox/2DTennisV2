@@ -11,6 +11,8 @@ import window.MainMenu;
 
 public abstract class Entity {
     
+    protected static Game currentGame;
+
     protected Body body;
     protected BodyDef bd;
     protected FixtureDef fd;
@@ -22,12 +24,16 @@ public abstract class Entity {
     public abstract void update();
 
     public void destroy() {
-        Game.physWorld.destroyBody(this.body);
+        currentGame.getPhysWorld().destroyBody(this.body);
         MainMenu.currentGame.getEntitiesToDelete().add(this);
     }
 
     public Body getBody() {
         return body;
+    }
+
+    public void setBody(Body body) {
+        this.body = body;
     }
 
     public BodyDef getBd() {
@@ -44,5 +50,9 @@ public abstract class Entity {
 
     public float getWidth() {
         return width;
+    }
+
+    public static void setCurrentGame(Game currentGame) {
+        Entity.currentGame = currentGame;
     }
 }
