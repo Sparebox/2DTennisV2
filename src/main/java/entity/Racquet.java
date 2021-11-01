@@ -2,6 +2,7 @@ package entity;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 
@@ -16,6 +17,9 @@ import window.MainMenu;
 
 public class Racquet extends Entity {
 
+    public static final int ROTATION = 5;
+    public static final float MIN_WIDTH = 30; // In pixels
+
     public static int moveSpeed = 3;
 
     private PolygonShape ps;
@@ -27,6 +31,7 @@ public class Racquet extends Entity {
         this.bd.type = BodyType.KINEMATIC;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(Game.HEIGHT - 50));
         this.bd.allowSleep = false;
+        this.bd.userData = this;
 
         this.ps = new PolygonShape();
         this.ps.setAsBox(this.width / 2, this.height / 2);
@@ -46,8 +51,14 @@ public class Racquet extends Entity {
         AffineTransform old = g.getTransform();
         g.rotate(body.getAngle(), Utils.toPixel(body.getPosition().x), Utils.toPixel(body.getPosition().y));
         g.drawRect(Utils.toPixel(body.getPosition().x - width/2), Utils.toPixel(body.getPosition().y - height/2), Utils.toPixel(width), Utils.toPixel(height));
+        if(currentGame.getCurrentPickup() != null) {
+            var metrics = g.getFontMetrics();
+            String str = currentGame.getCurrentPickup().getPickUpType().toString() + "!";
+            g.drawString(str, Utils.toPixel(body.getPosition().x) - metrics.stringWidth(str)/2, Utils.toPixel(body.getPosition().y) + metrics.getAscent()/2);
+        }
         g.setTransform(old);
     }
+        
 
     @Override
     public void update() {
@@ -70,9 +81,9 @@ public class Racquet extends Entity {
             body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(speed)), 0f);
 
         if(keys.get(KeyEvent.VK_COMMA) || keys.get(KeyEvent.VK_Q)) {
-            body.setTransform(body.getPosition(), (float) Math.toRadians(-5));
+            body.setTransform(body.getPosition(), (float) Math.toRadians(-ROTATION));
         } else if(keys.get(KeyEvent.VK_PERIOD) || keys.get(KeyEvent.VK_E)) {
-            body.setTransform(body.getPosition(), (float) Math.toRadians(5));
+            body.setTransform(body.getPosition(), (float) Math.toRadians(ROTATION));
         } else
             body.setTransform(body.getPosition(), 0f);
     }

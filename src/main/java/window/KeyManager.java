@@ -11,6 +11,7 @@ public final class KeyManager extends KeyAdapter {
     private HashMap<Integer, Boolean> keys = new HashMap<>();
     private Game currentGame;
     private MainMenu menu;
+    private GameSummary summary;
 
     public KeyManager(Game currentGame) {
         this.currentGame = currentGame;
@@ -31,15 +32,23 @@ public final class KeyManager extends KeyAdapter {
         this.menu = menu;
     }
 
+    public KeyManager(GameSummary summary) {
+        this.summary = summary;
+    }
+
     @Override
     public void keyPressed(KeyEvent e) {
         keys.put(e.getKeyCode(), true);
         switch(e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE :
-                if(this.currentGame != null) {
-                    this.currentGame.stop();
+                if(currentGame != null) {
+                    currentGame.stop();
                     new MainMenu();
-                } else if(menu != null) {
+                }
+                else if(menu != null) {
+                    System.exit(0);
+                }
+                else if(summary != null) {
                     System.exit(0);
                 }
                 break;
@@ -48,6 +57,10 @@ public final class KeyManager extends KeyAdapter {
                     menu.setVisible(false);
                     menu.dispose();
                     menu.startGame();
+                }
+                if(summary != null) {
+                    summary.dispose();
+                    new MainMenu();
                 }
                 break;
         }

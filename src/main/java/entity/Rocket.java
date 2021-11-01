@@ -44,7 +44,7 @@ public final class Rocket extends Entity{
         this.fd.filter.categoryBits = CollisionCategory.ROCKET.BIT;
         this.fd.filter.maskBits = CollisionCategory.TILE.BIT;
         this.fd.shape = ps;
-        this.fd.density = 10f;
+        this.fd.density = 50f;
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
     }
@@ -55,16 +55,20 @@ public final class Rocket extends Entity{
         int[] xPoints = new int[]{Utils.toPixel(body.getPosition().x),
                                       Utils.toPixel(body.getPosition().x - width/2),
                                       Utils.toPixel(body.getPosition().x - width/2),
+                                      Utils.toPixel(body.getPosition().x - width/2) - 7,
+                                      Utils.toPixel(body.getPosition().x + width/2) + 7,
                                       Utils.toPixel(body.getPosition().x + width/2),
                                       Utils.toPixel(body.getPosition().x + width/2)};
         int[] yPoints = new int[]{Utils.toPixel(body.getPosition().y - height/2),
                                       Utils.toPixel(body.getPosition().y),
+                                      Utils.toPixel(body.getPosition().y + height/2) - 10,
                                       Utils.toPixel(body.getPosition().y + height/2),
                                       Utils.toPixel(body.getPosition().y + height/2),
+                                      Utils.toPixel(body.getPosition().y + height/2) - 10,
                                       Utils.toPixel(body.getPosition().y)};
         polygon.xpoints = xPoints;
         polygon.ypoints = yPoints;
-        polygon.npoints = 5;
+        polygon.npoints = xPoints.length;
         AffineTransform old = g.getTransform();
         g.rotate(body.getAngle(), Utils.toPixel(body.getPosition().x), Utils.toPixel(body.getPosition().y));
         g.drawPolygon(polygon);

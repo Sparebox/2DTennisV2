@@ -53,7 +53,7 @@ public class Tile extends Entity {
             body.setGravityScale(1f);
             Fixture fixtureList = body.getFixtureList();
             if(fixtureList != null) {
-                fixtureList.setSensor(true);
+                fixtureList.getFilterData().categoryBits = CollisionCategory.NO_COLLISION.BIT;
                 fixtureList.refilter();
             }
             dropped = true;

@@ -13,6 +13,7 @@ import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
+import game.PickupGen;
 import utils.Utils;
 
 public class Pickup extends Entity {

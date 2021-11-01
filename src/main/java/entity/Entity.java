@@ -16,8 +16,8 @@ public abstract class Entity {
     protected Body body;
     protected BodyDef bd;
     protected FixtureDef fd;
-    protected float width;
-    protected float height;
+    protected float width; // In meters
+    protected float height; // In meters
 
     public abstract void render(Graphics2D g);
 
@@ -43,8 +43,16 @@ public abstract class Entity {
         return height;
     }
 
+    public void setHeight(float height) {
+        this.height = height;
+    }
+
     public float getWidth() {
         return width;
+    }
+
+    public void setWidth(float width) {
+        this.width = width;
     }
 
     public static void setCurrentGame(Game currentGame) {

@@ -18,8 +18,6 @@ import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -32,14 +30,14 @@ public final class MainMenu extends JFrame implements ActionListener{
     public static final int WIDTH = 500;
     public static final int HEIGHT = 700;
     public static final Color BACKGROUND_COLOR = new Color(50, 111, 168);
+    public static final Font FONT = new Font("SansSerif", Font.PLAIN, 50);
+    public static final Font TITLE_FONT = new Font("SansSerif", Font.BOLD, 60);
 
     public static int fpsTarget = Game.FPS_DEFAULT;
     public static int tileAmount = Game.DEFAULT_TILES;
 
     private String frameTitle = "2DTennis V2 Main Menu";
     private GridBagConstraints gbc;
-    private Font titleFont = new Font("SansSerif", Font.BOLD, 60);
-    private Font font = new Font("SansSerif", Font.PLAIN, 50);
     private JPanel buttonsPanel, titlePanel, creditPanel, settingsPanel, tutorialPanel;
     private JButton start, settings, tutorial, exit, back;
     private JLabel title, author;
@@ -72,12 +70,7 @@ public final class MainMenu extends JFrame implements ActionListener{
     }
 
     private void createMainMenu() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                | UnsupportedLookAndFeelException e) {
-            e.printStackTrace();
-        }
+
         titlePanel = new JPanel(new GridBagLayout());
         titlePanel.setBackground(BACKGROUND_COLOR);
         buttonsPanel = new JPanel(new GridBagLayout());
@@ -86,7 +79,7 @@ public final class MainMenu extends JFrame implements ActionListener{
         creditPanel.setBackground(BACKGROUND_COLOR);
 
         title = new JLabel("2DTENNIS");
-        title.setFont(titleFont);
+        title.setFont(TITLE_FONT);
         gbc.gridx = 0;
         gbc.gridy = 1;
         titlePanel.add(title, gbc);
@@ -143,7 +136,7 @@ public final class MainMenu extends JFrame implements ActionListener{
     private void setButtonSettings(JButton button, String actionCommand) {
         button.setBackground(Color.BLACK);
         button.setFocusPainted(false);
-        button.setFont(font);
+        button.setFont(FONT);
         button.setPreferredSize(buttonDimensions);
         button.setActionCommand(actionCommand);
         button.addActionListener(this);
@@ -234,9 +227,19 @@ public final class MainMenu extends JFrame implements ActionListener{
         back.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int fps = Integer.parseInt(selectedFps.getText());
+                int fps = Game.FPS_DEFAULT;
+                try {
+                    fps = Integer.parseInt(selectedFps.getText());
+                } catch (NumberFormatException ex) {
+                    
+                }
                 fpsTarget = Math.min(Game.FPS_MAX, Math.max(fps, Game.FPS_MIN));
-                int tiles = Integer.parseInt(tileField.getText());
+                int tiles = Game.DEFAULT_TILES;
+                try {
+                    tiles = Integer.parseInt(tileField.getText());
+                } catch (NumberFormatException ex) {
+                   
+                }
                 tileAmount = tiles <= 0 ? Game.DEFAULT_TILES : tiles;
             }
         });

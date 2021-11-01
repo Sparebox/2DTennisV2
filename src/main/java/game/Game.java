@@ -17,9 +17,11 @@ import org.jbox2d.dynamics.World;
 import entity.Ball;
 import entity.Entity;
 import entity.LineBoundary;
+import entity.Pickup;
 import entity.Racquet;
 import entity.Tile;
 import utils.Timer;
+import window.GameSummary;
 import window.KeyManager;
 import window.MainMenu;
 
@@ -38,6 +40,7 @@ public final class Game implements Runnable {
 
     public static double nsPerUpdate;
 
+    private Pickup currentPickup;
     private World physWorld;
     private Thread gameThread;
     private JFrame frame;
@@ -57,6 +60,8 @@ public final class Game implements Runnable {
     private int tileHeight = 20;
     private int ballRadius = 20;
     private int score;
+    private int secondsSinceStart;
+    private int pickupsPickedup;
     
     public Game() {
         init();
@@ -70,7 +75,7 @@ public final class Game implements Runnable {
         this.entities = new HashSet<>();
         this.entitiesToDelete = new HashSet<>();
         this.entitiesToAdd = new HashSet<>();
-        this.customContactListener = new CustomContactListener();
+        this.customContactListener = new CustomContactListener(this);
         physWorld = new World(GRAVITY);
         physWorld.setContactListener(this.customContactListener);
         Entity.setCurrentGame(this);
@@ -118,8 +123,10 @@ public final class Game implements Runnable {
         if(!running)
             return;
         running = false;
+        this.frame.setVisible(false);
         this.frame.dispose();
         MainMenu.currentGame = null;
+        Entity.setCurrentGame(null);
     }
 
     @Override
@@ -148,14 +155,14 @@ public final class Game implements Runnable {
             if(secTimer.tick()) {
                 fpsString = "FPS: "+ticks;
                 ticks = 0;
+                secondsSinceStart++;
             }
         }
     }
 
     private void update() {
         if(score == MainMenu.tileAmount) {
-            stop();
-            new MainMenu();
+            endGame();
         }
         if(!entitiesToDelete.isEmpty()) {
             for(Entity e : entitiesToDelete) {
@@ -194,7 +201,7 @@ public final class Game implements Runnable {
         g.setColor(Color.WHITE);
         g.drawString(fpsString, 20, 20);
         g.drawString("Score: "+score, 20, 40);
-
+        
         bs.show();
         g.dispose();
     }
@@ -229,6 +236,35 @@ public final class Game implements Runnable {
             lastX += tileGap + tileWidth;
         }
         return lastY;
+    }
+
+    public void endGame() {
+        stop();
+        new GameSummary(this);
+    }
+
+    public int getPickupsPickedup() {
+        return pickupsPickedup;
+    }
+
+    public void setPickupsPickedup(int pickupsPickedup) {
+        this.pickupsPickedup = pickupsPickedup;
+    }
+
+    public int getSecondsSinceStart() {
+        return secondsSinceStart;
+    }
+
+    public PickupGen getPickUpGen() {
+        return pickUpGen;
+    }
+
+    public Pickup getCurrentPickup() {
+        return currentPickup;
+    }
+
+    public void setCurrentPickup(Pickup currentPickup) {
+        this.currentPickup = currentPickup;
     }
 
     public int getScore() {

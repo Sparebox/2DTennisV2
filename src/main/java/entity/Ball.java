@@ -11,11 +11,13 @@ import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
 import utils.Utils;
-import window.MainMenu;
 
 public final class Ball extends Entity {
 
-    public static final float VEL = 2.5f;
+    public static final float BOOST_F = 1.5f;
+    public static final float VEL_DEFAULT = 5f;
+
+    public static float vel = VEL_DEFAULT;
 
     private CircleShape cs;
     private float radius;
@@ -27,7 +29,7 @@ public final class Ball extends Entity {
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
         this.bd.allowSleep = true;
         this.bd.gravityScale = 0f;
-        this.bd.linearVelocity = new Vec2(VEL, VEL);
+        this.bd.linearVelocity = new Vec2(VEL_DEFAULT, VEL_DEFAULT);
 
         this.cs = new CircleShape();
         this.cs.setRadius(this.radius/2);
@@ -49,15 +51,20 @@ public final class Ball extends Entity {
 
     @Override
     public void update() {
-        Vec2 vel = body.getLinearVelocity();
-        if(vel.length() != VEL) {
-            vel.normalize();
-            vel.mulLocal(VEL);
+        Vec2 velocity = body.getLinearVelocity();
+        if(velocity.length() != vel) {
+            velocity.normalize();
+            velocity.mulLocal(vel);
+        }
+        if(velocity.abs().y < 0.1f) {
+            if(velocity.y > 0)
+                velocity.y += 0.5f;
+            else 
+                velocity.y -= 0.5f;
         }
         if(Utils.toPixel(body.getPosition().y + radius) > Game.HEIGHT) {
-            if(MainMenu.currentGame != null) {
-                MainMenu.currentGame.stop();
-                new MainMenu();
+            if(currentGame != null) {
+                currentGame.endGame();
             }
         }
     }
