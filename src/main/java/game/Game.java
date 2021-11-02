@@ -44,6 +44,7 @@ public final class Game implements Runnable {
     public static final int TILE_HEIGTH = 20;
     public static final int BALL_RADIUS = 20;
 
+    public static GameMode currentGameMode = GameMode.VERSUS;
     public static double nsPerUpdate;
 
     private Pickup currentPickup;
@@ -60,14 +61,14 @@ public final class Game implements Runnable {
     private Set<Entity> entities;
     private Set<Entity> entitiesToDelete;
     private Set<Entity> entitiesToAdd;
-    private Racquet racquet;
+    private Racquet playerRacquet;
+    private Racquet cpuRacquet;
     private Timer secTimer;
     private int ticks;
     private int score;
     private int secondsSinceStart;
     private int pickupsPickedup;
     private Bot bot;
-    private boolean tutorialEnabled = true;
     private Image arrowLeft;
     private Image arrowRight;
     
@@ -90,13 +91,40 @@ public final class Game implements Runnable {
         initFrame();
         initCanvas();
         createBoundaries(false);
-        int lastTileY = createTiles();
-        this.racquet = new Racquet(WIDTH/2, 200, 20);
-        entitiesToAdd.add(racquet);
-        entitiesToAdd.add(new Ball(WIDTH/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS));
-        this.bot = new Bot(this);
-        this.arrowLeft = new ImageIcon(getClass().getResource("/leftkey.png")).getImage();
-        this.arrowRight = new ImageIcon(getClass().getResource("/rightkey.png")).getImage();
+        int lastTileY;
+        switch(currentGameMode) {
+            case CPU :
+                lastTileY = createTiles();
+                this.cpuRacquet = new Racquet(WIDTH/2, 200, 20);
+                this.cpuRacquet.setCpuOwned(true);
+                entitiesToAdd.add(cpuRacquet);
+                entitiesToAdd.add(new Ball(WIDTH/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS));
+                this.bot = new Bot(this);
+                this.arrowLeft = new ImageIcon(getClass().getResource("/leftkey.png")).getImage();
+                this.arrowRight = new ImageIcon(getClass().getResource("/rightkey.png")).getImage();
+                break;
+            case SINGLE :
+                lastTileY = createTiles();
+                this.playerRacquet = new Racquet(WIDTH/2, 200, 20);
+                entitiesToAdd.add(playerRacquet);
+                entitiesToAdd.add(new Ball(WIDTH/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS));
+                break;
+            case VERSUS :
+                this.playerRacquet = new Racquet(WIDTH/2, 200, 20);
+                this.cpuRacquet = new Racquet(WIDTH/2, 50, 200, 20);
+                cpuRacquet.setCpuOwned(true);
+                entitiesToAdd.add(playerRacquet);
+                entitiesToAdd.add(cpuRacquet);
+                entitiesToAdd.add(new Ball(WIDTH/2, HEIGHT/2, BALL_RADIUS));
+                this.bot = new Bot(this);
+                break;
+            case TUTORIAL :
+                this.arrowLeft = new ImageIcon(getClass().getResource("/leftkey.png")).getImage();
+                this.arrowRight = new ImageIcon(getClass().getResource("/rightkey.png")).getImage();
+                break;
+        }
+        
+        
     }
 
     private void initFrame() {
@@ -173,7 +201,9 @@ public final class Game implements Runnable {
     }
 
     private void update() {
-        if(score == MainMenu.tileAmount) {
+        if(score == MainMenu.tileAmount &&
+        (currentGameMode == GameMode.CPU ||
+        currentGameMode == GameMode.SINGLE)) {
             endGame();
         }
         if(!entitiesToDelete.isEmpty()) {
@@ -194,8 +224,11 @@ public final class Game implements Runnable {
         for(Entity e : entities) {
             e.update();
         }
-        pickUpGen.update();
-        bot.update();
+
+        if(pickUpGen != null && bot != null) {
+            pickUpGen.update();
+            bot.update();
+        }
     }
 
     private void render() {
@@ -215,14 +248,13 @@ public final class Game implements Runnable {
         g.drawString(fpsString, 20, 20);
         g.drawString("Score: "+score, 20, 40);
         //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5);
-        g.drawOval(Utils.toPixel(bot.getAverageTileX()), TILE_HEIGTH, 10, 10);
-        if(tutorialEnabled) {
-            if(racquet.isLeftPressed())
+        if(currentGameMode == GameMode.TUTORIAL || currentGameMode == GameMode.CPU) {
+            if(cpuRacquet.isLeftPressed())
                 g.drawImage(arrowLeft, 
                 Game.WIDTH - arrowLeft.getWidth(null) - 50, 
                 Game.HEIGHT - arrowLeft.getHeight(null) - 50,
                 50, 50, null);
-            if(racquet.isRightPressed())
+            if(cpuRacquet.isRightPressed())
                 g.drawImage(arrowRight, 
                 Game.WIDTH - arrowLeft.getWidth(null)/2 - 50, 
                 Game.HEIGHT - arrowLeft.getHeight(null) - 50,
@@ -240,12 +272,35 @@ public final class Game implements Runnable {
     }
 
     private void createBoundaries(boolean visible) {
-        Entity leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
-        Entity rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
-        Entity ceil = new LineBoundary(0, 0, WIDTH, 0, visible);
-        entitiesToAdd.add(leftWall);
-        entitiesToAdd.add(rightWall);
-        entitiesToAdd.add(ceil);
+        Entity leftWall = null;
+        Entity rightWall = null;
+        Entity ceil = null;
+        Entity ground = null;
+        switch(currentGameMode) {
+            case SINGLE :
+                leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
+                rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
+                ceil = new LineBoundary(0, 0, WIDTH, 0, visible);
+                break;
+            case CPU :
+                leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
+                rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
+                ceil = new LineBoundary(0, 0, WIDTH, 0, visible);
+                break;
+            case VERSUS:
+                leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
+                rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
+                break;
+        }
+        if(leftWall != null)
+            entitiesToAdd.add(leftWall);
+        if(rightWall != null)
+            entitiesToAdd.add(rightWall);
+        if(ceil != null)
+            entitiesToAdd.add(ceil);
+        if(ground != null)
+            entitiesToAdd.add(ground);
+        
     }
 
     private int createTiles() {
@@ -268,14 +323,6 @@ public final class Game implements Runnable {
     public void endGame() {
         stop();
         new GameSummary(this);
-    }
-
-    public void setTutorialEnabled(boolean tutorialEnabled) {
-        this.tutorialEnabled = tutorialEnabled;
-    }
-
-    public boolean isTutorialEnabled() {
-        return tutorialEnabled;
     }
 
     public int getPickupsPickedup() {

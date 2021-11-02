@@ -10,6 +10,7 @@ import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
+import game.GameMode;
 import utils.Utils;
 
 public final class Ball extends Entity {
@@ -62,11 +63,21 @@ public final class Ball extends Entity {
             else 
                 velocity.y -= 0.5f;
         }
-        if(Utils.toPixel(body.getPosition().y + radius) > Game.HEIGHT) {
+        if(Utils.toPixel(body.getPosition().y + radius) > Game.HEIGHT &&
+        (Game.currentGameMode == GameMode.SINGLE ||
+        Game.currentGameMode == GameMode.CPU ||
+        Game.currentGameMode == GameMode.VERSUS)) {
             if(currentGame != null) {
                 currentGame.endGame();
             }
         }
+        if(Utils.toPixel(body.getPosition().y - radius) < 0f && 
+        Game.currentGameMode == game.GameMode.VERSUS) {
+            if(currentGame != null) {
+                currentGame.endGame();
+            }
+        }
+            
     }
     
 }

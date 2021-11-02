@@ -19,7 +19,7 @@ public final class Bot {
     private Racquet racquet;
     private Ball ball;
     private Vec2 ballPos;
-    private Vec2 racquetPos;
+    private Vec2 cpuRacquetPos;
     private Vec2 predictedBallPos;
     private Vec2 ballDir;
     private boolean initialUpdate = true;
@@ -34,7 +34,8 @@ public final class Bot {
         if(initialUpdate) {
             for(Entity e : this.currentGame.getEntities()) {
                 if(e instanceof Racquet r) {
-                    this.racquet = r;
+                    if(r.isCpuOwned())
+                        this.racquet = r;
                 }
                 if(e instanceof Ball b) {
                     this.ball = b;
@@ -43,43 +44,51 @@ public final class Bot {
                     break;
             }
             this.ballPos = this.ball.getBody().getPosition();
-            this.racquetPos = this.racquet.getBody().getPosition();
+            this.cpuRacquetPos = this.racquet.getBody().getPosition();
             initialUpdate = false;
         }
         ballDir = new Vec2(ball.getBody().getLinearVelocity());
         ballDir.normalize();
         predictedBallPos = ballPos.add(ballDir);
-        while(predictedBallPos.y <= racquetPos.y && ballDir.y > 0f) {
-            predictedBallPos.addLocal(ballDir);
+        if(Game.currentGameMode == GameMode.CPU) {
+            while(predictedBallPos.y <= cpuRacquetPos.y && ballDir.y > 0f) {
+                predictedBallPos.addLocal(ballDir);
+            }
+        } else if(Game.currentGameMode == GameMode.VERSUS) {
+            while(predictedBallPos.y >= cpuRacquetPos.y && ballDir.y < 0f) {
+                predictedBallPos.addLocal(ballDir);
+            }
         }
         
-        if(racquetPos.x + racquet.getWidth() / 4 < predictedBallPos.x) {
+        if(cpuRacquetPos.x + racquet.getWidth() / 4 < predictedBallPos.x) {
             if(ball.getBody().getLinearVelocity().x > 0f) {
                 racquet.right(SPEED);
             }
-        } else if(racquetPos.x - racquet.getWidth() / 4 > predictedBallPos.x) {
+        } else if(cpuRacquetPos.x - racquet.getWidth() / 4 > predictedBallPos.x) {
             if(ball.getBody().getLinearVelocity().x < 0f)
                 racquet.left(SPEED);
         }
         
         if(ball.getBody().getLinearVelocity().abs().x < 0.01f) {
-            if(racquetPos.x - racquet.getWidth() / 4 > predictedBallPos.x)
+            if(cpuRacquetPos.x - racquet.getWidth() / 4 > predictedBallPos.x)
                 racquet.left(SPEED);
-            else if(racquetPos.x + racquet.getWidth() / 4 < predictedBallPos.x)
+            else if(cpuRacquetPos.x + racquet.getWidth() / 4 < predictedBallPos.x)
                 racquet.right(SPEED);
-            if(racquetPos.x < predictedBallPos.x)
+            if(cpuRacquetPos.x < predictedBallPos.x)
                 racquet.rotateL();
             else 
                 racquet.rotateR();
-        } else if(racquetPos.y - ballPos.y < racquet.getHeight()) {
-            if(predictedBallPos.x > racquetPos.x)
+        } else if(cpuRacquetPos.y - ballPos.y < racquet.getHeight() && Game.currentGameMode == GameMode.CPU) {
+            if(predictedBallPos.x > cpuRacquetPos.x)
                 racquet.rotateR();
             else
                 racquet.rotateL();
         }
 
-        considerPickup();
-        considerAiming();
+        if(Game.currentGameMode == GameMode.CPU) {
+            considerPickup();
+            considerAiming();
+        }
     }
 
     private void considerPickup() {
@@ -93,12 +102,12 @@ public final class Bot {
             }
         }
         if(pickup == null || 
-        racquetPos.sub(pickup.getBody().getPosition()).lengthSquared() >
-        racquetPos.sub(ballPos).lengthSquared())
+        cpuRacquetPos.sub(pickup.getBody().getPosition()).lengthSquared() >
+        cpuRacquetPos.sub(ballPos).lengthSquared())
             return;
-        if(racquetPos.x + racquet.getWidth() / 2 < pickup.getBody().getPosition().x)
+        if(cpuRacquetPos.x + racquet.getWidth() / 2 < pickup.getBody().getPosition().x)
             racquet.right(SPEED);
-        else if(racquetPos.x - racquet.getWidth() / 2 > pickup.getBody().getPosition().x)
+        else if(cpuRacquetPos.x - racquet.getWidth() / 2 > pickup.getBody().getPosition().x)
             racquet.left(SPEED);
     }
 
@@ -126,9 +135,9 @@ public final class Bot {
                     return;
                 }
             }
-            if(averageTileX > racquetPos.x && ballDir.y > 0f && ballDir.x < 0f) 
+            if(averageTileX > cpuRacquetPos.x && ballDir.y > 0f)//&& ballDir.x < 0f) 
                 racquet.rotateR();
-            else if(averageTileX < racquetPos.x && ballDir.y > 0f && ballDir.x > 0f)
+            else if(averageTileX < cpuRacquetPos.x && ballDir.y > 0f)// && ballDir.x > 0f)
                 racquet.rotateL();
             lastTileCount = tileCount;
         }

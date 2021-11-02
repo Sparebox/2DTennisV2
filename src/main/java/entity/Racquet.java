@@ -12,6 +12,7 @@ import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
+import game.GameMode;
 import utils.Utils;
 import window.MainMenu;
 
@@ -25,6 +26,7 @@ public class Racquet extends Entity {
     private PolygonShape ps;
     private boolean leftPressed;
     private boolean rightPressed;
+    private boolean cpuOwned;
    
     public Racquet(int x, int width, int height) {
         this.width = Utils.toWorld(width);
@@ -32,6 +34,27 @@ public class Racquet extends Entity {
         this.bd = new BodyDef();
         this.bd.type = BodyType.KINEMATIC;
         this.bd.position.set(Utils.toWorld(x), Utils.toWorld(Game.HEIGHT - 50));
+        this.bd.allowSleep = false;
+        this.bd.userData = this;
+
+        this.ps = new PolygonShape();
+        this.ps.setAsBox(this.width / 2, this.height / 2);
+
+        this.fd = new FixtureDef();
+        this.fd.shape = ps;
+        this.fd.density = 1f;
+        this.fd.friction = 0f;
+        this.fd.restitution = 1f;
+        this.fd.filter.categoryBits = CollisionCategory.RACQUET.BIT;
+        this.fd.filter.maskBits = CollisionCategory.PICK_UP.BIT + CollisionCategory.BALL.BIT;
+    }
+
+    public Racquet(int x, int y, int width, int height) {
+        this.width = Utils.toWorld(width);
+        this.height = Utils.toWorld(height);
+        this.bd = new BodyDef();
+        this.bd.type = BodyType.KINEMATIC;
+        this.bd.position.set(Utils.toWorld(x), Utils.toWorld(y));
         this.bd.allowSleep = false;
         this.bd.userData = this;
 
@@ -64,17 +87,17 @@ public class Racquet extends Entity {
 
     @Override
     public void update() {
-        if(MainMenu.currentGame == null)
+        leftPressed = false;
+        rightPressed = false;
+        if(MainMenu.currentGame == null || cpuOwned)
             return;
         var keys = MainMenu.currentGame.getKeyManager().getKeys();
         int speed = keys.get(KeyEvent.VK_SHIFT) ? MOVE_SPEED * BOOST : MOVE_SPEED;
         if(keys.get(KeyEvent.VK_LEFT) || keys.get(KeyEvent.VK_A)) {
-            if(Utils.toPixel(body.getPosition().x - width/2) > 0)
-                body.setTransform(body.getPosition().addLocal(Utils.toWorld(-speed), 0), 0f);
+            left(speed);
         }
         if(keys.get(KeyEvent.VK_RIGHT) || keys.get(KeyEvent.VK_D)) {
-            if(Utils.toPixel(body.getPosition().x + width/2) < Game.WIDTH - 1)
-                body.setTransform(body.getPosition().addLocal(Utils.toWorld(speed), 0), 0f);
+            right(speed);
         }
         if(keys.get(KeyEvent.VK_SPACE)) {
             if(Utils.toPixel(body.getPosition().y) > Game.HEIGHT - 100)
@@ -83,13 +106,11 @@ public class Racquet extends Entity {
             body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(speed)), 0f);
 
         if(keys.get(KeyEvent.VK_COMMA) || keys.get(KeyEvent.VK_Q)) {
-            body.setTransform(body.getPosition(), (float) Math.toRadians(-ROTATION));
+            rotateL();
         } else if(keys.get(KeyEvent.VK_PERIOD) || keys.get(KeyEvent.VK_E)) {
-            body.setTransform(body.getPosition(), (float) Math.toRadians(ROTATION));
+            rotateR();
         } else
             body.setTransform(body.getPosition(), 0f);
-        leftPressed = false;
-        rightPressed = false;
     }
 
     public void left(int speed) {
@@ -109,11 +130,17 @@ public class Racquet extends Entity {
     }
 
     public void rotateL() {
-        body.setTransform(body.getPosition(), (float) Math.toRadians(-ROTATION));
+        if(cpuOwned && Game.currentGameMode == GameMode.VERSUS)
+            body.setTransform(body.getPosition(), (float) Math.toRadians(ROTATION));
+        else
+            body.setTransform(body.getPosition(), (float) Math.toRadians(-ROTATION));
     }
 
     public void rotateR() {
-        body.setTransform(body.getPosition(), (float) Math.toRadians(ROTATION));
+        if(cpuOwned && Game.currentGameMode == GameMode.VERSUS)
+            body.setTransform(body.getPosition(), (float) Math.toRadians(-ROTATION));
+        else
+            body.setTransform(body.getPosition(), (float) Math.toRadians(ROTATION));
     }
 
     public boolean isLeftPressed() {
@@ -122,6 +149,14 @@ public class Racquet extends Entity {
 
     public boolean isRightPressed() {
         return rightPressed;
+    }
+
+    public void setCpuOwned(boolean cpuOwned) {
+        this.cpuOwned = cpuOwned;
+    }
+
+    public boolean isCpuOwned() {
+        return cpuOwned;
     }
     
 }
