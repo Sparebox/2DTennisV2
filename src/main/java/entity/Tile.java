@@ -43,7 +43,7 @@ public class Tile extends Entity {
 
     @Override
     public void update() {
-        if(MainMenu.currentGame == null)
+        if(currentGame == null)
             return;
         if(Utils.toPixel(body.getPosition().y - width/2) > Game.HEIGHT) {
             currentGame.getPhysWorld().destroyBody(body);

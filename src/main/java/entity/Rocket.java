@@ -19,7 +19,7 @@ import utils.Utils;
 public final class Rocket extends Entity{
 
     public static final int BLAST_RADIUS = 100; // In pixels
-    public static final float BLAST_POWER = 0.5f;
+    public static final float BLAST_POWER = 0.2f;
     public static final int WIDTH = 25;
     public static final int HEIGHT = 50;
 
@@ -86,7 +86,7 @@ public final class Rocket extends Entity{
                              body.getPosition().add(new Vec2(Utils.toWorld(BLAST_RADIUS), Utils.toWorld(BLAST_RADIUS))));
         currentGame.getPhysWorld().queryAABB(callBack, area);
         for(Body b : callBack.getFoundBodies()) {
-            if(b == this.body)
+            if(b == this.body || b.getUserData() instanceof Ball)
                 continue;
             Vec2 bCOM = b.getPosition().add(new Vec2(0.1f, 0));
             if(bCOM.sub(this.body.getPosition()).length() >= Utils.toWorld(BLAST_RADIUS))

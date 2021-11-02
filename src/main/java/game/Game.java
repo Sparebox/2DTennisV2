@@ -5,10 +5,12 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferStrategy;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 import org.jbox2d.common.Vec2;
@@ -21,6 +23,7 @@ import entity.Pickup;
 import entity.Racquet;
 import entity.Tile;
 import utils.Timer;
+import utils.Utils;
 import window.GameSummary;
 import window.KeyManager;
 import window.MainMenu;
@@ -37,6 +40,9 @@ public final class Game implements Runnable {
     public static final int POS_ITERATIONS = 3;
     public static final Vec2 GRAVITY = new Vec2(0, 9.81f);
     public static final int DEFAULT_TILES = 50;
+    public static final int TILE_WIDTH = 40;
+    public static final int TILE_HEIGTH = 20;
+    public static final int BALL_RADIUS = 20;
 
     public static double nsPerUpdate;
 
@@ -54,14 +60,16 @@ public final class Game implements Runnable {
     private Set<Entity> entities;
     private Set<Entity> entitiesToDelete;
     private Set<Entity> entitiesToAdd;
+    private Racquet racquet;
     private Timer secTimer;
     private int ticks;
-    private int tileWidth = 40;
-    private int tileHeight = 20;
-    private int ballRadius = 20;
     private int score;
     private int secondsSinceStart;
     private int pickupsPickedup;
+    private Bot bot;
+    private boolean tutorialEnabled = true;
+    private Image arrowLeft;
+    private Image arrowRight;
     
     public Game() {
         init();
@@ -83,8 +91,12 @@ public final class Game implements Runnable {
         initCanvas();
         createBoundaries(false);
         int lastTileY = createTiles();
-        entitiesToAdd.add(new Racquet(WIDTH/2, 200, 20));
-        entitiesToAdd.add(new Ball(WIDTH/2, lastTileY + 2 * ballRadius, ballRadius));
+        this.racquet = new Racquet(WIDTH/2, 200, 20);
+        entitiesToAdd.add(racquet);
+        entitiesToAdd.add(new Ball(WIDTH/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS));
+        this.bot = new Bot(this);
+        this.arrowLeft = new ImageIcon(getClass().getResource("/leftkey.png")).getImage();
+        this.arrowRight = new ImageIcon(getClass().getResource("/rightkey.png")).getImage();
     }
 
     private void initFrame() {
@@ -183,6 +195,7 @@ public final class Game implements Runnable {
             e.update();
         }
         pickUpGen.update();
+        bot.update();
     }
 
     private void render() {
@@ -201,6 +214,20 @@ public final class Game implements Runnable {
         g.setColor(Color.WHITE);
         g.drawString(fpsString, 20, 20);
         g.drawString("Score: "+score, 20, 40);
+        //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5);
+        g.drawOval(Utils.toPixel(bot.getAverageTileX()), TILE_HEIGTH, 10, 10);
+        if(tutorialEnabled) {
+            if(racquet.isLeftPressed())
+                g.drawImage(arrowLeft, 
+                Game.WIDTH - arrowLeft.getWidth(null) - 50, 
+                Game.HEIGHT - arrowLeft.getHeight(null) - 50,
+                50, 50, null);
+            if(racquet.isRightPressed())
+                g.drawImage(arrowRight, 
+                Game.WIDTH - arrowLeft.getWidth(null)/2 - 50, 
+                Game.HEIGHT - arrowLeft.getHeight(null) - 50,
+                50, 50, null);
+        }
         
         bs.show();
         g.dispose();
@@ -223,17 +250,17 @@ public final class Game implements Runnable {
 
     private int createTiles() {
         int tileGap = 10;
-        int lastX = tileWidth/2;
-        int lastY = tileHeight*4;
+        int lastX = TILE_WIDTH/2;
+        int lastY = TILE_HEIGTH*4;
         int row = 1;
         for(int i = 0; i < MainMenu.tileAmount; i++) {
-            if(lastX + tileWidth/2 >= WIDTH) {
+            if(lastX + TILE_WIDTH/2 >= WIDTH) {
                 row++;
-                lastY += tileGap + tileHeight;
-                lastX = row % 2 == 0 ? tileWidth/2 + tileGap*2 : tileWidth/2;
+                lastY += tileGap + TILE_HEIGTH;
+                lastX = row % 2 == 0 ? TILE_WIDTH/2 + tileGap*2 : TILE_WIDTH/2;
             }
-            entitiesToAdd.add(new Tile(lastX, lastY, tileWidth, tileHeight));
-            lastX += tileGap + tileWidth;
+            entitiesToAdd.add(new Tile(lastX, lastY, TILE_WIDTH, TILE_HEIGTH));
+            lastX += tileGap + TILE_WIDTH;
         }
         return lastY;
     }
@@ -241,6 +268,14 @@ public final class Game implements Runnable {
     public void endGame() {
         stop();
         new GameSummary(this);
+    }
+
+    public void setTutorialEnabled(boolean tutorialEnabled) {
+        this.tutorialEnabled = tutorialEnabled;
+    }
+
+    public boolean isTutorialEnabled() {
+        return tutorialEnabled;
     }
 
     public int getPickupsPickedup() {

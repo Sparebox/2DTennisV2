@@ -62,7 +62,7 @@ public class GameSummary extends JFrame implements ActionListener {
         var textArea = new JTextArea("Time: " +
         Integer.toString(currentGame.getSecondsSinceStart() / 60)+" minutes and " +
         Integer.toString(currentGame.getSecondsSinceStart() % 60)+" seconds\n" +
-        "Score: "+Integer.toString(currentGame.getScore()) + 
+        "Score: "+Integer.toString(currentGame.getScore())+" / "+MainMenu.tileAmount + 
         "\nPickups picked up: "+Integer.toString(currentGame.getPickupsPickedup()));
         textArea.setColumns(15);
         textArea.setFont(font);

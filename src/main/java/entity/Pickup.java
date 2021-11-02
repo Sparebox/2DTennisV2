@@ -58,6 +58,8 @@ public class Pickup extends Entity {
 
     @Override
     public void update() {
+        if(currentGame == null)
+            return;
         if(Utils.toPixel(body.getPosition().y - height/2) > Game.HEIGHT)
             currentGame.getEntitiesToDelete().add(this);
     }

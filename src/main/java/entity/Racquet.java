@@ -19,10 +19,12 @@ public class Racquet extends Entity {
 
     public static final int ROTATION = 5;
     public static final float MIN_WIDTH = 30; // In pixels
-
-    public static int moveSpeed = 3;
+    public static final int BOOST = 3;
+    public static final int MOVE_SPEED = 3;
 
     private PolygonShape ps;
+    private boolean leftPressed;
+    private boolean rightPressed;
    
     public Racquet(int x, int width, int height) {
         this.width = Utils.toWorld(width);
@@ -65,7 +67,7 @@ public class Racquet extends Entity {
         if(MainMenu.currentGame == null)
             return;
         var keys = MainMenu.currentGame.getKeyManager().getKeys();
-        int speed = keys.get(KeyEvent.VK_SHIFT) ? moveSpeed * 3 : moveSpeed;
+        int speed = keys.get(KeyEvent.VK_SHIFT) ? MOVE_SPEED * BOOST : MOVE_SPEED;
         if(keys.get(KeyEvent.VK_LEFT) || keys.get(KeyEvent.VK_A)) {
             if(Utils.toPixel(body.getPosition().x - width/2) > 0)
                 body.setTransform(body.getPosition().addLocal(Utils.toWorld(-speed), 0), 0f);
@@ -86,6 +88,40 @@ public class Racquet extends Entity {
             body.setTransform(body.getPosition(), (float) Math.toRadians(ROTATION));
         } else
             body.setTransform(body.getPosition(), 0f);
+        leftPressed = false;
+        rightPressed = false;
+    }
+
+    public void left(int speed) {
+        leftPressed = true;
+        if(Utils.toPixel(body.getPosition().x - width/2) > 0)
+            body.setTransform(body.getPosition().addLocal(Utils.toWorld(-speed), 0), 0f);
+        else
+            body.setTransform(body.getPosition(), 0f);
+    }
+
+    public void right(int speed) {
+        rightPressed = true;
+        if(Utils.toPixel(body.getPosition().x + width/2) < Game.WIDTH - 1)
+            body.setTransform(body.getPosition().addLocal(Utils.toWorld(speed), 0), 0f);
+        else
+            body.setTransform(body.getPosition(), 0f);
+    }
+
+    public void rotateL() {
+        body.setTransform(body.getPosition(), (float) Math.toRadians(-ROTATION));
+    }
+
+    public void rotateR() {
+        body.setTransform(body.getPosition(), (float) Math.toRadians(ROTATION));
+    }
+
+    public boolean isLeftPressed() {
+        return leftPressed;
+    }
+
+    public boolean isRightPressed() {
+        return rightPressed;
     }
     
 }
