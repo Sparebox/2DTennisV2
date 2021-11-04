@@ -60,11 +60,11 @@ public final class Bot {
         }
         lastBallDir = ballDir.clone();
         if(Game.currentGameMode == GameMode.CPU) {
-            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y > Utils.toWorld(Game.HEIGHT/3)) {
+            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x) {
                 if(ball.getBody().getLinearVelocity().x > 0f) {
                     cpuRacquet.right(SPEED);
                 }
-            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y > Utils.toWorld(Game.HEIGHT/3)) {
+            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x) {
                 if(ball.getBody().getLinearVelocity().x < 0f) {
                     cpuRacquet.left(SPEED);
                 }

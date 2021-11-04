@@ -20,6 +20,7 @@ public final class Ball extends Entity {
 
     public static final float BOOST_F = 1.5f;
     public static final float VEL_DEFAULT = 5f;
+    public static final float VEL_VERSUS = 8f;
 
     public static float vel = VEL_DEFAULT;
 
@@ -60,10 +61,20 @@ public final class Ball extends Entity {
     @Override
     public void update() {
         Vec2 velocity = body.getLinearVelocity();
-        if(velocity.length() != vel) {
-            velocity.normalize();
-            velocity.mulLocal(vel);
+        if(Game.currentGameMode == GameMode.VERSUS) {
+            if(velocity.length() != VEL_VERSUS) {
+                velocity.normalize();
+                velocity.mulLocal(VEL_VERSUS);
+            }
         }
+        if(Game.currentGameMode == GameMode.CPU ||
+        Game.currentGameMode == game.GameMode.SINGLE) {
+            if(velocity.length() != vel) {
+                velocity.normalize();
+                velocity.mulLocal(vel);
+            }
+        }
+        
         if(velocity.abs().y < 0.1f) {
             if(velocity.y > 0)
                 velocity.y += 0.5f;

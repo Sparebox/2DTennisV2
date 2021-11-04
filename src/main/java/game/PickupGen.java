@@ -19,8 +19,8 @@ public final class PickupGen {
     public static final int PICKUP_HEIGTH = 30;
     public static final int RESET_TIME = (int) 5e3;
 
-    public static int maxInterval = 5;  // 25
-    public static int minInterval = 1;  // 15
+    public static int maxInterval = 25;
+    public static int minInterval = 12;  
 
     private static Game currentGame;
     
@@ -47,7 +47,6 @@ public final class PickupGen {
                 x = Game.WIDTH - PICKUP_WIDTH/2;
             int ordinal = random.nextInt(PickUpType.values().length);
             PickUpType type = PickUpType.values()[ordinal];
-            type = PickUpType.BUBBLE;
             var pickup = new Pickup(x, PICKUP_HEIGTH/2, PICKUP_WIDTH, PICKUP_HEIGTH, type);
             currentGame.getEntitiesToAdd().add(pickup);
             setNewRandomInterval();
@@ -82,6 +81,7 @@ public final class PickupGen {
                 break;
             case BUBBLE :
                 createBubble();
+                Ball.vel = Ball.VEL_DEFAULT * Ball.BOOST_F;
                 break;
         }
     }
