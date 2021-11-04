@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -22,6 +23,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import game.Game;
+import game.GameMode;
 
 public final class MainMenu extends JFrame implements ActionListener{
     
@@ -39,7 +41,7 @@ public final class MainMenu extends JFrame implements ActionListener{
     private String frameTitle = "2DTennis V2 Main Menu";
     private GridBagConstraints gbc;
     private JPanel buttonsPanel, titlePanel, creditPanel, settingsPanel, tutorialPanel;
-    private JButton start, settings, tutorial, exit, back;
+    private JButton start, settings, tutorial, exit;
     private JLabel title, author;
     private JTextArea tutorialText;
     private Dimension buttonDimensions = new Dimension(300, 70);
@@ -52,6 +54,8 @@ public final class MainMenu extends JFrame implements ActionListener{
     }
 
     public void startGame() {
+        if(Game.currentGameMode == null)
+            Game.currentGameMode = game.GameMode.SINGLE;
         MainMenu.currentGame = new Game();
         MainMenu.currentGame.start();
     }
@@ -155,11 +159,6 @@ public final class MainMenu extends JFrame implements ActionListener{
                 buttonsPanel.setVisible(false);
                 showSettings();
                 break;
-            case "back" :
-                settingsPanel.setVisible(false);
-                titlePanel.setVisible(true);
-                buttonsPanel.setVisible(true);
-                break;
             case "exit" :
                 System.exit(0);
         }
@@ -170,6 +169,22 @@ public final class MainMenu extends JFrame implements ActionListener{
         settingsPanel = new JPanel();
         settingsPanel.setLayout(new GridBagLayout());
         settingsPanel.setBackground(BACKGROUND_COLOR);
+        JPanel firstPanel = new JPanel();
+        firstPanel.setLayout(new GridBagLayout());
+        firstPanel.setBackground(BACKGROUND_COLOR);
+        firstPanel.setVisible(true);
+        JPanel nextPanel = new JPanel();
+        nextPanel.setLayout(new GridBagLayout());
+        nextPanel.setBackground(BACKGROUND_COLOR);
+        nextPanel.setVisible(false);
+        JPanel btnPanel = new JPanel();
+        btnPanel.setLayout(new GridBagLayout());
+        btnPanel.setBackground(BACKGROUND_COLOR);
+        settingsPanel.add(firstPanel);
+        settingsPanel.add(nextPanel);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        settingsPanel.add(btnPanel, gbc);
         Font font = new Font("SansSerif", Font.PLAIN, 30);
         JLabel fps = new JLabel("Target FPS");
         fps.setForeground(Color.ORANGE);
@@ -197,33 +212,97 @@ public final class MainMenu extends JFrame implements ActionListener{
                 selectedFps.setText(Integer.toString(source.getValue()));
             }
         });
-        
-        gbc.insets = new Insets(0, 0, 25, 0);
+        JSlider tileSlider = new JSlider(1, 450);
+        tileSlider.setMajorTickSpacing(10);
+        tileSlider.setMinorTickSpacing(5);
+        tileSlider.setPaintTicks(true);
+        tileSlider.setFocusable(false);
+        tileSlider.setPreferredSize(new Dimension(maxWidth, 50));
+        tileSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                var source = (JSlider) e.getSource();
+                tileAmount = source.getValue();
+                tileField.setText(Integer.toString(source.getValue()));
+            }
+
+        });
+        JButton nextB = new JButton("Next");
+        nextB.setBackground(Color.BLACK);
+        nextB.setFocusPainted(false);
+        nextB.setFont(FONT);
+        nextB.setPreferredSize(buttonDimensions);
+        nextB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                firstPanel.setVisible(false);
+                nextPanel.setVisible(true);
+                nextB.setVisible(false);
+            }
+
+        });
+        JLabel modeLabel = new JLabel("Game Mode");
+        modeLabel.setFont(font);
+        modeLabel.setForeground(Color.ORANGE);
+        JComboBox<GameMode> modeBox = new JComboBox<>(GameMode.values());
+        if(Game.currentGameMode != null)
+            modeBox.setSelectedItem(Game.currentGameMode);
+        modeBox.setPreferredSize(new Dimension(maxWidth, 50));
+        modeBox.setFocusable(false);
+        modeBox.setFont(font);
+        ((JLabel)modeBox.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+        modeBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                var source = (JComboBox<GameMode>) e.getSource();
+                Game.currentGameMode = (GameMode) source.getSelectedItem();
+            }
+
+        });
+
+        gbc.insets = new Insets(0, 0, 10, 0);
         
         gbc.gridx = 0;
         gbc.gridy = 1;
-        settingsPanel.add(fps, gbc);
+        firstPanel.add(fps, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        settingsPanel.add(selectedFps, gbc);
+        firstPanel.add(selectedFps, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
-        settingsPanel.add(fpsSlider, gbc);
+        firstPanel.add(fpsSlider, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 4;
-        settingsPanel.add(tilesLabel, gbc);
+        firstPanel.add(tilesLabel, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 5;
-        settingsPanel.add(tileField, gbc);
+        firstPanel.add(tileField, gbc);
 
-        gbc.insets = new Insets(0, 0, 50, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        firstPanel.add(tileSlider, gbc);
 
-        back = new JButton("Back");
-        setButtonSettings(back, "back");
+        gbc.insets = new Insets(0, 0, 20, 0);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        nextPanel.add(modeLabel, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        nextPanel.add(modeBox, gbc);
+
+        gbc.insets = new Insets(25, 0, 10, 0);
+
+        JButton back = new JButton("Back");
+        back.setBackground(Color.BLACK);
+        back.setFocusPainted(false);
+        back.setFont(FONT);
+        back.setPreferredSize(buttonDimensions);
         back.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -241,12 +320,25 @@ public final class MainMenu extends JFrame implements ActionListener{
                    
                 }
                 tileAmount = tiles <= 0 ? Game.DEFAULT_TILES : tiles;
+                if(!nextPanel.isVisible()) {
+                    settingsPanel.setVisible(false);
+                    titlePanel.setVisible(true);
+                    buttonsPanel.setVisible(true);
+                } else {
+                    nextPanel.setVisible(false);
+                    firstPanel.setVisible(true);
+                    nextB.setVisible(true);
+                }
+                
             }
         });
         gbc.gridx = 0;
-        gbc.gridy = 6;
-        settingsPanel.add(back, gbc);
+        gbc.gridy = 1;
+        btnPanel.add(back, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        btnPanel.add(nextB, gbc);
         this.add(settingsPanel, BorderLayout.CENTER);
     }
-
 }

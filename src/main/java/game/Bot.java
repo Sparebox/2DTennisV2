@@ -4,85 +4,104 @@ import org.jbox2d.common.Vec2;
 
 import entity.Ball;
 import entity.Entity;
-import entity.Racquet;
 import entity.Pickup;
+import entity.Racquet;
 import entity.Tile;
-
+import utils.Timer;
 import utils.Utils;
 import window.MainMenu;
 
 public final class Bot {
     
     public static final int SPEED = Racquet.MOVE_SPEED * Racquet.BOOST;
-
+    
     private Game currentGame;
-    private Racquet racquet;
+    private Racquet cpuRacquet;
     private Ball ball;
     private Vec2 ballPos;
     private Vec2 cpuRacquetPos;
     private Vec2 predictedBallPos;
     private Vec2 ballDir;
+    private Vec2 lastBallDir;
     private boolean initialUpdate = true;
-    private int lastTileCount;
+    private boolean allowAiming = true;
     private float averageTileX;
+    private Timer aimTimeout;
+    private int timeout = (int) 10e3;
+    private int lastTileCount;
 
     public Bot(Game currentGame) {
         this.currentGame = currentGame;
+        this.lastBallDir = new Vec2();
+        this.aimTimeout = new Timer(timeout);
     }
 
     public void update() {
         if(initialUpdate) {
-            for(Entity e : this.currentGame.getEntities()) {
-                if(e instanceof Racquet r) {
-                    if(r.isCpuOwned())
-                        this.racquet = r;
-                }
-                if(e instanceof Ball b) {
-                    this.ball = b;
-                }
-                if(this.racquet != null && this.ball != null)
-                    break;
-            }
+            this.ball = currentGame.getBall();
+            this.cpuRacquet = currentGame.getCpuRacquet();
             this.ballPos = this.ball.getBody().getPosition();
-            this.cpuRacquetPos = this.racquet.getBody().getPosition();
+            this.cpuRacquetPos = this.cpuRacquet.getBody().getPosition();
             initialUpdate = false;
         }
-        ballDir = new Vec2(ball.getBody().getLinearVelocity());
+        ballDir = ball.getBody().getLinearVelocity().clone();
         ballDir.normalize();
         predictedBallPos = ballPos.add(ballDir);
+        if(!lastBallDir.equals(ballDir)) {
+            if(Game.currentGameMode == GameMode.CPU) {
+                while(predictedBallPos.y <= cpuRacquetPos.y && ballDir.y > 0f) {
+                    predictedBallPos.addLocal(ballDir);
+                }
+            } else if(Game.currentGameMode == GameMode.VERSUS) {
+                while(predictedBallPos.y >= cpuRacquetPos.y && ballDir.y < 0f) {
+                    predictedBallPos.addLocal(ballDir);
+                }
+            }
+        }
+        lastBallDir = ballDir.clone();
         if(Game.currentGameMode == GameMode.CPU) {
-            while(predictedBallPos.y <= cpuRacquetPos.y && ballDir.y > 0f) {
-                predictedBallPos.addLocal(ballDir);
+            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y > Utils.toWorld(Game.HEIGHT/3)) {
+                if(ball.getBody().getLinearVelocity().x > 0f) {
+                    cpuRacquet.right(SPEED);
+                }
+            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y > Utils.toWorld(Game.HEIGHT/3)) {
+                if(ball.getBody().getLinearVelocity().x < 0f) {
+                    cpuRacquet.left(SPEED);
+                }
             }
         } else if(Game.currentGameMode == GameMode.VERSUS) {
-            while(predictedBallPos.y >= cpuRacquetPos.y && ballDir.y < 0f) {
-                predictedBallPos.addLocal(ballDir);
+            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y < Utils.toWorld(Game.HEIGHT - Game.HEIGHT/3)) {
+                if(ball.getBody().getLinearVelocity().x > 0f) {
+                    cpuRacquet.right(SPEED);
+                }
+            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y < Utils.toWorld(Game.HEIGHT - Game.HEIGHT/3)) {
+                if(ball.getBody().getLinearVelocity().x < 0f) {
+                    cpuRacquet.left(SPEED);
+                }
             }
         }
         
-        if(cpuRacquetPos.x + racquet.getWidth() / 4 < predictedBallPos.x) {
-            if(ball.getBody().getLinearVelocity().x > 0f) {
-                racquet.right(SPEED);
-            }
-        } else if(cpuRacquetPos.x - racquet.getWidth() / 4 > predictedBallPos.x) {
-            if(ball.getBody().getLinearVelocity().x < 0f)
-                racquet.left(SPEED);
-        }
         
-        if(ball.getBody().getLinearVelocity().abs().x < 0.01f) {
-            if(cpuRacquetPos.x - racquet.getWidth() / 4 > predictedBallPos.x)
-                racquet.left(SPEED);
-            else if(cpuRacquetPos.x + racquet.getWidth() / 4 < predictedBallPos.x)
-                racquet.right(SPEED);
+        if(ball.getBody().getLinearVelocity().abs().x < 0.01f) { // Avoid x velocity stall
+            if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x) {
+                cpuRacquet.left(SPEED);
+            }
+            else if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x) {
+                cpuRacquet.right(SPEED);
+            }
             if(cpuRacquetPos.x < predictedBallPos.x)
-                racquet.rotateL();
+                cpuRacquet.rotateL();
             else 
-                racquet.rotateR();
-        } else if(cpuRacquetPos.y - ballPos.y < racquet.getHeight() && Game.currentGameMode == GameMode.CPU) {
-            if(predictedBallPos.x > cpuRacquetPos.x)
-                racquet.rotateR();
-            else
-                racquet.rotateL();
+                cpuRacquet.rotateR();
+        } else if(cpuRacquetPos.y - ballPos.y < cpuRacquet.getHeight() * 2 && Game.currentGameMode == GameMode.CPU) {
+            if(cpuRacquetPos.x + cpuRacquet.getWidth() < predictedBallPos.x) {
+                cpuRacquet.rotateR();
+            }
+                
+            else if(cpuRacquetPos.x - cpuRacquet.getWidth() > predictedBallPos.x) {
+                cpuRacquet.rotateL();
+            }
+                
         }
 
         if(Game.currentGameMode == GameMode.CPU) {
@@ -105,22 +124,22 @@ public final class Bot {
         cpuRacquetPos.sub(pickup.getBody().getPosition()).lengthSquared() >
         cpuRacquetPos.sub(ballPos).lengthSquared())
             return;
-        if(cpuRacquetPos.x + racquet.getWidth() / 2 < pickup.getBody().getPosition().x)
-            racquet.right(SPEED);
-        else if(cpuRacquetPos.x - racquet.getWidth() / 2 > pickup.getBody().getPosition().x)
-            racquet.left(SPEED);
+        if(cpuRacquetPos.x + cpuRacquet.getWidth() / 2 < pickup.getBody().getPosition().x)
+            cpuRacquet.right(SPEED);
+        else if(cpuRacquetPos.x - cpuRacquet.getWidth() / 2 > pickup.getBody().getPosition().x)
+            cpuRacquet.left(SPEED);
     }
 
     private void considerAiming() {
         int tileCount = MainMenu.tileAmount - currentGame.getScore();
-        if(tileCount > 2 && tileCount < 21) {
-            if(lastTileCount - tileCount != 0) {
+        if(tileCount < 21) {
+            if(lastTileCount != tileCount) {
+                aimTimeout.reset();
+                allowAiming = true;
                 float xSum = 0f;
                 for(Entity e : currentGame.getEntities()) {
-                    if(e instanceof Tile t) {
+                    if(e instanceof Tile t) 
                         xSum += t.getBody().getPosition().x;
-                    } else 
-                        continue;
                 }
                 averageTileX = xSum / tileCount;
                 float minDist = Float.POSITIVE_INFINITY;
@@ -131,15 +150,21 @@ public final class Bot {
                             minDist = dist;
                     }
                 }
-                if(minDist > Utils.toWorld(Game.TILE_WIDTH * 2)) {
-                    return;
-                }
+                if(minDist > Utils.toWorld(Game.TILE_WIDTH * 2))
+                    allowAiming = false;
             }
-            if(averageTileX > cpuRacquetPos.x && ballDir.y > 0f)//&& ballDir.x < 0f) 
-                racquet.rotateR();
-            else if(averageTileX < cpuRacquetPos.x && ballDir.y > 0f)// && ballDir.x > 0f)
-                racquet.rotateL();
             lastTileCount = tileCount;
+            if(aimTimeout.tick())
+                allowAiming = false;
+
+            if(!allowAiming)
+                return;
+            if(averageTileX > cpuRacquetPos.x && ballDir.y > 0f) {
+                cpuRacquet.rotateR();
+            }
+            else if(averageTileX < cpuRacquetPos.x && ballDir.y > 0f) {
+                cpuRacquet.rotateL();
+            }
         }
     }
 
@@ -151,5 +176,4 @@ public final class Bot {
         return averageTileX;
     }
 
-    
 }

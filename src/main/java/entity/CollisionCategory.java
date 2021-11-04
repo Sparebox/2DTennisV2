@@ -8,7 +8,8 @@ public enum CollisionCategory {
     BOUNDARY(3),
     PICK_UP(4),
     RACQUET(5),
-    ROCKET(6);
+    ROCKET(6),
+    BUBBLE(7);
 
     public final int BIT;
 

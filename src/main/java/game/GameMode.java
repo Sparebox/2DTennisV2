@@ -1,5 +1,5 @@
 package game;
 
 public enum GameMode {
-    SINGLE, CPU, VERSUS, TUTORIAL;
+    SINGLE, CPU, VERSUS;
 }

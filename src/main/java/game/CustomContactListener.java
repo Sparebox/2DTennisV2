@@ -3,15 +3,11 @@ package game;
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.collision.Manifold;
-import org.jbox2d.collision.shapes.PolygonShape;
-import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.contacts.Contact;
 
 import entity.CollisionCategory;
 import entity.Pickup;
-import entity.Racquet;
 import entity.Rocket;
-import utils.Utils;
 
 public class CustomContactListener implements ContactListener{
 
@@ -29,10 +25,12 @@ public class CustomContactListener implements ContactListener{
         
         if(a == CollisionCategory.PICK_UP.BIT && b == CollisionCategory.RACQUET.BIT) {
             Pickup p = (Pickup) contact.getFixtureA().getBody().getUserData();
-            currentGame.getPickUpGen().pickedUp(p);
+            //currentGame.getPickUpGen().pickedUp(p);
+            currentGame.getPickUpGen().setPickupToBeApplied(p);
         } else if(a == CollisionCategory.RACQUET.BIT && b == CollisionCategory.PICK_UP.BIT) {
             Pickup p = (Pickup) contact.getFixtureB().getBody().getUserData();
-            currentGame.getPickUpGen().pickedUp(p);
+            //currentGame.getPickUpGen().pickedUp(p);
+            currentGame.getPickUpGen().setPickupToBeApplied(p);
         }
 
         if(a == CollisionCategory.ROCKET.BIT && b == CollisionCategory.TILE.BIT) {

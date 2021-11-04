@@ -7,7 +7,6 @@ import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
-import window.MainMenu;
 
 public abstract class Entity {
     

@@ -1,6 +1,6 @@
 package entity;
 
 public enum PickUpType {
-    ROCKET, SPEED_UP;
+    ROCKET, SPEED_UP, BUBBLE;
     
 }

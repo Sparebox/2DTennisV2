@@ -44,7 +44,7 @@ public final class Game implements Runnable {
     public static final int TILE_HEIGTH = 20;
     public static final int BALL_RADIUS = 20;
 
-    public static GameMode currentGameMode = GameMode.VERSUS;
+    public static GameMode currentGameMode;
     public static double nsPerUpdate;
 
     private Pickup currentPickup;
@@ -63,6 +63,7 @@ public final class Game implements Runnable {
     private Set<Entity> entitiesToAdd;
     private Racquet playerRacquet;
     private Racquet cpuRacquet;
+    private Ball ball;
     private Timer secTimer;
     private int ticks;
     private int score;
@@ -79,7 +80,6 @@ public final class Game implements Runnable {
     private void init() {
         nsPerUpdate = 1e9 / MainMenu.fpsTarget;
         this.keyManager = new KeyManager(this);
-        this.pickUpGen = new PickupGen(this);
         this.secTimer = new Timer((int)1e3);
         this.entities = new HashSet<>();
         this.entitiesToDelete = new HashSet<>();
@@ -94,37 +94,41 @@ public final class Game implements Runnable {
         int lastTileY;
         switch(currentGameMode) {
             case CPU :
-                lastTileY = createTiles();
+                this.pickUpGen = new PickupGen(this);
                 this.cpuRacquet = new Racquet(WIDTH/2, 200, 20);
                 this.cpuRacquet.setCpuOwned(true);
+                lastTileY = createTiles();
+                this.ball = new Ball(WIDTH/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS);
                 entitiesToAdd.add(cpuRacquet);
-                entitiesToAdd.add(new Ball(WIDTH/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS));
+                entitiesToAdd.add(ball);
                 this.bot = new Bot(this);
                 this.arrowLeft = new ImageIcon(getClass().getResource("/leftkey.png")).getImage();
                 this.arrowRight = new ImageIcon(getClass().getResource("/rightkey.png")).getImage();
                 break;
             case SINGLE :
-                lastTileY = createTiles();
+                this.pickUpGen = new PickupGen(this);
                 this.playerRacquet = new Racquet(WIDTH/2, 200, 20);
+                lastTileY = createTiles();
+                this.ball = new Ball(WIDTH/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS);
                 entitiesToAdd.add(playerRacquet);
-                entitiesToAdd.add(new Ball(WIDTH/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS));
+                entitiesToAdd.add(ball);
                 break;
             case VERSUS :
                 this.playerRacquet = new Racquet(WIDTH/2, 200, 20);
                 this.cpuRacquet = new Racquet(WIDTH/2, 50, 200, 20);
-                cpuRacquet.setCpuOwned(true);
+                this.cpuRacquet.setCpuOwned(true);
+                this.ball = new Ball(WIDTH/2, 100, BALL_RADIUS);
                 entitiesToAdd.add(playerRacquet);
                 entitiesToAdd.add(cpuRacquet);
-                entitiesToAdd.add(new Ball(WIDTH/2, HEIGHT/2, BALL_RADIUS));
+                entitiesToAdd.add(ball);
                 this.bot = new Bot(this);
                 break;
-            case TUTORIAL :
-                this.arrowLeft = new ImageIcon(getClass().getResource("/leftkey.png")).getImage();
-                this.arrowRight = new ImageIcon(getClass().getResource("/rightkey.png")).getImage();
-                break;
+            // case TUTORIAL :
+            //     this.pickUpGen = new PickupGen(this);
+            //     this.arrowLeft = new ImageIcon(getClass().getResource("/leftkey.png")).getImage();
+            //     this.arrowRight = new ImageIcon(getClass().getResource("/rightkey.png")).getImage();
+            //     break;
         }
-        
-        
     }
 
     private void initFrame() {
@@ -155,7 +159,7 @@ public final class Game implements Runnable {
         if(running)
             return;
         running = true;
-        gameThread = new Thread(this, "SimThread");
+        gameThread = new Thread(this, "GameThread");
         gameThread.start();
     }
 
@@ -167,6 +171,36 @@ public final class Game implements Runnable {
         this.frame.dispose();
         MainMenu.currentGame = null;
         Entity.setCurrentGame(null);
+    }
+
+    public synchronized void endGame() {
+        stop();
+        new GameSummary(this);
+    }
+
+    public int createTiles() {
+        int tileGap = 10;
+        int lastX = TILE_WIDTH/2;
+        int lastY = TILE_HEIGTH*4;
+        int row = 1;
+        for(int i = 0; i < MainMenu.tileAmount; i++) {
+            if(lastX + TILE_WIDTH/2 >= WIDTH) {
+                row++;
+                lastY += tileGap + TILE_HEIGTH;
+                lastX = row % 2 == 0 ? TILE_WIDTH/2 + tileGap*2 : TILE_WIDTH/2;
+            }
+            entitiesToAdd.add(new Tile(lastX, lastY, TILE_WIDTH, TILE_HEIGTH));
+            lastX += tileGap + TILE_WIDTH;
+        }
+        return lastY;
+    }
+
+    public void destroyTiles() {
+        for(Entity e : entities) {
+            if(e instanceof Tile) {
+                entitiesToDelete.add(e);
+            }
+        }
     }
 
     @Override
@@ -224,12 +258,11 @@ public final class Game implements Runnable {
         for(Entity e : entities) {
             e.update();
         }
-
-        if(pickUpGen != null && bot != null) {
+        if(pickUpGen != null) 
             pickUpGen.update();
+        if(bot != null)
             bot.update();
-        }
-    }
+    }       
 
     private void render() {
         if(!running)
@@ -247,8 +280,8 @@ public final class Game implements Runnable {
         g.setColor(Color.WHITE);
         g.drawString(fpsString, 20, 20);
         g.drawString("Score: "+score, 20, 40);
-        //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5);
-        if(currentGameMode == GameMode.TUTORIAL || currentGameMode == GameMode.CPU) {
+        //g.drawOval(Utils.toPixel(bot.getAverageTileX()), 20, 5, 5);
+        if(currentGameMode == GameMode.CPU) {
             if(cpuRacquet.isLeftPressed())
                 g.drawImage(arrowLeft, 
                 Game.WIDTH - arrowLeft.getWidth(null) - 50, 
@@ -281,16 +314,25 @@ public final class Game implements Runnable {
                 leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
                 rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
                 ceil = new LineBoundary(0, 0, WIDTH, 0, visible);
+                ground = new LineBoundary(0, HEIGHT, WIDTH, HEIGHT, visible);
                 break;
             case CPU :
                 leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
                 rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
                 ceil = new LineBoundary(0, 0, WIDTH, 0, visible);
+                ground = new LineBoundary(0, HEIGHT, WIDTH, HEIGHT, visible);
                 break;
-            case VERSUS:
+            case VERSUS :
                 leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
                 rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
+                ground = new LineBoundary(0, HEIGHT, WIDTH, HEIGHT, visible);
                 break;
+            // case TUTORIAL :
+            //     leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
+            //     rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
+            //     ceil = new LineBoundary(0, 0, WIDTH, 0, visible);
+            //     ground = new LineBoundary(0, HEIGHT, WIDTH, HEIGHT, visible);
+            //     break;
         }
         if(leftWall != null)
             entitiesToAdd.add(leftWall);
@@ -300,29 +342,18 @@ public final class Game implements Runnable {
             entitiesToAdd.add(ceil);
         if(ground != null)
             entitiesToAdd.add(ground);
-        
     }
 
-    private int createTiles() {
-        int tileGap = 10;
-        int lastX = TILE_WIDTH/2;
-        int lastY = TILE_HEIGTH*4;
-        int row = 1;
-        for(int i = 0; i < MainMenu.tileAmount; i++) {
-            if(lastX + TILE_WIDTH/2 >= WIDTH) {
-                row++;
-                lastY += tileGap + TILE_HEIGTH;
-                lastX = row % 2 == 0 ? TILE_WIDTH/2 + tileGap*2 : TILE_WIDTH/2;
-            }
-            entitiesToAdd.add(new Tile(lastX, lastY, TILE_WIDTH, TILE_HEIGTH));
-            lastX += tileGap + TILE_WIDTH;
-        }
-        return lastY;
+    public Bot getBot() {
+        return bot;
     }
 
-    public void endGame() {
-        stop();
-        new GameSummary(this);
+    public Ball getBall() {
+        return ball;
+    }
+
+    public Racquet getCpuRacquet() {
+        return cpuRacquet;
     }
 
     public int getPickupsPickedup() {

@@ -51,7 +51,7 @@ public class GameSummary extends JFrame implements ActionListener {
         summaryPanel = new JPanel(new GridBagLayout());
         summaryPanel.setBackground(MainMenu.BACKGROUND_COLOR);
         gbc.insets = new Insets(0, 0, 50, 0);
-        var summaryText = new JLabel("Summary");
+        var summaryText = new JLabel("Game Summary");
         summaryText.setFont(MainMenu.TITLE_FONT);
         summaryText.setForeground(Color.ORANGE);
         gbc.gridx = 0;
@@ -59,10 +59,16 @@ public class GameSummary extends JFrame implements ActionListener {
         summaryPanel.add(summaryText, gbc);
         gbc.insets = new Insets(20, 0, 0, 0);
 
-        var textArea = new JTextArea("Time: " +
-        Integer.toString(currentGame.getSecondsSinceStart() / 60)+" minutes and " +
-        Integer.toString(currentGame.getSecondsSinceStart() % 60)+" seconds\n" +
-        "Score: "+Integer.toString(currentGame.getScore())+" / "+MainMenu.tileAmount + 
+        String timeStr;
+        if(currentGame.getSecondsSinceStart() < 60) {
+            timeStr = Integer.toString(currentGame.getSecondsSinceStart())+" seconds";
+        }
+        else {
+            timeStr = Integer.toString(currentGame.getSecondsSinceStart() / 60)+" minutes and " +
+            Integer.toString(currentGame.getSecondsSinceStart() % 60)+" seconds";
+        }
+        var textArea = new JTextArea("Time: " + timeStr +
+        "\nScore: "+Integer.toString(currentGame.getScore())+"/"+MainMenu.tileAmount + 
         "\nPickups picked up: "+Integer.toString(currentGame.getPickupsPickedup()));
         textArea.setColumns(15);
         textArea.setFont(font);

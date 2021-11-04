@@ -34,7 +34,6 @@ public class LineBoundary extends Entity {
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
         this.fd.filter.categoryBits = CollisionCategory.BOUNDARY.BIT;
-        this.fd.filter.maskBits = 2;
     }
 
     @Override

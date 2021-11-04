@@ -2,7 +2,6 @@ package entity;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 
@@ -46,7 +45,6 @@ public class Racquet extends Entity {
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
         this.fd.filter.categoryBits = CollisionCategory.RACQUET.BIT;
-        this.fd.filter.maskBits = CollisionCategory.PICK_UP.BIT + CollisionCategory.BALL.BIT;
     }
 
     public Racquet(int x, int y, int width, int height) {
