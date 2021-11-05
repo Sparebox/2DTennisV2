@@ -81,7 +81,7 @@ public final class PickupGen {
                 break;
             case BUBBLE :
                 createBubble();
-                Ball.vel = Ball.VEL_DEFAULT * Ball.BOOST_F;
+                Ball.vel = Ball.VEL_DEFAULT * Ball.BOOST_F * 1.5f;
                 break;
         }
     }

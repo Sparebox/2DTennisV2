@@ -25,11 +25,9 @@ public class CustomContactListener implements ContactListener{
         
         if(a == CollisionCategory.PICK_UP.BIT && b == CollisionCategory.RACQUET.BIT) {
             Pickup p = (Pickup) contact.getFixtureA().getBody().getUserData();
-            //currentGame.getPickUpGen().pickedUp(p);
             currentGame.getPickUpGen().setPickupToBeApplied(p);
         } else if(a == CollisionCategory.RACQUET.BIT && b == CollisionCategory.PICK_UP.BIT) {
             Pickup p = (Pickup) contact.getFixtureB().getBody().getUserData();
-            //currentGame.getPickUpGen().pickedUp(p);
             currentGame.getPickUpGen().setPickupToBeApplied(p);
         }
 

@@ -38,6 +38,7 @@ public final class Ball extends Entity {
         this.bd.allowSleep = false;
         this.bd.gravityScale = 0f;
         this.bd.linearVelocity = new Vec2(VEL_DEFAULT, VEL_DEFAULT);
+        this.bd.userData = this;
 
         this.cs = new CircleShape();
         this.cs.setRadius(this.radius/2);

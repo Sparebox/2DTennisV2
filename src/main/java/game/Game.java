@@ -23,7 +23,6 @@ import entity.Pickup;
 import entity.Racquet;
 import entity.Tile;
 import utils.Timer;
-import utils.Utils;
 import window.GameSummary;
 import window.KeyManager;
 import window.MainMenu;
@@ -280,7 +279,7 @@ public final class Game implements Runnable {
         g.setColor(Color.WHITE);
         g.drawString(fpsString, 20, 20);
         g.drawString("Score: "+score, 20, 40);
-        //g.drawOval(Utils.toPixel(bot.getAverageTileX()), 20, 5, 5);
+        //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5);
         if(currentGameMode == GameMode.CPU) {
             if(cpuRacquet.isLeftPressed())
                 g.drawImage(arrowLeft, 

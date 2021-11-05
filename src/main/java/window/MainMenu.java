@@ -55,7 +55,7 @@ public final class MainMenu extends JFrame implements ActionListener{
 
     public void startGame() {
         if(Game.currentGameMode == null)
-            Game.currentGameMode = game.GameMode.SINGLE;
+            Game.currentGameMode = game.GameMode.CPU;
         MainMenu.currentGame = new Game();
         MainMenu.currentGame.start();
     }

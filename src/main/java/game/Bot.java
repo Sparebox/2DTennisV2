@@ -21,8 +21,7 @@ public final class Bot {
     private Vec2 ballPos;
     private Vec2 cpuRacquetPos;
     private Vec2 predictedBallPos;
-    private Vec2 ballDir;
-    private Vec2 lastBallDir;
+    private Vec2 predictedBallDir;
     private boolean initialUpdate = true;
     private boolean allowAiming = true;
     private float averageTileX;
@@ -32,55 +31,58 @@ public final class Bot {
 
     public Bot(Game currentGame) {
         this.currentGame = currentGame;
-        this.lastBallDir = new Vec2();
         this.aimTimeout = new Timer(timeout);
+        this.predictedBallPos = new Vec2();
     }
 
     public void update() {
         if(initialUpdate) {
             this.ball = currentGame.getBall();
             this.cpuRacquet = currentGame.getCpuRacquet();
-            this.ballPos = this.ball.getBody().getPosition();
             this.cpuRacquetPos = this.cpuRacquet.getBody().getPosition();
             initialUpdate = false;
         }
-        ballDir = ball.getBody().getLinearVelocity().clone();
-        ballDir.normalize();
-        predictedBallPos = ballPos.add(ballDir);
-        if(!lastBallDir.equals(ballDir)) {
-            if(Game.currentGameMode == GameMode.CPU) {
-                while(predictedBallPos.y <= cpuRacquetPos.y && ballDir.y > 0f) {
-                    predictedBallPos.addLocal(ballDir);
-                }
-            } else if(Game.currentGameMode == GameMode.VERSUS) {
-                while(predictedBallPos.y >= cpuRacquetPos.y && ballDir.y < 0f) {
-                    predictedBallPos.addLocal(ballDir);
-                }
-            }
-        }
-        lastBallDir = ballDir.clone();
-        if(Game.currentGameMode == GameMode.CPU) {
-            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x) {
-                if(ball.getBody().getLinearVelocity().x > 0f) {
-                    cpuRacquet.right(SPEED);
-                }
-            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x) {
-                if(ball.getBody().getLinearVelocity().x < 0f) {
-                    cpuRacquet.left(SPEED);
+        ballPos = ball.getBody().getPosition();
+        predictedBallDir = ball.getBody().getLinearVelocity().clone();
+        predictedBallDir.normalize();
+        predictedBallPos = ballPos.clone();
+
+        // Ray casting //
+        if(Game.currentGameMode == GameMode.CPU) {  
+            while(predictedBallPos.y < cpuRacquetPos.y && predictedBallDir.y > 0f) {
+                predictedBallPos.addLocal(predictedBallDir);
+                if(predictedBallPos.x < 0f && ballPos.y < Utils.toWorld(Game.HEIGHT - Game.HEIGHT/4)) {
+                    predictedBallDir.x = -predictedBallDir.x;
+                } else if(predictedBallPos.x > Utils.toWorld(Game.WIDTH) && ballPos.y < Utils.toWorld(Game.HEIGHT - Game.HEIGHT/4)) {
+                    predictedBallDir.x = -predictedBallDir.x;
                 }
             }
         } else if(Game.currentGameMode == GameMode.VERSUS) {
+            while(predictedBallPos.y > cpuRacquetPos.y && predictedBallDir.y < 0f) {
+                predictedBallPos.addLocal(predictedBallDir);
+            }
+            // Bounce prediction disabled for versus mode (too hard to beat lol)
+            // if(predictedBallPos.x < 0f) {
+            //     predictedBallDir.x = -predictedBallDir.x;
+            // } else if(predictedBallPos.x > Utils.toWorld(Game.WIDTH)) {
+            //     predictedBallDir.x = -predictedBallDir.x;
+            // }
+        }
+
+        if(Game.currentGameMode == GameMode.CPU) {
+            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y > Utils.toWorld(Game.HEIGHT/3)) {
+                cpuRacquet.right(SPEED);
+            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y > Utils.toWorld(Game.HEIGHT/3)) {
+                cpuRacquet.left(SPEED);
+            }
+
+        } else if(Game.currentGameMode == GameMode.VERSUS) {
             if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y < Utils.toWorld(Game.HEIGHT - Game.HEIGHT/3)) {
-                if(ball.getBody().getLinearVelocity().x > 0f) {
-                    cpuRacquet.right(SPEED);
-                }
+                cpuRacquet.right(SPEED);
             } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y < Utils.toWorld(Game.HEIGHT - Game.HEIGHT/3)) {
-                if(ball.getBody().getLinearVelocity().x < 0f) {
-                    cpuRacquet.left(SPEED);
-                }
+                cpuRacquet.left(SPEED);
             }
         }
-        
         
         if(ball.getBody().getLinearVelocity().abs().x < 0.01f) { // Avoid x velocity stall
             if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x) {
@@ -97,11 +99,9 @@ public final class Bot {
             if(cpuRacquetPos.x + cpuRacquet.getWidth() < predictedBallPos.x) {
                 cpuRacquet.rotateR();
             }
-                
             else if(cpuRacquetPos.x - cpuRacquet.getWidth() > predictedBallPos.x) {
                 cpuRacquet.rotateL();
             }
-                
         }
 
         if(Game.currentGameMode == GameMode.CPU) {
@@ -112,7 +112,7 @@ public final class Bot {
 
     private void considerPickup() {
         Pickup pickup = null;
-        if(ballPos.y < Utils.toWorld(Game.HEIGHT / 2) && ballDir.y < 0f) {
+        if(ballPos.y < Utils.toWorld(Game.HEIGHT / 2) && predictedBallDir.y < 0f) {
             for(Entity e : currentGame.getEntities()) {
                 if(e instanceof Pickup p) {
                     pickup = p;
@@ -159,10 +159,10 @@ public final class Bot {
 
             if(!allowAiming)
                 return;
-            if(averageTileX > cpuRacquetPos.x && ballDir.y > 0f) {
+            if(averageTileX > cpuRacquetPos.x && predictedBallDir.y > 0f) {
                 cpuRacquet.rotateR();
             }
-            else if(averageTileX < cpuRacquetPos.x && ballDir.y > 0f) {
+            else if(averageTileX < cpuRacquetPos.x && predictedBallDir.y > 0f) {
                 cpuRacquet.rotateL();
             }
         }

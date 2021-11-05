@@ -14,8 +14,7 @@ public class AreaQueryCallback implements QueryCallback {
 
     @Override
     public boolean reportFixture(Fixture fixture) {
-        if(!(fixture.getUserData() instanceof Ball))
-            foundBodies.add(fixture.getBody());
+        foundBodies.add(fixture.getBody());
         return true;
     }
 
