@@ -9,6 +9,7 @@ import window.MainMenu;
 public class Launcher {
 
     public static void main(String[] args) {
+        System.setProperty("sun.java2d.opengl", "True");
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
