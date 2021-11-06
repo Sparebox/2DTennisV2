@@ -46,7 +46,10 @@ public final class KeyManager extends KeyAdapter {
                     new MainMenu();
                 }
                 else if(menu != null) {
-                    System.exit(0);
+                    if(menu.isSettingsVisible())
+                        menu.hideSettings();
+                    else
+                        System.exit(0);
                 }
                 else if(summary != null) {
                     System.exit(0);

@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import game.Game;
+import game.GameMode;
 
 public class GameSummary extends JFrame implements ActionListener {
     
@@ -26,9 +27,11 @@ public class GameSummary extends JFrame implements ActionListener {
     private GridBagConstraints gbc;
     private Font font;
     private KeyManager keyManager;
+    private boolean won;
 
-    public GameSummary(Game currentGame) {
+    public GameSummary(Game currentGame, boolean won) {
         this.currentGame = currentGame;
+        this.won = won;
         this.keyManager = new KeyManager(this);
         initFrame();
         createSummary();
@@ -60,15 +63,23 @@ public class GameSummary extends JFrame implements ActionListener {
         gbc.insets = new Insets(20, 0, 0, 0);
 
         String timeStr;
-        if(currentGame.getSecondsSinceStart() < 60) {
+        if(currentGame.getSecondsSinceStart() < 60) 
             timeStr = Integer.toString(currentGame.getSecondsSinceStart())+" seconds";
-        }
-        else {
+        else
             timeStr = Integer.toString(currentGame.getSecondsSinceStart() / 60)+" minutes and " +
             Integer.toString(currentGame.getSecondsSinceStart() % 60)+" seconds";
-        }
-        var textArea = new JTextArea("Time: " + timeStr +
-        "\nScore: "+Integer.toString(currentGame.getScore())+"/"+MainMenu.tileAmount + 
+        
+        String scoreStr;
+        if(Game.currentGameMode == GameMode.VERSUS)
+            if(won)
+                scoreStr = "You Won!";
+            else
+                scoreStr = "You Lost!";
+        else if(won)
+            scoreStr = "You Won! Score: "+Integer.toString(currentGame.getScore())+"/"+MainMenu.tileAmount;
+        else 
+            scoreStr = "You Lost! Score: "+Integer.toString(currentGame.getScore())+"/"+MainMenu.tileAmount;
+        var textArea = new JTextArea("Time: " + timeStr + "\n" + scoreStr +
         "\nPickups picked up: "+Integer.toString(currentGame.getPickupsPickedup()));
         textArea.setColumns(15);
         textArea.setFont(font);

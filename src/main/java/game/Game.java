@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,8 +30,8 @@ import window.MainMenu;
 
 public final class Game implements Runnable {
 
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 1000;
+    public static int width = 800;
+    public static int height = 1000;
     public static final Color BACKGROUND_COLOR = Color.BLACK;
     public static final int FPS_MAX = 300;
     public static final int FPS_MIN = 1;
@@ -94,10 +95,10 @@ public final class Game implements Runnable {
         switch(currentGameMode) {
             case CPU :
                 this.pickUpGen = new PickupGen(this);
-                this.cpuRacquet = new Racquet(WIDTH/2, 200, 20);
+                this.cpuRacquet = new Racquet(width/2, 200, 20);
                 this.cpuRacquet.setCpuOwned(true);
                 lastTileY = createTiles();
-                this.ball = new Ball(WIDTH/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS);
+                this.ball = new Ball(width/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS);
                 entitiesToAdd.add(cpuRacquet);
                 entitiesToAdd.add(ball);
                 this.bot = new Bot(this);
@@ -106,17 +107,17 @@ public final class Game implements Runnable {
                 break;
             case SINGLE :
                 this.pickUpGen = new PickupGen(this);
-                this.playerRacquet = new Racquet(WIDTH/2, 200, 20);
+                this.playerRacquet = new Racquet(width/2, 200, 20);
                 lastTileY = createTiles();
-                this.ball = new Ball(WIDTH/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS);
+                this.ball = new Ball(width/2, lastTileY + 2 * BALL_RADIUS, BALL_RADIUS);
                 entitiesToAdd.add(playerRacquet);
                 entitiesToAdd.add(ball);
                 break;
             case VERSUS :
-                this.playerRacquet = new Racquet(WIDTH/2, 200, 20);
-                this.cpuRacquet = new Racquet(WIDTH/2, 50, 200, 20);
+                this.playerRacquet = new Racquet(width/2, 200, 20);
+                this.cpuRacquet = new Racquet(width/2, 50, 200, 20);
                 this.cpuRacquet.setCpuOwned(true);
-                this.ball = new Ball(WIDTH/2, 100, BALL_RADIUS);
+                this.ball = new Ball(width/2, 100, BALL_RADIUS);
                 entitiesToAdd.add(playerRacquet);
                 entitiesToAdd.add(cpuRacquet);
                 entitiesToAdd.add(ball);
@@ -132,7 +133,7 @@ public final class Game implements Runnable {
 
     private void initFrame() {
         this.frame = new JFrame();
-        this.frame.setSize(WIDTH, HEIGHT);
+        this.frame.setSize(width, height);
         this.frame.setResizable(false);
         this.frame.setTitle("2DTennis V2");
         this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -144,9 +145,9 @@ public final class Game implements Runnable {
 
     private void initCanvas() {
         this.canvas = new Canvas();
-        this.canvas.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        this.canvas.setMaximumSize(new Dimension(WIDTH, HEIGHT));
-        this.canvas.setMinimumSize(new Dimension(WIDTH, HEIGHT));
+        this.canvas.setPreferredSize(new Dimension(width, height));
+        this.canvas.setMaximumSize(new Dimension(width, height));
+        this.canvas.setMinimumSize(new Dimension(width, height));
         this.canvas.setBackground(BACKGROUND_COLOR);
         this.canvas.addKeyListener(keyManager);
         this.frame.add(canvas);
@@ -172,9 +173,9 @@ public final class Game implements Runnable {
         Entity.setCurrentGame(null);
     }
 
-    public synchronized void endGame() {
+    public synchronized void endGame(boolean won) {
         stop();
-        new GameSummary(this);
+        new GameSummary(this, won);
     }
 
     public int createTiles() {
@@ -183,7 +184,7 @@ public final class Game implements Runnable {
         int lastY = TILE_HEIGTH*4;
         int row = 1;
         for(int i = 0; i < MainMenu.tileAmount; i++) {
-            if(lastX + TILE_WIDTH/2 >= WIDTH) {
+            if(lastX + TILE_WIDTH/2 >= width) {
                 row++;
                 lastY += tileGap + TILE_HEIGTH;
                 lastX = row % 2 == 0 ? TILE_WIDTH/2 + tileGap*2 : TILE_WIDTH/2;
@@ -234,10 +235,9 @@ public final class Game implements Runnable {
     }
 
     private void update() {
-        if(score == MainMenu.tileAmount &&
-        (currentGameMode == GameMode.CPU ||
-        currentGameMode == GameMode.SINGLE)) {
-            endGame();
+        if(score == MainMenu.tileAmount) {
+            endGame(true);
+            return;
         }
         if(!entitiesToDelete.isEmpty()) {
             for(Entity e : entitiesToDelete) {
@@ -277,19 +277,19 @@ public final class Game implements Runnable {
         renderEntities(g);
 
         g.setColor(Color.WHITE);
-        g.drawString(fpsString, 20, 20);
-        g.drawString("Score: "+score, 20, 40);
-        //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5);
+        g.drawString(fpsString, 10, 20);
+        g.drawString("Score: "+score, 10, 40);
+        //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5); // Display ball prediction
         if(currentGameMode == GameMode.CPU) {
             if(cpuRacquet.isLeftPressed())
                 g.drawImage(arrowLeft, 
-                Game.WIDTH - arrowLeft.getWidth(null) - 50, 
-                Game.HEIGHT - arrowLeft.getHeight(null) - 50,
+                Game.width - arrowLeft.getWidth(null) - 50, 
+                Game.height - arrowLeft.getHeight(null) - 50,
                 50, 50, null);
             if(cpuRacquet.isRightPressed())
                 g.drawImage(arrowRight, 
-                Game.WIDTH - arrowLeft.getWidth(null)/2 - 50, 
-                Game.HEIGHT - arrowLeft.getHeight(null) - 50,
+                Game.width - arrowLeft.getWidth(null)/2 - 50, 
+                Game.height - arrowLeft.getHeight(null) - 50,
                 50, 50, null);
         }
         
@@ -310,21 +310,21 @@ public final class Game implements Runnable {
         Entity ground = null;
         switch(currentGameMode) {
             case SINGLE :
-                leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
-                rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
-                ceil = new LineBoundary(0, 0, WIDTH, 0, visible);
-                ground = new LineBoundary(0, HEIGHT, WIDTH, HEIGHT, visible);
+                leftWall = new LineBoundary(0, 0, 0, height, visible);
+                rightWall = new LineBoundary(width, 0, width, height, visible);
+                ceil = new LineBoundary(0, 0, width, 0, visible);
+                ground = new LineBoundary(0, height, width, height, visible);
                 break;
             case CPU :
-                leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
-                rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
-                ceil = new LineBoundary(0, 0, WIDTH, 0, visible);
-                ground = new LineBoundary(0, HEIGHT, WIDTH, HEIGHT, visible);
+                leftWall = new LineBoundary(0, 0, 0, height, visible);
+                rightWall = new LineBoundary(width, 0, width, height, visible);
+                ceil = new LineBoundary(0, 0, width, 0, visible);
+                ground = new LineBoundary(0, height, width, height, visible);
                 break;
             case VERSUS :
-                leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
-                rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
-                ground = new LineBoundary(0, HEIGHT, WIDTH, HEIGHT, visible);
+                leftWall = new LineBoundary(0, 0, 0, height, visible);
+                rightWall = new LineBoundary(width, 0, width, height, visible);
+                ground = new LineBoundary(0, height, width, height, visible);
                 break;
             // case TUTORIAL :
             //     leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);

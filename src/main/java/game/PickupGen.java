@@ -2,7 +2,6 @@ package game;
 
 import java.util.Random;
 
-import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.common.Vec2;
 
 import entity.Ball;
@@ -19,8 +18,8 @@ public final class PickupGen {
     public static final int PICKUP_HEIGTH = 30;
     public static final int RESET_TIME = (int) 5e3;
 
-    public static int maxInterval = 25;
-    public static int minInterval = 12;  
+    public static final int MAX_INTERVAL = 25;
+    public static final int MIN_INTERVAL = 12;  
 
     private static Game currentGame;
     
@@ -32,7 +31,7 @@ public final class PickupGen {
     public PickupGen(Game currentGame) {
         PickupGen.currentGame = currentGame;
         this.random = new Random();
-        int randomTime = Math.min(maxInterval, Math.max(random.nextInt(maxInterval+1), minInterval));
+        int randomTime = Math.min(MAX_INTERVAL, Math.max(random.nextInt(MAX_INTERVAL+1), MIN_INTERVAL));
         this.randomTimer = new Timer((int) (randomTime*1e3));
         this.resetTimer = new Timer(RESET_TIME);
         resetEffects();
@@ -40,11 +39,11 @@ public final class PickupGen {
 
     public void update() {
         if(randomTimer.tick() && currentGame.getCurrentPickup() == null) {
-            int x = random.nextInt(Game.WIDTH);
+            int x = random.nextInt(Game.width);
             if(x < PICKUP_WIDTH/2)
                 x = PICKUP_WIDTH/2;
-            else if(x + PICKUP_WIDTH/2 > Game.WIDTH)
-                x = Game.WIDTH - PICKUP_WIDTH/2;
+            else if(x + PICKUP_WIDTH/2 > Game.width)
+                x = Game.width - PICKUP_WIDTH/2;
             int ordinal = random.nextInt(PickUpType.values().length);
             PickUpType type = PickUpType.values()[ordinal];
             var pickup = new Pickup(x, PICKUP_HEIGTH/2, PICKUP_WIDTH, PICKUP_HEIGTH, type);
@@ -65,7 +64,7 @@ public final class PickupGen {
     }
 
     private void setNewRandomInterval() {
-        int randomTime = Math.min(maxInterval, Math.max(random.nextInt(maxInterval+1), minInterval));
+        int randomTime = Math.min(MAX_INTERVAL, Math.max(random.nextInt(MAX_INTERVAL+1), MIN_INTERVAL));
         randomTimer.setIntervalMs((int) (randomTime*1e3));
     }
 

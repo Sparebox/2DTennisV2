@@ -82,19 +82,19 @@ public final class Ball extends Entity {
             else 
                 velocity.y -= 0.5f;
         }
-        if(Utils.toPixel(body.getPosition().y + radius) > Game.HEIGHT &&
+        if(Utils.toPixel(body.getPosition().y + radius) > Game.height &&
         !inBubble &&
         (Game.currentGameMode == GameMode.SINGLE ||
         Game.currentGameMode == GameMode.CPU ||
         Game.currentGameMode == GameMode.VERSUS)) {
             if(currentGame != null) {
-                currentGame.endGame();
+                currentGame.endGame(false);
             }
         }
         if(Utils.toPixel(body.getPosition().y - radius) < 0f && 
         Game.currentGameMode == game.GameMode.VERSUS && !inBubble) {
             if(currentGame != null) {
-                currentGame.endGame();
+                currentGame.endGame(true);
             }
         }
         

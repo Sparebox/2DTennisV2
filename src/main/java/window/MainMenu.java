@@ -46,6 +46,7 @@ public final class MainMenu extends JFrame implements ActionListener{
     private JTextArea tutorialText;
     private Dimension buttonDimensions = new Dimension(300, 70);
     private KeyManager keyManager;
+    private boolean settingsVisible;
 
     public MainMenu() {
         this.keyManager = new KeyManager(this);
@@ -55,7 +56,7 @@ public final class MainMenu extends JFrame implements ActionListener{
 
     public void startGame() {
         if(Game.currentGameMode == null)
-            Game.currentGameMode = game.GameMode.CPU;
+            Game.currentGameMode = game.GameMode.SINGLE;
         MainMenu.currentGame = new Game();
         MainMenu.currentGame.start();
     }
@@ -165,10 +166,11 @@ public final class MainMenu extends JFrame implements ActionListener{
     }
 
     private void showSettings() {
+        settingsVisible = true;
         int maxWidth = (int) buttonDimensions.getWidth();
         settingsPanel = new JPanel();
-        settingsPanel.setLayout(new GridBagLayout());
         settingsPanel.setBackground(BACKGROUND_COLOR);
+        settingsPanel.setLayout(new GridBagLayout());
         JPanel firstPanel = new JPanel();
         firstPanel.setLayout(new GridBagLayout());
         firstPanel.setBackground(BACKGROUND_COLOR);
@@ -239,7 +241,7 @@ public final class MainMenu extends JFrame implements ActionListener{
                 nextPanel.setVisible(true);
                 nextB.setVisible(false);
             }
-
+        
         });
         JLabel modeLabel = new JLabel("Game Mode");
         modeLabel.setFont(font);
@@ -321,15 +323,13 @@ public final class MainMenu extends JFrame implements ActionListener{
                 }
                 tileAmount = tiles <= 0 ? Game.DEFAULT_TILES : tiles;
                 if(!nextPanel.isVisible()) {
-                    settingsPanel.setVisible(false);
-                    titlePanel.setVisible(true);
-                    buttonsPanel.setVisible(true);
+                    hideSettings();
                 } else {
                     nextPanel.setVisible(false);
                     firstPanel.setVisible(true);
                     nextB.setVisible(true);
                 }
-                
+                settingsVisible = false;
             }
         });
         gbc.gridx = 0;
@@ -340,5 +340,17 @@ public final class MainMenu extends JFrame implements ActionListener{
         gbc.gridy = 0;
         btnPanel.add(nextB, gbc);
         this.add(settingsPanel, BorderLayout.CENTER);
+        this.requestFocusInWindow();
     }
+
+    public void hideSettings() {
+        settingsPanel.setVisible(false);
+        titlePanel.setVisible(true);
+        buttonsPanel.setVisible(true);
+    }
+
+    public boolean isSettingsVisible() {
+        return settingsVisible;
+    }
+
 }

@@ -45,7 +45,7 @@ public class Tile extends Entity {
     public void update() {
         if(currentGame == null)
             return;
-        if(Utils.toPixel(body.getPosition().y - width/2) > Game.HEIGHT) {
+        if(Utils.toPixel(body.getPosition().y - width/2) > Game.height) {
             currentGame.getPhysWorld().destroyBody(body);
             MainMenu.currentGame.getEntitiesToDelete().add(this);
         }

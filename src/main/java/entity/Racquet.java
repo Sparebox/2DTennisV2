@@ -32,7 +32,7 @@ public class Racquet extends Entity {
         this.height = Utils.toWorld(height);
         this.bd = new BodyDef();
         this.bd.type = BodyType.KINEMATIC;
-        this.bd.position.set(Utils.toWorld(x), Utils.toWorld(Game.HEIGHT - 50));
+        this.bd.position.set(Utils.toWorld(x), Utils.toWorld(Game.height - 50));
         this.bd.allowSleep = false;
         this.bd.userData = this;
 
@@ -98,9 +98,9 @@ public class Racquet extends Entity {
             right(speed);
         }
         if(keys.get(KeyEvent.VK_SPACE)) {
-            if(Utils.toPixel(body.getPosition().y) > Game.HEIGHT - 100)
+            if(Utils.toPixel(body.getPosition().y) > Game.height - 100)
                 body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(-speed)), 0f);
-        } else if(Utils.toPixel(body.getPosition().y) < Game.HEIGHT - 50)
+        } else if(Utils.toPixel(body.getPosition().y) < Game.height - 50)
             body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(speed)), 0f);
 
         if(keys.get(KeyEvent.VK_COMMA) || keys.get(KeyEvent.VK_Q)) {
@@ -121,7 +121,7 @@ public class Racquet extends Entity {
 
     public void right(int speed) {
         rightPressed = true;
-        if(Utils.toPixel(body.getPosition().x + width/2) < Game.WIDTH - 1)
+        if(Utils.toPixel(body.getPosition().x + width/2) < Game.width - 1)
             body.setTransform(body.getPosition().addLocal(Utils.toWorld(speed), 0), 0f);
         else
             body.setTransform(body.getPosition(), 0f);
