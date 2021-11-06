@@ -17,6 +17,7 @@ public class Launcher {
             e.printStackTrace();
         }
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new MainMenu();
             }

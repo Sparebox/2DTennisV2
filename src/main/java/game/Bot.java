@@ -22,6 +22,7 @@ public final class Bot {
     private Vec2 cpuRacquetPos;
     private Vec2 predictedBallPos;
     private Vec2 predictedBallDir;
+    private Vec2 lastPredictedBallDir;
     private boolean initialUpdate = true;
     private boolean allowAiming = true;
     private float averageTileX;
@@ -33,6 +34,7 @@ public final class Bot {
         this.currentGame = currentGame;
         this.aimTimeout = new Timer(timeout);
         this.predictedBallPos = new Vec2();
+        this.lastPredictedBallDir = new Vec2();
     }
 
     public void update() {
@@ -48,25 +50,23 @@ public final class Bot {
         predictedBallPos = ballPos.clone();
 
         // Ray casting //
-        if(Game.currentGameMode == GameMode.CPU) {  
+        boolean dirChanged = !lastPredictedBallDir.equals(predictedBallDir);
+        if(Game.currentGameMode == GameMode.CPU && dirChanged) { 
             while(predictedBallPos.y < cpuRacquetPos.y && predictedBallDir.y > 0f) {
-                predictedBallPos.addLocal(predictedBallDir);
-                if(predictedBallPos.x < 0f && ballPos.y < Utils.toWorld(Game.height - Game.height/4)) {
+                if((predictedBallPos.x < 0f || predictedBallPos.x > Utils.toWorld(Game.width)) &&
+                ballPos.y < Utils.toWorld(Game.height - Game.height/4) && ball.getBody().getLinearVelocity().y > 1f) {
                     predictedBallDir.x = -predictedBallDir.x;
-                } else if(predictedBallPos.x > Utils.toWorld(Game.width) && ballPos.y < Utils.toWorld(Game.height - Game.height/4)) {
-                    predictedBallDir.x = -predictedBallDir.x;
+                    if(predictedBallPos.x < 0f)
+                        predictedBallPos.x = -predictedBallPos.x;
                 }
+                predictedBallPos.addLocal(predictedBallDir);
             }
-        } else if(Game.currentGameMode == GameMode.VERSUS) {
+            lastPredictedBallDir = predictedBallDir.clone();
+        } else if(Game.currentGameMode == GameMode.VERSUS && dirChanged) {
             while(predictedBallPos.y > cpuRacquetPos.y && predictedBallDir.y < 0f) {
                 predictedBallPos.addLocal(predictedBallDir);
             }
-            // Bounce prediction disabled for versus mode (too hard to beat lol)
-            // if(predictedBallPos.x < 0f) {
-            //     predictedBallDir.x = -predictedBallDir.x;
-            // } else if(predictedBallPos.x > Utils.toWorld(Game.WIDTH)) {
-            //     predictedBallDir.x = -predictedBallDir.x;
-            // }
+            lastPredictedBallDir = predictedBallDir.clone();
         }
 
         if(Game.currentGameMode == GameMode.CPU) {
@@ -103,7 +103,7 @@ public final class Bot {
                 cpuRacquet.rotateL();
             }
         }
-
+    
         if(Game.currentGameMode == GameMode.CPU) {
             considerPickup();
             considerAiming();

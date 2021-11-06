@@ -24,14 +24,13 @@ import entity.Pickup;
 import entity.Racquet;
 import entity.Tile;
 import utils.Timer;
+import utils.Utils;
 import window.GameSummary;
 import window.KeyManager;
 import window.MainMenu;
 
 public final class Game implements Runnable {
 
-    public static int width = 800;
-    public static int height = 1000;
     public static final Color BACKGROUND_COLOR = Color.BLACK;
     public static final int FPS_MAX = 300;
     public static final int FPS_MIN = 1;
@@ -43,9 +42,12 @@ public final class Game implements Runnable {
     public static final int TILE_WIDTH = 40;
     public static final int TILE_HEIGTH = 20;
     public static final int BALL_RADIUS = 20;
+    public static final double UPDATE_INTERVAL = 1e9 / 100f; // Nanoseconds
 
-    public static GameMode currentGameMode;
+    public static GameMode currentGameMode = GameMode.CPU;
     public static double nsPerUpdate;
+    public static int width = 800;
+    public static int height = 1000;
 
     private Pickup currentPickup;
     private World physWorld;
@@ -74,6 +76,7 @@ public final class Game implements Runnable {
     private Image arrowRight;
     
     public Game() {
+        Game.height = (int) (Toolkit.getDefaultToolkit().getScreenSize().height/1.5f);
         init();
     }
 
@@ -173,7 +176,9 @@ public final class Game implements Runnable {
         Entity.setCurrentGame(null);
     }
 
-    public synchronized void endGame(boolean won) {
+    public void endGame(boolean won) {
+        if(!running)
+            return;
         stop();
         new GameSummary(this, won);
     }
@@ -218,9 +223,9 @@ public final class Game implements Runnable {
             lastTime = now;
             while(accumulator >= nsPerUpdate) {
                 physWorld.step(1f/MainMenu.fpsTarget, VEL_ITERATIONS, POS_ITERATIONS);
-                while(updateAccumulator >= 1e9 / 100f) {
+                while(updateAccumulator >= UPDATE_INTERVAL) {
                     update();
-                    updateAccumulator -= 1e9 / 100f;
+                    updateAccumulator -= UPDATE_INTERVAL;
                 }
                 render();
                 accumulator -= nsPerUpdate;
@@ -279,7 +284,7 @@ public final class Game implements Runnable {
         g.setColor(Color.WHITE);
         g.drawString(fpsString, 10, 20);
         g.drawString("Score: "+score, 10, 40);
-        //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5); // Display ball prediction
+        g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5); // Display ball prediction
         if(currentGameMode == GameMode.CPU) {
             if(cpuRacquet.isLeftPressed())
                 g.drawImage(arrowLeft, 
