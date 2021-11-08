@@ -25,7 +25,6 @@ import entity.Pickup;
 import entity.Racquet;
 import entity.Tile;
 import utils.Timer;
-import utils.Utils;
 import window.GameSummary;
 import window.KeyManager;
 import window.MainMenu;
@@ -39,7 +38,7 @@ public final class Game implements Runnable {
     public static final int VEL_ITERATIONS = 6;
     public static final int POS_ITERATIONS = 3;
     public static final Vec2 GRAVITY = new Vec2(0, 9.81f);
-    public static final int DEFAULT_TILES = 50;
+    public static final int DEFAULT_ROWS = 4;
     public static final int TILE_WIDTH = 40;
     public static final int TILE_HEIGTH = 20;
     public static final int BALL_RADIUS = 20;
@@ -106,13 +105,13 @@ public final class Game implements Runnable {
                 entitiesToAdd.add(cpuRacquet);
                 entitiesToAdd.add(ball);
                 this.bot = new Bot(this);
-            try {
-                this.arrowLeft = ImageIO.read(getClass().getResource("/leftkey.png"));
-                this.arrowRight = ImageIO.read(getClass().getResource("/rightkey.png"));
-            } catch (IOException e) {
-                System.out.println("Could not load images");
-                e.printStackTrace();
-            }
+                try {
+                    this.arrowLeft = ImageIO.read(getClass().getResource("/leftkey.png"));
+                    this.arrowRight = ImageIO.read(getClass().getResource("/rightkey.png"));
+                } catch (IOException e) {
+                    System.out.println("Could not load images");
+                    e.printStackTrace();
+                }
                 break;
             case SINGLE :
                 this.pickUpGen = new PickupGen(this);
@@ -190,19 +189,22 @@ public final class Game implements Runnable {
     }
 
     public int createTiles() {
+        MainMenu.tileAmount = 0;
         int tileGap = 10;
         int lastX = TILE_WIDTH/2;
         int lastY = TILE_HEIGTH*4;
-        int row = 1;
-        for(int i = 0; i < MainMenu.tileAmount; i++) {
-            if(lastX + TILE_WIDTH/2 >= width) {
+        int row = 0;
+        do {
+            entitiesToAdd.add(new Tile(lastX, lastY, TILE_WIDTH, TILE_HEIGTH));
+            MainMenu.tileAmount++;
+            lastX += tileGap + TILE_WIDTH;
+            if(lastX + TILE_WIDTH/2 >= Game.width) {
                 row++;
                 lastY += tileGap + TILE_HEIGTH;
-                lastX = row % 2 == 0 ? TILE_WIDTH/2 + tileGap*2 : TILE_WIDTH/2;
+                lastX = row % 2 != 0 ? TILE_WIDTH/2 + tileGap*2 : TILE_WIDTH/2;
             }
-            entitiesToAdd.add(new Tile(lastX, lastY, TILE_WIDTH, TILE_HEIGTH));
-            lastX += tileGap + TILE_WIDTH;
         }
+        while(row < MainMenu.rowAmount);
         return lastY;
     }
 
@@ -292,7 +294,7 @@ public final class Game implements Runnable {
         g.setColor(Color.WHITE);
         g.drawString(fpsString, 10, 20);
         g.drawString("Score: "+score, 10, 40);
-        g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5); // Display ball prediction
+        //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5); // Display ball prediction
         if(currentGameMode == GameMode.CPU) {
             if(cpuRacquet.isLeftPressed())
                 g.drawImage(arrowLeft, 

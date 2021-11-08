@@ -22,6 +22,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import entity.Racquet;
 import game.Game;
 import game.GameMode;
 
@@ -36,7 +37,8 @@ public final class MainMenu extends JFrame implements ActionListener{
     public static final Font TITLE_FONT = new Font("SansSerif", Font.BOLD, 60);
 
     public static int fpsTarget = Game.FPS_DEFAULT;
-    public static int tileAmount = Game.DEFAULT_TILES;
+    public static int rowAmount = Game.DEFAULT_ROWS;
+    public static int tileAmount;
 
     private String frameTitle = "2DTennis V2 Main Menu";
     private GridBagConstraints gbc;
@@ -191,13 +193,13 @@ public final class MainMenu extends JFrame implements ActionListener{
         JLabel fps = new JLabel("Target FPS");
         fps.setForeground(Color.ORANGE);
         fps.setFont(font);
-        JLabel tilesLabel = new JLabel("Tiles amount");
+        JLabel tilesLabel = new JLabel("Tile rows");
         tilesLabel.setForeground(Color.ORANGE);
         tilesLabel.setFont(font);
         JTextField selectedFps = new JTextField(Integer.toString(fpsTarget), 3);
         selectedFps.setHorizontalAlignment(SwingConstants.CENTER);
         selectedFps.setFont(font);
-        JTextField tileField = new JTextField(Integer.toString(tileAmount), 3);
+        JTextField tileField = new JTextField(Integer.toString(rowAmount), 3);
         tileField.setHorizontalAlignment(SwingConstants.CENTER);
         tileField.setFont(font);
         JSlider fpsSlider = new JSlider(Game.FPS_MIN, Game.FPS_MAX, fpsTarget);
@@ -214,9 +216,9 @@ public final class MainMenu extends JFrame implements ActionListener{
                 selectedFps.setText(Integer.toString(source.getValue()));
             }
         });
-        JSlider tileSlider = new JSlider(1, 450);
-        tileSlider.setMajorTickSpacing(10);
-        tileSlider.setMinorTickSpacing(5);
+        JSlider tileSlider = new JSlider(1, calculateMaxRow());
+        tileSlider.setMajorTickSpacing(5);
+        tileSlider.setMinorTickSpacing(1);
         tileSlider.setPaintTicks(true);
         tileSlider.setFocusable(false);
         tileSlider.setPreferredSize(new Dimension(maxWidth, 50));
@@ -224,7 +226,7 @@ public final class MainMenu extends JFrame implements ActionListener{
             @Override
             public void stateChanged(ChangeEvent e) {
                 var source = (JSlider) e.getSource();
-                tileAmount = source.getValue();
+                rowAmount = source.getValue();
                 tileField.setText(Integer.toString(source.getValue()));
             }
 
@@ -315,13 +317,13 @@ public final class MainMenu extends JFrame implements ActionListener{
                     
                 }
                 fpsTarget = Math.min(Game.FPS_MAX, Math.max(fps, Game.FPS_MIN));
-                int tiles = Game.DEFAULT_TILES;
+                int tiles = Game.DEFAULT_ROWS;
                 try {
                     tiles = Integer.parseInt(tileField.getText());
                 } catch (NumberFormatException ex) {
                    
                 }
-                tileAmount = tiles <= 0 ? Game.DEFAULT_TILES : tiles;
+                rowAmount = tiles <= 0 ? Game.DEFAULT_ROWS : tiles;
                 if(!nextPanel.isVisible()) {
                     hideSettings();
                 } else {
@@ -341,6 +343,23 @@ public final class MainMenu extends JFrame implements ActionListener{
         btnPanel.add(nextB, gbc);
         this.add(settingsPanel, BorderLayout.CENTER);
         this.requestFocusInWindow();
+    }
+
+    private int calculateMaxRow() {
+        int tileGap = 10;
+        int lastX = Game.TILE_WIDTH/2;
+        int lastY = Game.TILE_HEIGTH*4;
+        int maxRow = 0;
+        do {
+            lastX += tileGap + Game.TILE_WIDTH;
+            if(lastX + Game.TILE_WIDTH/2 >= Game.width) {
+                maxRow++;
+                lastY += tileGap + Game.TILE_HEIGTH;
+                lastX = maxRow % 2 != 0 ? Game.TILE_WIDTH/2 + tileGap*2 : Game.TILE_WIDTH/2;
+            }
+        }
+        while(lastY + Game.TILE_HEIGTH * 3 < Racquet.Y_COORD);
+        return maxRow;
     }
 
     public void hideSettings() {

@@ -132,7 +132,7 @@ public final class Bot {
     }
 
     private void considerAiming() {
-        int tileCount = MainMenu.tileAmount - currentGame.getScore();
+        int tileCount = MainMenu.rowAmount - currentGame.getScore();
         if(tileCount < 21) {
             if(lastTileCount != tileCount) {
                 aimTimeout.reset();

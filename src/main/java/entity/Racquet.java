@@ -21,6 +21,7 @@ public class Racquet extends Entity {
     public static final float MIN_WIDTH = 30; // In pixels
     public static final int BOOST = 3;
     public static final int MOVE_SPEED = 3;
+    public static final int Y_COORD = Game.height - 100;
 
     private PolygonShape ps;
     private boolean leftPressed;
@@ -32,7 +33,7 @@ public class Racquet extends Entity {
         this.height = Utils.toWorld(height);
         this.bd = new BodyDef();
         this.bd.type = BodyType.KINEMATIC;
-        this.bd.position.set(Utils.toWorld(x), Utils.toWorld(Game.height - 50));
+        this.bd.position.set(Utils.toWorld(x), Utils.toWorld(Y_COORD));
         this.bd.allowSleep = false;
         this.bd.userData = this;
 
