@@ -1,4 +1,4 @@
-package physics.jbox2d;
+package physics.launcher;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;

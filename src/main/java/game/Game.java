@@ -24,7 +24,6 @@ import entity.Pickup;
 import entity.Racquet;
 import entity.Tile;
 import utils.Timer;
-import utils.Utils;
 import window.GameSummary;
 import window.KeyManager;
 import window.MainMenu;
@@ -240,6 +239,8 @@ public final class Game implements Runnable {
     }
 
     private void update() {
+        if(!running)
+            return;
         if(score == MainMenu.tileAmount) {
             endGame(true);
             return;
@@ -284,7 +285,7 @@ public final class Game implements Runnable {
         g.setColor(Color.WHITE);
         g.drawString(fpsString, 10, 20);
         g.drawString("Score: "+score, 10, 40);
-        g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5); // Display ball prediction
+        //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5); // Display ball prediction
         if(currentGameMode == GameMode.CPU) {
             if(cpuRacquet.isLeftPressed())
                 g.drawImage(arrowLeft, 

@@ -18,8 +18,8 @@ public final class PickupGen {
     public static final int PICKUP_HEIGTH = 30;
     public static final int RESET_TIME = (int) 5e3;
 
-    public static final int MAX_INTERVAL = 25;
-    public static final int MIN_INTERVAL = 12;  
+    public static final int MAX_INTERVAL = 5; // 25
+    public static final int MIN_INTERVAL = 5; // 12 
 
     private static Game currentGame;
     
@@ -82,6 +82,9 @@ public final class PickupGen {
                 createBubble();
                 Ball.vel = Ball.VEL_DEFAULT * Ball.BOOST_F * 1.5f;
                 break;
+            case VORTEX :
+                currentGame.getBall().setInVortex(true);
+                break;
         }
     }
 
@@ -89,6 +92,7 @@ public final class PickupGen {
         Ball.vel = Ball.VEL_DEFAULT;
         if(currentGame.getBall() != null) {
             destroyBubble();
+            currentGame.getBall().setInVortex(false);
         }
         currentGame.setCurrentPickup(null);
     }
