@@ -22,7 +22,7 @@ public final class Bot {
     private Vec2 cpuRacquetPos;
     private Vec2 predictedBallPos;
     private Vec2 predictedBallDir;
-    private Vec2 lastPredictedBallDir;
+    private Vec2 lastBallDir;
     private boolean initialUpdate = true;
     private boolean allowAiming = true;
     private float averageTileX;
@@ -34,7 +34,6 @@ public final class Bot {
         this.currentGame = currentGame;
         this.aimTimeout = new Timer(timeout);
         this.predictedBallPos = new Vec2();
-        this.lastPredictedBallDir = new Vec2();
     }
 
     public void update() {
@@ -42,6 +41,7 @@ public final class Bot {
             this.ball = currentGame.getBall();
             this.cpuRacquet = currentGame.getCpuRacquet();
             this.cpuRacquetPos = this.cpuRacquet.getBody().getPosition();
+            this.lastBallDir = new Vec2();
             initialUpdate = false;
         }
         ballPos = ball.getBody().getPosition();
@@ -50,29 +50,30 @@ public final class Bot {
         predictedBallPos = ballPos.clone();
 
         // Ray casting //
-        boolean dirChanged = !lastPredictedBallDir.equals(predictedBallDir);
-        if(Game.currentGameMode == GameMode.CPU && dirChanged) { 
+        if(Game.currentGameMode == GameMode.CPU) { 
             while(predictedBallPos.y < cpuRacquetPos.y && predictedBallDir.y > 0f) {
-                if((predictedBallPos.x < 0f || predictedBallPos.x > Utils.toWorld(Game.width)) &&
-                ballPos.y < Utils.toWorld(Game.height - Game.height/4) && ball.getBody().getLinearVelocity().y > 1f) {
+                if((predictedBallPos.x < 0f || predictedBallPos.x > Utils.toWorld(Game.width))
+                && ball.getBody().getLinearVelocity().y > 1f) {
                     predictedBallDir.x = -predictedBallDir.x;
                     if(predictedBallPos.x < 0f)
                         predictedBallPos.x = -predictedBallPos.x;
+                    else if(predictedBallPos.x > Utils.toWorld(Game.width))
+                        predictedBallPos.x = Utils.toWorld(Game.width) - (predictedBallPos.x - Utils.toWorld(Game.width));
                 }
                 predictedBallPos.addLocal(predictedBallDir);
+                lastBallDir = predictedBallDir.clone();
             }
-            lastPredictedBallDir = predictedBallDir.clone();
-        } else if(Game.currentGameMode == GameMode.VERSUS && dirChanged) {
+        } else if(Game.currentGameMode == GameMode.VERSUS) {
             while(predictedBallPos.y > cpuRacquetPos.y && predictedBallDir.y < 0f) {
                 predictedBallPos.addLocal(predictedBallDir);
             }
-            lastPredictedBallDir = predictedBallDir.clone();
         }
+        // Ray casting //
 
         if(Game.currentGameMode == GameMode.CPU) {
-            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y > Utils.toWorld(Game.height/3)) {
+            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y > Utils.toWorld(Game.height/2)) {
                 cpuRacquet.right(SPEED);
-            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y > Utils.toWorld(Game.height/3)) {
+            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y > Utils.toWorld(Game.height/2)) {
                 cpuRacquet.left(SPEED);
             }
 

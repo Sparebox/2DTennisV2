@@ -23,16 +23,6 @@ public final class Animation {
         this.frames = images.length;
     }
 
-    private void nextFrame() {
-        for(int i = 0; i < frames; i++) {
-            if(frameIndex == i)
-                currentImg = images[i];
-        }
-        frameIndex++;
-        if(frameIndex > frames)
-            frameIndex = 0;
-    }
-
     public void drawAnimation(Graphics2D g, int x, int y, int width, int height) {
         g.drawImage(currentImg, x, y, width, height, null);
         if(animationTimer.tick()) {
@@ -40,7 +30,7 @@ public final class Animation {
         }
     }
 
-    static public BufferedImage[] cropSprites(BufferedImage image, int count) {
+    public static BufferedImage[] cropSprites(BufferedImage image, int count) {
         BufferedImage[] croppedSprites = new BufferedImage[count];
         int currentX = 0;
         int currentY = 0;
@@ -55,5 +45,15 @@ public final class Animation {
             currentX += SPRITE_PIXEL_WIDTH;
         }
         return croppedSprites;
+    }
+
+    private void nextFrame() {
+        for(int i = 0; i < frames; i++) {
+            if(frameIndex == i)
+                currentImg = images[i];
+        }
+        frameIndex++;
+        if(frameIndex > frames)
+            frameIndex = 0;
     }
 }

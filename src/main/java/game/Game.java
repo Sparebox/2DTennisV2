@@ -5,13 +5,14 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import org.jbox2d.common.Vec2;
@@ -24,6 +25,7 @@ import entity.Pickup;
 import entity.Racquet;
 import entity.Tile;
 import utils.Timer;
+import utils.Utils;
 import window.GameSummary;
 import window.KeyManager;
 import window.MainMenu;
@@ -71,8 +73,8 @@ public final class Game implements Runnable {
     private int secondsSinceStart;
     private int pickupsPickedup;
     private Bot bot;
-    private Image arrowLeft;
-    private Image arrowRight;
+    private BufferedImage arrowLeft;
+    private BufferedImage arrowRight;
     
     public Game() {
         Game.height = (int) (Toolkit.getDefaultToolkit().getScreenSize().height/1.5f);
@@ -104,8 +106,13 @@ public final class Game implements Runnable {
                 entitiesToAdd.add(cpuRacquet);
                 entitiesToAdd.add(ball);
                 this.bot = new Bot(this);
-                this.arrowLeft = new ImageIcon(getClass().getResource("/leftkey.png")).getImage();
-                this.arrowRight = new ImageIcon(getClass().getResource("/rightkey.png")).getImage();
+            try {
+                this.arrowLeft = ImageIO.read(getClass().getResource("/leftkey.png"));
+                this.arrowRight = ImageIO.read(getClass().getResource("/rightkey.png"));
+            } catch (IOException e) {
+                System.out.println("Could not load images");
+                e.printStackTrace();
+            }
                 break;
             case SINGLE :
                 this.pickUpGen = new PickupGen(this);
@@ -285,7 +292,7 @@ public final class Game implements Runnable {
         g.setColor(Color.WHITE);
         g.drawString(fpsString, 10, 20);
         g.drawString("Score: "+score, 10, 40);
-        //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5); // Display ball prediction
+        g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5); // Display ball prediction
         if(currentGameMode == GameMode.CPU) {
             if(cpuRacquet.isLeftPressed())
                 g.drawImage(arrowLeft, 

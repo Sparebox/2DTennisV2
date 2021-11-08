@@ -7,9 +7,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 import window.MainMenu;
 
 public class Launcher {
-
     public static void main(String[] args) {
-        System.setProperty("sun.java2d.opengl", "True");
+        //System.setProperty("sun.java2d.opengl", "True"); // Causes problems on Windows 11 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
