@@ -52,7 +52,7 @@ public final class Ball extends Entity {
             System.out.println("Could not load sprite images");
             System.exit(1);
         }
-        this.vortexAnimation = new Animation(50, Animation.cropSprites(vortexSprites, 12));
+        this.vortexAnimation = new Animation(200, Animation.cropSprites(vortexSprites, 12));
         this.radius = Utils.toWorld(radius);
         this.bd = new BodyDef();
         this.bd.type = BodyType.DYNAMIC;
@@ -141,7 +141,6 @@ public final class Ball extends Entity {
             if(bCOM.sub(this.body.getPosition()).length() >= Utils.toWorld(VORTEX_AREA))
                 continue;
             applyVortex(b, body.getPosition(), bCOM, VORTEX_POWER);
-            System.out.println("applied vortex");
         }
     }
 

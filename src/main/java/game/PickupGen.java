@@ -46,6 +46,7 @@ public final class PickupGen {
                 x = Game.width - PICKUP_WIDTH/2;
             int ordinal = random.nextInt(PickUpType.values().length);
             PickUpType type = PickUpType.values()[ordinal];
+            type = PickUpType.VORTEX;
             var pickup = new Pickup(x, PICKUP_HEIGTH/2, PICKUP_WIDTH, PICKUP_HEIGTH, type);
             currentGame.getEntitiesToAdd().add(pickup);
             setNewRandomInterval();

@@ -11,31 +11,31 @@ public final class Animation {
     public static final int SPRITE_PIXEL_HEIGTH = 64;
     public static final int SPRITE_SHEET_SIZE = SPRITE_PIXEL_WIDTH * 10;
 
-    private Timer animTimer;
+    private Timer animationTimer;
     private int frames;
-    private int count = 0;
+    private int frameIndex;
     private BufferedImage[] images;
     private BufferedImage currentImg;
 
     public Animation(int frameMs, BufferedImage[] images) {
-        this.animTimer = new Timer(frameMs);
+        this.animationTimer = new Timer(frameMs);
         this.images = images;
         this.frames = images.length;
     }
 
     private void nextFrame() {
         for(int i = 0; i < frames; i++) {
-            if(count == i)
+            if(frameIndex == i)
                 currentImg = images[i];
         }
-        count++;
-        if(count > frames)
-            count = 0;
+        frameIndex++;
+        if(frameIndex > frames)
+            frameIndex = 0;
     }
 
     public void drawAnimation(Graphics2D g, int x, int y, int width, int height) {
         g.drawImage(currentImg, x, y, width, height, null);
-        if(animTimer.tick()) {
+        if(animationTimer.tick()) {
             nextFrame();
         }
     }
@@ -51,8 +51,7 @@ public final class Animation {
             }
             if(currentY > SPRITE_PIXEL_HEIGTH)
                 break;
-            System.out.println(currentX);
-            croppedSprites[i] = image.getSubimage(currentX, currentY, SPRITE_PIXEL_WIDTH,SPRITE_PIXEL_HEIGTH);
+            croppedSprites[i] = image.getSubimage(currentX, currentY, SPRITE_PIXEL_WIDTH, SPRITE_PIXEL_HEIGTH);
             currentX += SPRITE_PIXEL_WIDTH;
         }
         return croppedSprites;
