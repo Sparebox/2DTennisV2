@@ -9,6 +9,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -43,17 +48,20 @@ public final class MainMenu extends JFrame implements ActionListener{
     private String frameTitle = "2DTennis V2 Main Menu";
     private GridBagConstraints gbc;
     private JPanel buttonsPanel, titlePanel, creditPanel, settingsPanel, tutorialPanel;
-    private JButton start, settings, tutorial, exit;
+    private JButton start, settingsBtn, tutorial, exit;
     private JLabel title, author;
     private JTextArea tutorialText;
     private Dimension buttonDimensions = new Dimension(300, 70);
     private KeyManager keyManager;
     private boolean settingsVisible;
+    private Settings settings;
 
     public MainMenu() {
         this.keyManager = new KeyManager(this);
+        this.settings = new Settings();
         initFrame();
         createMainMenu();
+        loadSettings();
     }
 
     public void startGame() {
@@ -111,11 +119,11 @@ public final class MainMenu extends JFrame implements ActionListener{
         gbc.insets = new Insets(0, 0, 10, 0);
         buttonsPanel.add(start, gbc);
 
-        settings = new JButton("Settings");
-        setButtonSettings(settings, "settings");
+        settingsBtn = new JButton("Settings");
+        setButtonSettings(settingsBtn, "settings");
         gbc.gridx = 0;
         gbc.gridy = 2;
-        buttonsPanel.add(settings, gbc);
+        buttonsPanel.add(settingsBtn, gbc);
 
         tutorial = new JButton("Tutorial");
         setButtonSettings(tutorial, "tutorial");
@@ -138,6 +146,42 @@ public final class MainMenu extends JFrame implements ActionListener{
         this.add(buttonsPanel, BorderLayout.CENTER);
         this.add(creditPanel, BorderLayout.PAGE_END);
         this.requestFocusInWindow();
+    }
+
+    private void loadSettings() {
+        try {
+            FileInputStream fileIn = new FileInputStream("./settings.set");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            this.settings = (Settings) in.readObject();
+            in.close();
+            fileIn.close();
+            rowAmount = Integer.parseInt(this.settings.get("tile_rows"));
+            fpsTarget = Integer.parseInt(this.settings.get("fps_target"));
+            switch(this.settings.get("game_mode")) {
+                case "CPU" :
+                    Game.currentGameMode = GameMode.CPU;
+                    break;
+                case "SINGLE" :
+                    Game.currentGameMode = GameMode.SINGLE;
+                    break;
+                case "VERSUS" :
+                    Game.currentGameMode = GameMode.VERSUS;
+                    break;
+            }
+        } catch (IOException | ClassNotFoundException e) {}
+    }
+
+    private void saveSettings() {
+        this.settings.put("tile_rows", Integer.toString(rowAmount));
+        this.settings.put("fps_target", Integer.toString(fpsTarget));
+        this.settings.put("game_mode", Game.currentGameMode.toString());
+        try {
+            FileOutputStream fileOut = new FileOutputStream("./settings.set");
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(settings);
+            out.close();
+            fileOut.close();
+         } catch (IOException e) {}
     }
 
     private void setButtonSettings(JButton button, String actionCommand) {
@@ -324,6 +368,7 @@ public final class MainMenu extends JFrame implements ActionListener{
                    
                 }
                 rowAmount = tiles <= 0 ? Game.DEFAULT_ROWS : tiles;
+                saveSettings();
                 if(!nextPanel.isVisible()) {
                     hideSettings();
                 } else {

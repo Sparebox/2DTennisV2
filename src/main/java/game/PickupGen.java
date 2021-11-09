@@ -20,8 +20,8 @@ public final class PickupGen {
     public static final int PICKUP_HEIGTH = 30;
     public static final int RESET_TIME = (int) 5e3;
 
-    public static final int MAX_INTERVAL = 3; // 25
-    public static final int MIN_INTERVAL = 3; // 12 
+    public static final int MAX_INTERVAL = 25; // 25
+    public static final int MIN_INTERVAL = 12; // 12 
 
     private static Game currentGame;
     
@@ -48,7 +48,6 @@ public final class PickupGen {
                 x = Game.width - PICKUP_WIDTH/2;
             int ordinal = random.nextInt(PickUpType.values().length);
             PickUpType type = PickUpType.values()[ordinal];
-            type = PickUpType.SQUARE;
             var pickup = new Pickup(x, PICKUP_HEIGTH/2, PICKUP_WIDTH, PICKUP_HEIGTH, type);
             currentGame.getEntitiesToAdd().add(pickup);
             setNewRandomInterval();
