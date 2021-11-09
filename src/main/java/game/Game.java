@@ -42,7 +42,7 @@ public final class Game implements Runnable {
     public static final int TILE_WIDTH = 40;
     public static final int TILE_HEIGTH = 20;
     public static final int BALL_RADIUS = 20;
-    public static final double UPDATE_INTERVAL = 1e9 / 100f; // Nanoseconds
+    public static final double UPDATE_INTERVAL = 1e9 / 80f; // Nanoseconds
 
     public static GameMode currentGameMode = GameMode.CPU;
     public static double nsPerUpdate;

@@ -2,12 +2,11 @@ package entity;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 
 import org.jbox2d.collision.AABB;
 import org.jbox2d.collision.shapes.CircleShape;
@@ -37,6 +36,7 @@ public final class Ball extends Entity {
     private float radius;
     private boolean inBubble;
     private boolean inVortex;
+    private boolean isSquare;
     private BufferedImage bubbleSprite;
     private BufferedImage vortexSprites;
     private Animation vortexAnimation;
@@ -52,7 +52,7 @@ public final class Ball extends Entity {
             System.out.println("Could not load sprite images");
             System.exit(1);
         }
-        this.vortexAnimation = new Animation(50, Animation.cropSprites(vortexSprites, 12));
+        this.vortexAnimation = new Animation(25, Animation.cropSprites(vortexSprites, 12));
         this.radius = Utils.toWorld(radius);
         this.bd = new BodyDef();
         this.bd.type = BodyType.DYNAMIC;
@@ -68,7 +68,7 @@ public final class Ball extends Entity {
         this.fd = new FixtureDef();
         this.fd.filter.categoryBits = CollisionCategory.BALL.BIT;
         this.fd.shape = cs;
-        this.fd.density = 0.1f;
+        this.fd.density = 1f;
         this.fd.friction = 0f;
         this.fd.restitution = 1f;
     }
@@ -76,7 +76,14 @@ public final class Ball extends Entity {
     @Override
     public void render(Graphics2D g) {
         g.setColor(Color.WHITE);
-        g.fillOval(Utils.toPixel(body.getPosition().x - radius/2), Utils.toPixel(body.getPosition().y - radius/2), Utils.toPixel(radius), Utils.toPixel(radius));
+        if(isSquare) {
+            AffineTransform old = g.getTransform();
+            g.rotate(body.getAngle(), Utils.toPixel(body.getPosition().x), Utils.toPixel(body.getPosition().y));
+            g.fillRect(Utils.toPixel(body.getPosition().x - radius), Utils.toPixel(body.getPosition().y - radius), Utils.toPixel(radius*2), Utils.toPixel(radius*2));
+            g.setTransform(old);
+        }
+        else
+            g.fillOval(Utils.toPixel(body.getPosition().x - radius/2), Utils.toPixel(body.getPosition().y - radius/2), Utils.toPixel(radius), Utils.toPixel(radius));
         if(inBubble)
             g.drawImage(bubbleSprite, Utils.toPixel(body.getPosition().x - radius*2), Utils.toPixel(body.getPosition().y - radius*2), Game.BALL_RADIUS*4, Game.BALL_RADIUS*4, null);
         if(inVortex)
@@ -88,6 +95,9 @@ public final class Ball extends Entity {
 
     @Override
     public void update() {
+        if(currentGame == null)
+            return;
+
         Vec2 velocity = body.getLinearVelocity();
         if(Game.currentGameMode == GameMode.VERSUS) {
             if(velocity.length() != VEL_VERSUS) {
@@ -112,20 +122,19 @@ public final class Ball extends Entity {
             simulateVortex();
 
         // Game over conditions //
-        if(Utils.toPixel(body.getPosition().y + radius) > Game.height &&
+        if(Utils.toPixel(body.getPosition().y + radius) >= Game.height &&
         !inBubble &&
         (Game.currentGameMode == GameMode.SINGLE ||
         Game.currentGameMode == GameMode.CPU ||
         Game.currentGameMode == GameMode.VERSUS)) {
-            if(currentGame != null) {
-                currentGame.endGame(false);
-            }
+            currentGame.endGame(false);
         }
-        if(Utils.toPixel(body.getPosition().y - radius) < 0f && 
-        Game.currentGameMode == game.GameMode.VERSUS && !inBubble) {
-            if(currentGame != null) {
-                currentGame.endGame(true);
-            }
+        if(Utils.toPixel(body.getPosition().y - radius) <= 0f && 
+        Game.currentGameMode == GameMode.VERSUS) {
+            currentGame.endGame(true);
+        }
+        if(isSquare && Utils.toPixel(body.getPosition().y + radius * 2) >= Game.height) {
+            currentGame.endGame(false);
         }
     }
 
@@ -168,6 +177,14 @@ public final class Ball extends Entity {
 
     public boolean isInVortex() {
         return inVortex;
+    }
+
+    public void setSquare(boolean isSquare) {
+        this.isSquare = isSquare;
+    }
+
+    public boolean isSquare() {
+        return isSquare;
     }
     
 }

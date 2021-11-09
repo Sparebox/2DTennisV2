@@ -71,9 +71,9 @@ public final class Bot {
         // Ray casting //
 
         if(Game.currentGameMode == GameMode.CPU) {
-            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y > Utils.toWorld(Game.height/2)) {
+            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y > Utils.toWorld(Game.height/3)) {
                 cpuRacquet.right(SPEED);
-            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y > Utils.toWorld(Game.height/2)) {
+            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y > Utils.toWorld(Game.height/3)) {
                 cpuRacquet.left(SPEED);
             }
 

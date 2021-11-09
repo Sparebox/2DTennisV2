@@ -21,7 +21,7 @@ public class Racquet extends Entity {
     public static final float MIN_WIDTH = 30; // In pixels
     public static final int BOOST = 3;
     public static final int MOVE_SPEED = 3;
-    public static final int Y_COORD = Game.height - 100;
+    public static final int Y_COORD = Game.height - 50;
 
     private PolygonShape ps;
     private boolean leftPressed;
