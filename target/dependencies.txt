@@ -1,0 +1,4 @@
+digraph "game.2d:2DTennisV2:war:0.1" { 
+	"game.2d:2DTennisV2:war:0.1" -> "org.jbox2d:jbox2d-library:jar:2.2.1.1:compile" ; 
+	"game.2d:2DTennisV2:war:0.1" -> "utils:Timer:jar:1.1:system" ; 
+ } 

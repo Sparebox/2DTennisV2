@@ -1,4 +1,4 @@
-package physics.launcher;
+package main.launcher;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;

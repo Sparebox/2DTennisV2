@@ -21,7 +21,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
@@ -47,18 +46,18 @@ public final class MainMenu extends JFrame implements ActionListener{
 
     private String frameTitle = "2DTennis V2 Main Menu";
     private GridBagConstraints gbc;
-    private JPanel buttonsPanel, titlePanel, creditPanel, settingsPanel, tutorialPanel;
-    private JButton start, settingsBtn, tutorial, exit;
+    private JPanel buttonsPanel, titlePanel, creditPanel, settingsPanel; //tutorialPanel;
+    private JButton start, settings, tutorial, exit;
     private JLabel title, author;
-    private JTextArea tutorialText;
+    //private JTextArea tutorialText;
     private Dimension buttonDimensions = new Dimension(300, 70);
     private KeyManager keyManager;
     private boolean settingsVisible;
-    private Settings settings;
+    private Settings settingsData;
 
     public MainMenu() {
         this.keyManager = new KeyManager(this);
-        this.settings = new Settings();
+        this.settingsData = new Settings();
         initFrame();
         createMainMenu();
         loadSettings();
@@ -119,11 +118,11 @@ public final class MainMenu extends JFrame implements ActionListener{
         gbc.insets = new Insets(0, 0, 10, 0);
         buttonsPanel.add(start, gbc);
 
-        settingsBtn = new JButton("Settings");
-        setButtonSettings(settingsBtn, "settings");
+        settings = new JButton("Settings");
+        setButtonSettings(settings, "settings");
         gbc.gridx = 0;
         gbc.gridy = 2;
-        buttonsPanel.add(settingsBtn, gbc);
+        buttonsPanel.add(settings, gbc);
 
         tutorial = new JButton("Tutorial");
         setButtonSettings(tutorial, "tutorial");
@@ -152,33 +151,27 @@ public final class MainMenu extends JFrame implements ActionListener{
         try {
             FileInputStream fileIn = new FileInputStream("./settings.set");
             ObjectInputStream in = new ObjectInputStream(fileIn);
-            this.settings = (Settings) in.readObject();
+            this.settingsData = (Settings) in.readObject();
             in.close();
             fileIn.close();
-            rowAmount = Integer.parseInt(this.settings.get("tile_rows"));
-            fpsTarget = Integer.parseInt(this.settings.get("fps_target"));
-            switch(this.settings.get("game_mode")) {
-                case "CPU" :
-                    Game.currentGameMode = GameMode.CPU;
-                    break;
-                case "SINGLE" :
-                    Game.currentGameMode = GameMode.SINGLE;
-                    break;
-                case "VERSUS" :
-                    Game.currentGameMode = GameMode.VERSUS;
-                    break;
+            rowAmount = Integer.parseInt(this.settingsData.get("tile_rows"));
+            fpsTarget = Integer.parseInt(this.settingsData.get("fps_target"));
+            String mode = this.settingsData.get("game_mode");
+            for(GameMode m : GameMode.values()) {
+                if(m.toString().equals(mode))
+                    Game.currentGameMode = m;
             }
         } catch (IOException | ClassNotFoundException e) {}
     }
 
     private void saveSettings() {
-        this.settings.put("tile_rows", Integer.toString(rowAmount));
-        this.settings.put("fps_target", Integer.toString(fpsTarget));
-        this.settings.put("game_mode", Game.currentGameMode.toString());
+        this.settingsData.put("tile_rows", Integer.toString(rowAmount));
+        this.settingsData.put("fps_target", Integer.toString(fpsTarget));
+        this.settingsData.put("game_mode", Game.currentGameMode.toString());
         try {
             FileOutputStream fileOut = new FileOutputStream("./settings.set");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(settings);
+            out.writeObject(settingsData);
             out.close();
             fileOut.close();
          } catch (IOException e) {}
@@ -261,6 +254,8 @@ public final class MainMenu extends JFrame implements ActionListener{
             }
         });
         JSlider tileSlider = new JSlider(1, calculateMaxRow());
+        if(this.settingsData.get("tile_rows") != null)
+            tileSlider.setValue(Integer.parseInt(this.settingsData.get("tile_rows")));
         tileSlider.setMajorTickSpacing(5);
         tileSlider.setMinorTickSpacing(1);
         tileSlider.setPaintTicks(true);

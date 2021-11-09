@@ -122,20 +122,25 @@ public final class Ball extends Entity {
             simulateVortex();
 
         // Game over conditions //
+
+        // Lose conditions //
+
         if(Utils.toPixel(body.getPosition().y + radius) >= Game.height &&
-        !inBubble &&
+        !inBubble && !isSquare &&
         (Game.currentGameMode == GameMode.SINGLE ||
         Game.currentGameMode == GameMode.CPU ||
         Game.currentGameMode == GameMode.VERSUS)) {
             currentGame.endGame(false);
         }
-        if(Utils.toPixel(body.getPosition().y - radius) <= 0f && 
+        else if(isSquare && Utils.toPixel(body.getPosition().y + radius * 2) >= Game.height) {
+            currentGame.endGame(false);
+        }
+        // Win conditions //
+        else if(Utils.toPixel(body.getPosition().y - radius) <= 0f && 
         Game.currentGameMode == GameMode.VERSUS) {
             currentGame.endGame(true);
         }
-        if(isSquare && Utils.toPixel(body.getPosition().y + radius * 2) >= Game.height) {
-            currentGame.endGame(false);
-        }
+        
     }
 
     private void simulateVortex() {

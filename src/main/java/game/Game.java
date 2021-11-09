@@ -47,7 +47,7 @@ public final class Game implements Runnable {
     public static GameMode currentGameMode = GameMode.CPU;
     public static double nsPerUpdate;
     public static int width = 800;
-    public static int height = 1000;
+    public static int height = (int) (Toolkit.getDefaultToolkit().getScreenSize().height/1.5f);
 
     private Pickup currentPickup;
     private World physWorld;
@@ -76,7 +76,6 @@ public final class Game implements Runnable {
     private BufferedImage arrowRight;
     
     public Game() {
-        Game.height = (int) (Toolkit.getDefaultToolkit().getScreenSize().height/1.5f);
         init();
     }
 
@@ -89,6 +88,7 @@ public final class Game implements Runnable {
         this.entitiesToAdd = new HashSet<>();
         this.customContactListener = new CustomContactListener(this);
         physWorld = new World(GRAVITY);
+        physWorld.setAllowSleep(true);
         physWorld.setContactListener(this.customContactListener);
         Entity.setCurrentGame(this);
         initFrame();

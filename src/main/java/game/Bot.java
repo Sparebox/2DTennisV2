@@ -22,7 +22,6 @@ public final class Bot {
     private Vec2 cpuRacquetPos;
     private Vec2 predictedBallPos;
     private Vec2 predictedBallDir;
-    private Vec2 lastBallDir;
     private boolean initialUpdate = true;
     private boolean allowAiming = true;
     private float averageTileX;
@@ -41,7 +40,6 @@ public final class Bot {
             this.ball = currentGame.getBall();
             this.cpuRacquet = currentGame.getCpuRacquet();
             this.cpuRacquetPos = this.cpuRacquet.getBody().getPosition();
-            this.lastBallDir = new Vec2();
             initialUpdate = false;
         }
         ballPos = ball.getBody().getPosition();
@@ -61,7 +59,6 @@ public final class Bot {
                         predictedBallPos.x = Utils.toWorld(Game.width) - (predictedBallPos.x - Utils.toWorld(Game.width));
                 }
                 predictedBallPos.addLocal(predictedBallDir);
-                lastBallDir = predictedBallDir.clone();
             }
         } else if(Game.currentGameMode == GameMode.VERSUS) {
             while(predictedBallPos.y > cpuRacquetPos.y && predictedBallDir.y < 0f) {
