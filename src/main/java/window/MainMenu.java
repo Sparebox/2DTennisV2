@@ -39,7 +39,7 @@ public final class MainMenu extends JFrame implements ActionListener{
     public static final Color BACKGROUND_COLOR = new Color(50, 111, 168);
     public static final Font FONT = new Font("SansSerif", Font.PLAIN, 50);
     public static final Font TITLE_FONT = new Font("SansSerif", Font.BOLD, 60);
-
+    
     public static int fpsTarget = Game.FPS_DEFAULT;
     public static int rowAmount = Game.DEFAULT_ROWS;
     public static int tileAmount;
@@ -154,20 +154,20 @@ public final class MainMenu extends JFrame implements ActionListener{
             this.settingsData = (Settings) in.readObject();
             in.close();
             fileIn.close();
-            rowAmount = Integer.parseInt(this.settingsData.get("tile_rows"));
-            fpsTarget = Integer.parseInt(this.settingsData.get("fps_target"));
-            String mode = this.settingsData.get("game_mode");
+            rowAmount = Integer.parseInt(this.settingsData.get(Settings.ROW_KEY));
+            fpsTarget = Integer.parseInt(this.settingsData.get(Settings.FPS_KEY));
+            String mode = this.settingsData.get(Settings.MODE_KEY);
             for(GameMode m : GameMode.values()) {
                 if(m.toString().equals(mode))
                     Game.currentGameMode = m;
             }
-        } catch (IOException | ClassNotFoundException e) {}
+        } catch (IOException | ClassNotFoundException | NumberFormatException e) {}
     }
 
     private void saveSettings() {
-        this.settingsData.put("tile_rows", Integer.toString(rowAmount));
-        this.settingsData.put("fps_target", Integer.toString(fpsTarget));
-        this.settingsData.put("game_mode", Game.currentGameMode.toString());
+        this.settingsData.put(Settings.ROW_KEY, Integer.toString(rowAmount));
+        this.settingsData.put(Settings.FPS_KEY, Integer.toString(fpsTarget));
+        this.settingsData.put(Settings.MODE_KEY, Game.currentGameMode.toString());
         try {
             FileOutputStream fileOut = new FileOutputStream("./settings.set");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);

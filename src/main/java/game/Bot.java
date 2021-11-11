@@ -65,7 +65,6 @@ public final class Bot {
                 predictedBallPos.addLocal(predictedBallDir);
             }
         }
-        // Ray casting //
 
         if(Game.currentGameMode == GameMode.CPU) {
             if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y > Utils.toWorld(Game.height/3)) {
@@ -94,10 +93,10 @@ public final class Bot {
             else 
                 cpuRacquet.rotateR();
         } else if(cpuRacquetPos.y - ballPos.y < cpuRacquet.getHeight() * 2 && Game.currentGameMode == GameMode.CPU) {
-            if(cpuRacquetPos.x + cpuRacquet.getWidth() < predictedBallPos.x) {
+            if(cpuRacquetPos.x + cpuRacquet.getWidth() < ballPos.x) {
                 cpuRacquet.rotateR();
             }
-            else if(cpuRacquetPos.x - cpuRacquet.getWidth() > predictedBallPos.x) {
+            else if(cpuRacquetPos.x - cpuRacquet.getWidth() > ballPos.x) {
                 cpuRacquet.rotateL();
             }
         }

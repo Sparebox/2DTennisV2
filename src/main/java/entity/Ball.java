@@ -112,7 +112,7 @@ public final class Ball extends Entity {
                 velocity.mulLocal(vel);
             }
         }
-        if(velocity.abs().y < 0.1f) {
+        if(velocity.abs().y < 0.01f) {
             if(velocity.y > 0)
                 velocity.y += 0.5f;
             else 

@@ -231,6 +231,7 @@ public final class Game implements Runnable {
             lastTime = now;
             while(accumulator >= nsPerUpdate) {
                 physWorld.step(1f/MainMenu.fpsTarget, VEL_ITERATIONS, POS_ITERATIONS);
+                update();
                 while(updateAccumulator >= UPDATE_INTERVAL) {
                     update();
                     updateAccumulator -= UPDATE_INTERVAL;
@@ -250,7 +251,8 @@ public final class Game implements Runnable {
     private void update() {
         if(!running)
             return;
-        if(score == MainMenu.tileAmount) {
+        if(score == MainMenu.tileAmount &&
+        (currentGameMode == GameMode.CPU || currentGameMode == GameMode.SINGLE)) {
             endGame(true);
             return;
         }
