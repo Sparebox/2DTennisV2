@@ -14,7 +14,9 @@ import window.MainMenu;
 public final class Bot {
     
     public static final int SPEED = Racquet.MOVE_SPEED * Racquet.BOOST;
-    
+
+    private final int TIMEOUT = (int) 10e3;
+
     private Game currentGame;
     private Racquet cpuRacquet;
     private Ball ball;
@@ -26,19 +28,18 @@ public final class Bot {
     private boolean allowAiming = true;
     private float averageTileX;
     private Timer aimTimeout;
-    private int timeout = (int) 10e3;
     private int lastTileCount;
 
-    public Bot(Game currentGame) {
+    public Bot(Game currentGame, Ball ball, Racquet cpuRacquet) {
         this.currentGame = currentGame;
-        this.aimTimeout = new Timer(timeout);
+        this.ball = ball;
+        this.cpuRacquet = cpuRacquet;
+        this.aimTimeout = new Timer(TIMEOUT);
         this.predictedBallPos = new Vec2();
     }
 
     public void update() {
         if(initialUpdate) {
-            this.ball = currentGame.getBall();
-            this.cpuRacquet = currentGame.getCpuRacquet();
             this.cpuRacquetPos = this.cpuRacquet.getBody().getPosition();
             initialUpdate = false;
         }
@@ -50,13 +51,13 @@ public final class Bot {
         // Ray casting //
         if(Game.currentGameMode == GameMode.CPU) { 
             while(predictedBallPos.y < cpuRacquetPos.y && predictedBallDir.y > 0f) {
-                if((predictedBallPos.x < 0f || predictedBallPos.x > Utils.toWorld(Game.width))
+                if((predictedBallPos.x < 0f || predictedBallPos.x > Utils.toWorld(Game.WIDTH))
                 && ball.getBody().getLinearVelocity().y > 1f) {
                     predictedBallDir.x = -predictedBallDir.x;
                     if(predictedBallPos.x < 0f)
                         predictedBallPos.x = -predictedBallPos.x;
-                    else if(predictedBallPos.x > Utils.toWorld(Game.width))
-                        predictedBallPos.x = Utils.toWorld(Game.width) - (predictedBallPos.x - Utils.toWorld(Game.width));
+                    else if(predictedBallPos.x > Utils.toWorld(Game.WIDTH))
+                        predictedBallPos.x = Utils.toWorld(Game.WIDTH) - (predictedBallPos.x - Utils.toWorld(Game.WIDTH));
                 }
                 predictedBallPos.addLocal(predictedBallDir);
             }
@@ -67,16 +68,15 @@ public final class Bot {
         }
 
         if(Game.currentGameMode == GameMode.CPU) {
-            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y > Utils.toWorld(Game.height/3)) {
+            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y > Utils.toWorld(Game.HEIGHT/3)) {
                 cpuRacquet.right(SPEED);
-            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y > Utils.toWorld(Game.height/3)) {
+            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y > Utils.toWorld(Game.HEIGHT/3)) {
                 cpuRacquet.left(SPEED);
             }
-
         } else if(Game.currentGameMode == GameMode.VERSUS) {
-            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y < Utils.toWorld(Game.height - Game.height/3)) {
+            if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y < Utils.toWorld(Game.HEIGHT - Game.HEIGHT/3)) {
                 cpuRacquet.right(SPEED);
-            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y < Utils.toWorld(Game.height - Game.height/3)) {
+            } else if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x && ballPos.y < Utils.toWorld(Game.HEIGHT - Game.HEIGHT/3)) {
                 cpuRacquet.left(SPEED);
             }
         }
@@ -88,7 +88,7 @@ public final class Bot {
             else if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x) {
                 cpuRacquet.right(SPEED);
             }
-            if(cpuRacquetPos.x < predictedBallPos.x)
+            if(cpuRacquetPos.x < ballPos.x)
                 cpuRacquet.rotateL();
             else 
                 cpuRacquet.rotateR();
@@ -109,7 +109,7 @@ public final class Bot {
 
     private void considerPickup() {
         Pickup pickup = null;
-        if(ballPos.y < Utils.toWorld(Game.height / 2) && predictedBallDir.y < 0f) {
+        if(ballPos.y < Utils.toWorld(Game.HEIGHT / 2) && predictedBallDir.y < 0f) {
             for(Entity e : currentGame.getEntities()) {
                 if(e instanceof Pickup p) {
                     pickup = p;
@@ -128,7 +128,7 @@ public final class Bot {
     }
 
     private void considerAiming() {
-        int tileCount = MainMenu.rowAmount - currentGame.getScore();
+        int tileCount = Game.rowAmount - currentGame.getScore();
         if(tileCount < 21) {
             if(lastTileCount != tileCount) {
                 aimTimeout.reset();

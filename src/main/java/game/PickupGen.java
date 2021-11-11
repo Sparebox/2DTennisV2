@@ -41,11 +41,11 @@ public final class PickupGen {
 
     public void update() {
         if(randomTimer.tick() && currentGame.getCurrentPickup() == null) {
-            int x = random.nextInt(Game.width);
+            int x = random.nextInt(Game.WIDTH);
             if(x < PICKUP_WIDTH/2)
                 x = PICKUP_WIDTH/2;
-            else if(x + PICKUP_WIDTH/2 > Game.width)
-                x = Game.width - PICKUP_WIDTH/2;
+            else if(x + PICKUP_WIDTH/2 > Game.WIDTH)
+                x = Game.WIDTH - PICKUP_WIDTH/2;
             int ordinal = random.nextInt(PickUpType.values().length);
             PickUpType type = PickUpType.values()[ordinal];
             var pickup = new Pickup(x, PICKUP_HEIGTH/2, PICKUP_WIDTH, PICKUP_HEIGTH, type);
@@ -95,9 +95,8 @@ public final class PickupGen {
 
     private void resetEffects() {
         Ball.vel = Ball.VEL_DEFAULT;
-        if(currentGame.getBall() != null) {
+        if(currentGame.getBall() != null)
             restoreBall();
-        }
         currentGame.setCurrentPickup(null);
     }
 
@@ -129,6 +128,8 @@ public final class PickupGen {
         ball.setInBubble(false);
         ball.setInVortex(false);
         ball.setSquare(false);
+        ball.getBubbleTimer().reset();
+        ball.setBubbleSeconds(0);
     }
 
     private void createSquare() {

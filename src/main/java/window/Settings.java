@@ -5,9 +5,10 @@ import java.util.HashMap;
 
 public final class Settings implements Serializable {
     
-    public static final String ROW_KEY = "tile_rows";
-    public static final String FPS_KEY = "target_fps";
-    public static final String MODE_KEY = "game_mode";
+    public static final String ROW = "tile_rows";
+    public static final String FPS = "target_fps";
+    public static final String MODE = "game_mode";
+    public static final String LEVEL = "level";
 
     private HashMap<String, String> settings;
 

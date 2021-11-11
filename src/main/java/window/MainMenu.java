@@ -29,6 +29,7 @@ import javax.swing.event.ChangeListener;
 import entity.Racquet;
 import game.Game;
 import game.GameMode;
+import game.Level;
 
 public final class MainMenu extends JFrame implements ActionListener{
     
@@ -41,8 +42,6 @@ public final class MainMenu extends JFrame implements ActionListener{
     public static final Font TITLE_FONT = new Font("SansSerif", Font.BOLD, 60);
     
     public static int fpsTarget = Game.FPS_DEFAULT;
-    public static int rowAmount = Game.DEFAULT_ROWS;
-    public static int tileAmount;
 
     private String frameTitle = "2DTennis V2 Main Menu";
     private GridBagConstraints gbc;
@@ -68,6 +67,29 @@ public final class MainMenu extends JFrame implements ActionListener{
             Game.currentGameMode = game.GameMode.SINGLE;
         MainMenu.currentGame = new Game();
         MainMenu.currentGame.start();
+    }
+
+    public static int calculateMaxRow() {
+        int tileGap = 10;
+        int lastX = Game.TILE_WIDTH/2;
+        int lastY = Game.TILE_HEIGTH*4;
+        int maxRow = 0;
+        do {
+            lastX += tileGap + Game.TILE_WIDTH;
+            if(lastX + Game.TILE_WIDTH/2 >= Game.WIDTH) {
+                maxRow++;
+                lastY += tileGap + Game.TILE_HEIGTH;
+                lastX = maxRow % 2 != 0 ? Game.TILE_WIDTH/2 + tileGap*2 : Game.TILE_WIDTH/2;
+            }
+        }
+        while(lastY + Game.TILE_HEIGTH * 3 < Racquet.Y_COORD);
+        return maxRow;
+    }
+
+    public void hideSettings() {
+        settingsPanel.setVisible(false);
+        titlePanel.setVisible(true);
+        buttonsPanel.setVisible(true);
     }
 
     private void initFrame() {
@@ -154,9 +176,14 @@ public final class MainMenu extends JFrame implements ActionListener{
             this.settingsData = (Settings) in.readObject();
             in.close();
             fileIn.close();
-            rowAmount = Integer.parseInt(this.settingsData.get(Settings.ROW_KEY));
-            fpsTarget = Integer.parseInt(this.settingsData.get(Settings.FPS_KEY));
-            String mode = this.settingsData.get(Settings.MODE_KEY);
+            Game.rowAmount = Integer.parseInt(this.settingsData.get(Settings.ROW));
+            String level = this.settingsData.get(Settings.LEVEL);
+            for(Level l : Level.values()) {
+                if(l.toString().equals(level))
+                    Game.currentLevel = l;
+            }
+            fpsTarget = Integer.parseInt(this.settingsData.get(Settings.FPS));
+            String mode = this.settingsData.get(Settings.MODE);
             for(GameMode m : GameMode.values()) {
                 if(m.toString().equals(mode))
                     Game.currentGameMode = m;
@@ -165,9 +192,10 @@ public final class MainMenu extends JFrame implements ActionListener{
     }
 
     private void saveSettings() {
-        this.settingsData.put(Settings.ROW_KEY, Integer.toString(rowAmount));
-        this.settingsData.put(Settings.FPS_KEY, Integer.toString(fpsTarget));
-        this.settingsData.put(Settings.MODE_KEY, Game.currentGameMode.toString());
+        this.settingsData.put(Settings.ROW, Integer.toString(Game.rowAmount));
+        this.settingsData.put(Settings.FPS, Integer.toString(fpsTarget));
+        this.settingsData.put(Settings.MODE, Game.currentGameMode.toString());
+        this.settingsData.put(Settings.LEVEL, Game.currentLevel.toString());
         try {
             FileOutputStream fileOut = new FileOutputStream("./settings.set");
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
@@ -236,9 +264,9 @@ public final class MainMenu extends JFrame implements ActionListener{
         JTextField selectedFps = new JTextField(Integer.toString(fpsTarget), 3);
         selectedFps.setHorizontalAlignment(SwingConstants.CENTER);
         selectedFps.setFont(font);
-        JTextField tileField = new JTextField(Integer.toString(rowAmount), 3);
-        tileField.setHorizontalAlignment(SwingConstants.CENTER);
-        tileField.setFont(font);
+        JTextField rowField = new JTextField(Integer.toString(Game.rowAmount), 3);
+        rowField.setHorizontalAlignment(SwingConstants.CENTER);
+        rowField.setFont(font);
         JSlider fpsSlider = new JSlider(Game.FPS_MIN, Game.FPS_MAX, fpsTarget);
         fpsSlider.setMajorTickSpacing(10);
         fpsSlider.setMinorTickSpacing(5);
@@ -265,8 +293,8 @@ public final class MainMenu extends JFrame implements ActionListener{
             @Override
             public void stateChanged(ChangeEvent e) {
                 var source = (JSlider) e.getSource();
-                rowAmount = source.getValue();
-                tileField.setText(Integer.toString(source.getValue()));
+                Game.rowAmount = source.getValue();
+                rowField.setText(Integer.toString(source.getValue()));
             }
 
         });
@@ -323,7 +351,7 @@ public final class MainMenu extends JFrame implements ActionListener{
 
         gbc.gridx = 0;
         gbc.gridy = 5;
-        firstPanel.add(tileField, gbc);
+        firstPanel.add(rowField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 6;
@@ -356,13 +384,13 @@ public final class MainMenu extends JFrame implements ActionListener{
                     
                 }
                 fpsTarget = Math.min(Game.FPS_MAX, Math.max(fps, Game.FPS_MIN));
-                int tiles = Game.DEFAULT_ROWS;
+                int rows = Game.DEFAULT_ROWS;
                 try {
-                    tiles = Integer.parseInt(tileField.getText());
+                    rows = Integer.parseInt(rowField.getText());
                 } catch (NumberFormatException ex) {
                    
                 }
-                rowAmount = tiles <= 0 ? Game.DEFAULT_ROWS : tiles;
+                Game.rowAmount = rows <= 0 ? Game.DEFAULT_ROWS : rows;
                 saveSettings();
                 if(!nextPanel.isVisible()) {
                     hideSettings();
@@ -383,29 +411,6 @@ public final class MainMenu extends JFrame implements ActionListener{
         btnPanel.add(nextB, gbc);
         this.add(settingsPanel, BorderLayout.CENTER);
         this.requestFocusInWindow();
-    }
-
-    private int calculateMaxRow() {
-        int tileGap = 10;
-        int lastX = Game.TILE_WIDTH/2;
-        int lastY = Game.TILE_HEIGTH*4;
-        int maxRow = 0;
-        do {
-            lastX += tileGap + Game.TILE_WIDTH;
-            if(lastX + Game.TILE_WIDTH/2 >= Game.width) {
-                maxRow++;
-                lastY += tileGap + Game.TILE_HEIGTH;
-                lastX = maxRow % 2 != 0 ? Game.TILE_WIDTH/2 + tileGap*2 : Game.TILE_WIDTH/2;
-            }
-        }
-        while(lastY + Game.TILE_HEIGTH * 3 < Racquet.Y_COORD);
-        return maxRow;
-    }
-
-    public void hideSettings() {
-        settingsPanel.setVisible(false);
-        titlePanel.setVisible(true);
-        buttonsPanel.setVisible(true);
     }
 
     public boolean isSettingsVisible() {

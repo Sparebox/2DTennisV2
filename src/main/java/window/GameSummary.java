@@ -76,11 +76,12 @@ public class GameSummary extends JFrame implements ActionListener {
             else
                 scoreStr = "You Lost!";
         else if(won)
-            scoreStr = "You Won! Score: "+Integer.toString(currentGame.getScore())+"/"+MainMenu.tileAmount;
+            scoreStr = "You Won! Score: "+Integer.toString(currentGame.getScore())+"/"+Game.tileAmount;
         else 
-            scoreStr = "You Lost! Score: "+Integer.toString(currentGame.getScore())+"/"+MainMenu.tileAmount;
+            scoreStr = "You Lost! Score: "+Integer.toString(currentGame.getScore())+"/"+Game.tileAmount;
         var textArea = new JTextArea("Time: " + timeStr + "\n" + scoreStr +
-        "\nPickups picked up: "+Integer.toString(currentGame.getPickupsPickedup()));
+        "\nPickups picked up: "+Integer.toString(currentGame.getPickupsPickedup()) +
+        "\nLevel: "+Game.currentLevel.STRING);
         textArea.setColumns(15);
         textArea.setFont(font);
         textArea.setEditable(false);

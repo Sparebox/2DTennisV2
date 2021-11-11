@@ -23,7 +23,7 @@ public final class Animation {
         this.frames = images.length;
     }
 
-    public void drawAnimation(Graphics2D g, int x, int y, int width, int height) {
+    public void draw(Graphics2D g, int x, int y, int width, int height) {
         g.drawImage(currentImg, x, y, width, height, null);
         if(animationTimer.tick()) {
             nextFrame();

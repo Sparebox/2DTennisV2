@@ -21,7 +21,7 @@ public class Racquet extends Entity {
     public static final float MIN_WIDTH = 30; // In pixels
     public static final int BOOST = 3;
     public static final int MOVE_SPEED = 3;
-    public static final int Y_COORD = Game.height - 50;
+    public static final int Y_COORD = Game.HEIGHT - 50;
 
     private PolygonShape ps;
     private boolean leftPressed;
@@ -99,9 +99,9 @@ public class Racquet extends Entity {
             right(speed);
         }
         if(keys.get(KeyEvent.VK_SPACE)) {
-            if(Utils.toPixel(body.getPosition().y) > Game.height - 100)
+            if(Utils.toPixel(body.getPosition().y) > Game.HEIGHT - 100)
                 body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(-speed)), 0f);
-        } else if(Utils.toPixel(body.getPosition().y) < Game.height - 50)
+        } else if(Utils.toPixel(body.getPosition().y) < Game.HEIGHT - 50)
             body.setTransform(body.getPosition().addLocal(0, Utils.toWorld(speed)), 0f);
 
         if(keys.get(KeyEvent.VK_COMMA) || keys.get(KeyEvent.VK_Q)) {
@@ -122,7 +122,7 @@ public class Racquet extends Entity {
 
     public void right(int speed) {
         rightPressed = true;
-        if(Utils.toPixel(body.getPosition().x + width/2) < Game.width - 1)
+        if(Utils.toPixel(body.getPosition().x + width/2) < Game.WIDTH - 1)
             body.setTransform(body.getPosition().addLocal(Utils.toWorld(speed), 0), 0f);
         else
             body.setTransform(body.getPosition(), 0f);

@@ -19,6 +19,7 @@ import org.jbox2d.dynamics.FixtureDef;
 import game.AreaQueryCallback;
 import game.Game;
 import game.GameMode;
+import game.PickupGen;
 import utils.Timer;
 import utils.Utils;
 
@@ -29,6 +30,7 @@ public final class Ball extends Entity {
     public static final float VEL_VERSUS = 8f;
     public static final int VORTEX_AREA = 50; // In pixels
     public static final float VORTEX_POWER = 0.01f;
+    public static final int BUBBLE_FLASH_INTERVAL = 50; // Milliseconds
 
     public static float vel = VEL_DEFAULT;
 
@@ -41,9 +43,14 @@ public final class Ball extends Entity {
     private BufferedImage vortexSprites;
     private Animation vortexAnimation;
     private Timer vortexTimer;
+    private Timer secTimer;
+    private Timer bubbleFlashTimer;
+    private int bubbleSeconds;
 
     public Ball(int x, int y, int radius) {
         this.vortexTimer = new Timer(100);
+        this.secTimer = new Timer((int) 1e3);
+        this.bubbleFlashTimer = new Timer(BUBBLE_FLASH_INTERVAL);
         try {
             this.bubbleSprite = ImageIO.read(getClass().getResource("/bubble.png"));
             this.vortexSprites = ImageIO.read(getClass().getResource("/vortex_sprites.png"));
@@ -84,11 +91,20 @@ public final class Ball extends Entity {
         }
         else
             g.fillOval(Utils.toPixel(body.getPosition().x - radius/2), Utils.toPixel(body.getPosition().y - radius/2), Utils.toPixel(radius), Utils.toPixel(radius));
-        if(inBubble)
-            g.drawImage(bubbleSprite, Utils.toPixel(body.getPosition().x - radius*2), Utils.toPixel(body.getPosition().y - radius*2), Game.BALL_RADIUS*4, Game.BALL_RADIUS*4, null);
+        if(inBubble) {
+            if(secTimer.tick())
+                bubbleSeconds++;
+            if(bubbleSeconds < (PickupGen.RESET_TIME - 1e3)/1e3)
+                g.drawImage(bubbleSprite, Utils.toPixel(body.getPosition().x - radius*2),
+                Utils.toPixel(body.getPosition().y - radius*2), Game.BALL_RADIUS*4,
+                Game.BALL_RADIUS*4, null);
+            else if(bubbleFlashTimer.tick())
+                g.drawImage(bubbleSprite, Utils.toPixel(body.getPosition().x - radius*2),
+                Utils.toPixel(body.getPosition().y - radius*2), Game.BALL_RADIUS*4,
+                Game.BALL_RADIUS*4, null);
+        }
         if(inVortex)
-            vortexAnimation.drawAnimation(g, 
-            Utils.toPixel(body.getPosition().x - radius*3), 
+            vortexAnimation.draw(g, Utils.toPixel(body.getPosition().x - radius*3),
             Utils.toPixel(body.getPosition().y - radius*3), 
             Game.BALL_RADIUS*6, Game.BALL_RADIUS*6);
     }
@@ -125,14 +141,14 @@ public final class Ball extends Entity {
 
         // Lose conditions //
 
-        if(Utils.toPixel(body.getPosition().y + radius) >= Game.height &&
+        if(Utils.toPixel(body.getPosition().y + radius) >= Game.HEIGHT &&
         !inBubble && !isSquare &&
         (Game.currentGameMode == GameMode.SINGLE ||
         Game.currentGameMode == GameMode.CPU ||
         Game.currentGameMode == GameMode.VERSUS)) {
             currentGame.endGame(false);
         }
-        else if(isSquare && Utils.toPixel(body.getPosition().y + radius * 2) >= Game.height) {
+        else if(isSquare && Utils.toPixel(body.getPosition().y + radius * 2) >= Game.HEIGHT) {
             currentGame.endGame(false);
         }
         // Win conditions //
@@ -166,6 +182,14 @@ public final class Ball extends Entity {
         float invDistance = 1 / distance;
         float impulseMag = vortexPower * invDistance * invDistance;
         b.applyLinearImpulse(vortexDir.mul(impulseMag), applyPoint);
+    }
+
+    public Timer getBubbleTimer() {
+        return secTimer;
+    }
+
+    public void setBubbleSeconds(int bubbleSeconds) {
+        this.bubbleSeconds = bubbleSeconds;
     }
 
     public void setInBubble(boolean inBubble) {
