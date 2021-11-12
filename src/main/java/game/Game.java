@@ -25,6 +25,7 @@ import entity.Pickup;
 import entity.Racquet;
 import entity.Tile;
 import utils.Timer;
+import utils.Utils;
 import window.GameSummary;
 import window.KeyManager;
 import window.MainMenu;
@@ -193,29 +194,6 @@ public final class Game implements Runnable {
         new GameSummary(this, won);
     }
 
-    public int[] createTiles(int rows) {
-        int[] values = new int[2];
-        int tileGap = 10;
-        int lastX = TILE_WIDTH/2;
-        int lastY = TILE_HEIGTH*4;
-        int row = 0;
-        int tiles = 0;
-        do {
-            entitiesToAdd.add(new Tile(lastX, lastY, TILE_WIDTH, TILE_HEIGTH));
-            tiles++;
-            lastX += tileGap + TILE_WIDTH;
-            if(lastX + TILE_WIDTH/2 >= Game.WIDTH) {
-                row++;
-                lastY += tileGap + TILE_HEIGTH;
-                lastX = row % 2 != 0 ? TILE_WIDTH/2 + tileGap*2 : TILE_WIDTH/2;
-            }
-        }
-        while(row < rows);
-        values[0] = lastY;
-        values[1] = tiles;
-        return values;
-    }
-
     public void destroyTiles() {
         for(Entity e : entities) {
             if(e instanceof Tile) {
@@ -259,11 +237,41 @@ public final class Game implements Runnable {
     private void update() {
         if(!running)
             return;
-        if(score == tileAmount &&
-        (currentGameMode == GameMode.CPU || currentGameMode == GameMode.SINGLE)) {
-            endGame(true);
-            return;
+        if(score == tileAmount) {
+            switch(currentGameMode) {
+                case CPU :
+                    endGame(true);
+                    return;
+                case SINGLE :
+                    if(currentLevel.ordinal() < Level.finalLevel.ordinal()) {
+                        switch(currentLevel) {
+                            case LEVEL1 :
+                                currentLevel = Level.LEVEL2;
+                                break;
+                            case LEVEL2 :
+                                currentLevel = Level.LEVEL3;
+                                break;
+                            case LEVEL3 :
+                                currentLevel = Level.LEVEL4;
+                                break;
+                            default :
+                                break;
+                        }
+                        int[] tileValues = createTiles(currentLevel.TILE_ROWS);
+                        tileAmount = tileValues[1];
+                        this.ball.getBody().setTransform(new Vec2(Utils.toWorld(WIDTH/2),
+                        Utils.toWorld(tileValues[0] + 2 * BALL_RADIUS)), 0f);
+                        score = 0;
+                    } else {
+                        endGame(true);
+                        return;
+                    }
+                    break;
+                case VERSUS :
+                    break;
+            } 
         }
+        
         if(!entitiesToDelete.isEmpty()) {
             for(Entity e : entitiesToDelete) {
                 physWorld.destroyBody(e.getBody());
@@ -303,7 +311,8 @@ public final class Game implements Runnable {
 
         g.setColor(Color.WHITE);
         g.drawString(fpsString, 10, 20);
-        g.drawString("Score: "+score, 10, 40);
+        g.drawString("Score: "+score+"/"+tileAmount, 10, 40);
+        g.drawString(currentLevel.toString(), 10, 60);
         //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5); // Display ball prediction
         if(currentGameMode == GameMode.CPU) {
             if(cpuRacquet.isLeftPressed())
@@ -366,6 +375,26 @@ public final class Game implements Runnable {
             entitiesToAdd.add(ceil);
         if(ground != null)
             entitiesToAdd.add(ground);
+    }
+
+    private int[] createTiles(int rows) {
+        int tileGap = 10;
+        int lastX = TILE_WIDTH/2;
+        int lastY = TILE_HEIGTH*4;
+        int row = 0;
+        int tiles = 0;
+        do {
+            entitiesToAdd.add(new Tile(lastX, lastY, TILE_WIDTH, TILE_HEIGTH));
+            tiles++;
+            lastX += tileGap + TILE_WIDTH;
+            if(lastX + TILE_WIDTH/2 >= Game.WIDTH) {
+                row++;
+                lastY += tileGap + TILE_HEIGTH;
+                lastX = row % 2 != 0 ? TILE_WIDTH/2 + tileGap*2 : TILE_WIDTH/2;
+            }
+        }
+        while(row < rows);
+        return new int[]{lastY, tiles};
     }
 
     public Bot getBot() {

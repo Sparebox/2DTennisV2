@@ -57,11 +57,11 @@ public class GameSummary extends JFrame implements ActionListener {
         var summaryText = new JLabel("Game Summary");
         summaryText.setFont(MainMenu.TITLE_FONT);
         summaryText.setForeground(Color.ORANGE);
+
         gbc.gridx = 0;
         gbc.gridy = 0;
         summaryPanel.add(summaryText, gbc);
-        gbc.insets = new Insets(20, 0, 0, 0);
-
+        
         String timeStr;
         if(currentGame.getSecondsSinceStart() < 60) 
             timeStr = Integer.toString(currentGame.getSecondsSinceStart())+" seconds";
@@ -79,12 +79,15 @@ public class GameSummary extends JFrame implements ActionListener {
             scoreStr = "You Won! Score: "+Integer.toString(currentGame.getScore())+"/"+Game.tileAmount;
         else 
             scoreStr = "You Lost! Score: "+Integer.toString(currentGame.getScore())+"/"+Game.tileAmount;
+        
         var textArea = new JTextArea("Time: " + timeStr + "\n" + scoreStr +
         "\nPickups picked up: "+Integer.toString(currentGame.getPickupsPickedup()) +
-        "\nLevel: "+Game.currentLevel.STRING);
+        "\nLevel: "+Game.currentLevel);
         textArea.setColumns(15);
         textArea.setFont(font);
         textArea.setEditable(false);
+
+        gbc.insets = new Insets(20, 0, 0, 0);
         gbc.gridx = 0;
         gbc.gridy = 1;
         summaryPanel.add(textArea, gbc);

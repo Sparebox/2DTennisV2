@@ -6,11 +6,19 @@ public enum Level {
     LEVEL3(8, "Level 3"),
     LEVEL4(10, "Level 4");
 
+    public static final Level finalLevel = LEVEL4;
+
     public final int TILE_ROWS;
-    public final String STRING;
+
+    private final String STRING;
 
     Level(int tileRows, String level) {
         this.TILE_ROWS = tileRows;
         this.STRING = level;
+    }
+
+    @Override
+    public String toString() {
+        return this.STRING;
     }
 }
