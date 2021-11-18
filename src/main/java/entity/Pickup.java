@@ -2,9 +2,10 @@ package entity;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 
-import javax.swing.ImageIcon;
+import javax.imageio.ImageIO;
 
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
@@ -19,11 +20,17 @@ public class Pickup extends Entity {
 
     private PickUpType pickUpType;
     private PolygonShape ps;
-    private Image icon;
+    private BufferedImage icon;
 
     public Pickup(int x, int y, int width, int height, PickUpType pickUpType) {
         this.pickUpType = pickUpType;
-        this.icon = new ImageIcon(getClass().getResource("/pickup.png")).getImage();
+        try {
+            this.icon = ImageIO.read(getClass().getResource("/pickup.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Could not load sprite images");
+            System.exit(1);
+        }
         this.width = Utils.toWorld(width);
         this.height = Utils.toWorld(height);
         this.bd = new BodyDef();

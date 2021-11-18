@@ -66,7 +66,8 @@ public final class Bot {
                 predictedBallPos.addLocal(predictedBallDir);
             }
         }
-
+        
+        // Steer racquet to predicted ball path
         if(Game.currentGameMode == GameMode.CPU) {
             if(cpuRacquetPos.x + cpuRacquet.getWidth()/3 < predictedBallPos.x && ballPos.y > Utils.toWorld(Game.HEIGHT/3)) {
                 cpuRacquet.right(SPEED);
@@ -81,7 +82,8 @@ public final class Bot {
             }
         }
         
-        if(ball.getBody().getLinearVelocity().abs().x < 0.01f) { // Avoid x velocity stall
+        // Avoid x velocity stall
+        if(ball.getBody().getLinearVelocity().abs().x < 0.01f) {
             if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x) {
                 cpuRacquet.left(SPEED);
             }

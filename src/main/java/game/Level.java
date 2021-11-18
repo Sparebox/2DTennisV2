@@ -12,9 +12,9 @@ public enum Level {
 
     private final String STRING;
 
-    Level(int tileRows, String level) {
+    Level(int tileRows, String string) {
         this.TILE_ROWS = tileRows;
-        this.STRING = level;
+        this.STRING = string;
     }
 
     @Override

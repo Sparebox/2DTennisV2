@@ -9,6 +9,7 @@ import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,6 +53,7 @@ public final class Game implements Runnable {
     public static double nsPerUpdate;
     public static int rowAmount = DEFAULT_ROWS;
     public static int tileAmount;
+    public static AudioManager audioManager;
 
     private Pickup currentPickup;
     private World physWorld;
@@ -261,6 +263,7 @@ public final class Game implements Runnable {
                         tileAmount = tileValues[1];
                         this.ball.getBody().setTransform(new Vec2(Utils.toWorld(WIDTH/2),
                         Utils.toWorld(tileValues[0] + 2 * BALL_RADIUS)), 0f);
+                        this.ball.getBody().setLinearVelocity(new Vec2(Ball.VEL_DEFAULT, Ball.VEL_DEFAULT));
                         score = 0;
                     } else {
                         endGame(true);

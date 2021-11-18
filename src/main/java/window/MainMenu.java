@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URISyntaxException;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -27,6 +28,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import entity.Racquet;
+import game.AudioManager;
 import game.Game;
 import game.GameMode;
 import game.Level;
@@ -56,6 +58,12 @@ public final class MainMenu extends JFrame implements ActionListener{
 
     public MainMenu() {
         this.keyManager = new KeyManager(this);
+        try {
+            Game.audioManager = new AudioManager();
+        } catch (URISyntaxException e1) {
+            System.out.println("Cannot find sound files");
+            e1.printStackTrace();
+        }
         this.settingsData = new Settings();
         initFrame();
         createMainMenu();

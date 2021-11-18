@@ -76,19 +76,24 @@ public final class PickupGen {
                 Entity rocket = new Rocket(Utils.toPixel(pickup.getBody().getPosition().x), Utils.toPixel(pickup.getBody().getPosition().y),
                 Rocket.WIDTH, Rocket.HEIGHT);
                 currentGame.getEntitiesToAdd().add(rocket);
+                Game.audioManager.playSound(Game.audioManager.SHOOT);
                 break;
             case BOOST :
                 Ball.vel = Ball.VEL_DEFAULT * Ball.BOOST_F;
+                Game.audioManager.playSound(Game.audioManager.WHOOSH);
                 break;
             case BUBBLE :
                 createBubble();
                 Ball.vel = Ball.VEL_DEFAULT * Ball.BOOST_F * 1.5f;
+                Game.audioManager.playSound(Game.audioManager.POP);
                 break;
             case VORTEX :
                 currentGame.getBall().setInVortex(true);
+                Game.audioManager.playSound(Game.audioManager.VORTEX);
                 break;
             case SQUARE :
                 createSquare();
+                Game.audioManager.playSound(Game.audioManager.CREAK);
                 break;
         }
     }

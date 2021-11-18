@@ -34,9 +34,15 @@ public class CustomContactListener implements ContactListener{
         if(a == CollisionCategory.ROCKET.BIT && b == CollisionCategory.TILE.BIT) {
             Rocket r = (Rocket) contact.getFixtureA().getBody().getUserData();
             r.explode();
+            Game.audioManager.playSound(Game.audioManager.EXPLOSION);
         } else if(a == CollisionCategory.TILE.BIT && b == CollisionCategory.ROCKET.BIT) {
             Rocket r = (Rocket) contact.getFixtureB().getBody().getUserData();
             r.explode();
+            Game.audioManager.playSound(Game.audioManager.EXPLOSION);
+        }
+
+        if(a == CollisionCategory.BALL.BIT || b == CollisionCategory.BALL.BIT) {
+            Game.audioManager.playSound(Game.audioManager.BALL_HIT);
         }
             
     }
