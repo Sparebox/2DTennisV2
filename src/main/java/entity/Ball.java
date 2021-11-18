@@ -39,6 +39,7 @@ public final class Ball extends Entity {
     private boolean inBubble;
     private boolean inVortex;
     private boolean isSquare;
+    private boolean frozen;
     private BufferedImage bubbleSprite;
     private BufferedImage vortexSprites;
     private Animation vortexAnimation;
@@ -113,27 +114,29 @@ public final class Ball extends Entity {
     public void update() {
         if(currentGame == null)
             return;
-
-        Vec2 velocity = body.getLinearVelocity();
-        if(Game.currentGameMode == GameMode.VERSUS) {
-            if(velocity.length() != VEL_VERSUS) {
-                velocity.normalize();
-                velocity.mulLocal(VEL_VERSUS);
+        if(!frozen) {
+            Vec2 velocity = body.getLinearVelocity();
+            if(Game.currentGameMode == GameMode.VERSUS) {
+                if(velocity.length() != VEL_VERSUS) {
+                    velocity.normalize();
+                    velocity.mulLocal(VEL_VERSUS);
+                }
+            }
+            if(Game.currentGameMode == GameMode.CPU ||
+            Game.currentGameMode == game.GameMode.SINGLE) {
+                if(velocity.length() != vel) {
+                    velocity.normalize();
+                    velocity.mulLocal(vel);
+                }
+            }
+            if(velocity.abs().y < 0.01f) {
+                if(velocity.y > 0)
+                    velocity.y += 0.5f;
+                else 
+                    velocity.y -= 0.5f;
             }
         }
-        if(Game.currentGameMode == GameMode.CPU ||
-        Game.currentGameMode == game.GameMode.SINGLE) {
-            if(velocity.length() != vel) {
-                velocity.normalize();
-                velocity.mulLocal(vel);
-            }
-        }
-        if(velocity.abs().y < 0.01f) {
-            if(velocity.y > 0)
-                velocity.y += 0.5f;
-            else 
-                velocity.y -= 0.5f;
-        }
+        
         if(inVortex && vortexTimer.tick())
             simulateVortex();
 
@@ -182,6 +185,18 @@ public final class Ball extends Entity {
         float invDistance = 1 / distance;
         float impulseMag = vortexPower * invDistance * invDistance;
         b.applyLinearImpulse(vortexDir.mul(impulseMag), applyPoint);
+    }
+
+    public void setFrozen(boolean frozen) {
+        this.frozen = frozen;
+        if(frozen)
+            this.body.getLinearVelocity().setZero();
+        else
+            this.body.setLinearVelocity(new Vec2(Ball.VEL_DEFAULT, Ball.VEL_DEFAULT));
+    }
+
+    public boolean isFrozen() {
+        return frozen;
     }
 
     public Timer getBubbleTimer() {

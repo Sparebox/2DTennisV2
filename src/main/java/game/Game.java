@@ -64,6 +64,7 @@ public final class Game implements Runnable {
     private CustomContactListener customContactListener;
     private PickupGen pickUpGen;
     private boolean running;
+    private boolean levelChange;
     private BufferStrategy bs;
     private String fpsString = "FPS: ";
     private Set<Entity> entities;
@@ -73,9 +74,11 @@ public final class Game implements Runnable {
     private Racquet cpuRacquet;
     private Ball ball;
     private Timer secTimer;
+    private Timer levelChangeTimer;
     private int ticks;
     private int score;
     private int secondsSinceStart;
+    private int secondsSnapshot;
     private int pickupsPickedup;
     private Bot bot;
     private BufferedImage arrowLeft;
@@ -89,6 +92,7 @@ public final class Game implements Runnable {
         nsPerUpdate = 1e9 / MainMenu.fpsTarget;
         this.keyManager = new KeyManager(this);
         this.secTimer = new Timer((int)1e3);
+        this.levelChangeTimer = new Timer((int)2e3);
         this.entities = new HashSet<>();
         this.entitiesToDelete = new HashSet<>();
         this.entitiesToAdd = new HashSet<>();
@@ -263,8 +267,10 @@ public final class Game implements Runnable {
                         tileAmount = tileValues[1];
                         this.ball.getBody().setTransform(new Vec2(Utils.toWorld(WIDTH/2),
                         Utils.toWorld(tileValues[0] + 2 * BALL_RADIUS)), 0f);
-                        this.ball.getBody().setLinearVelocity(new Vec2(Ball.VEL_DEFAULT, Ball.VEL_DEFAULT));
+                        this.ball.setFrozen(true);
                         score = 0;
+                        secondsSnapshot = secondsSinceStart;
+                        levelChange = true;
                     } else {
                         endGame(true);
                         return;
@@ -273,6 +279,13 @@ public final class Game implements Runnable {
                 case VERSUS :
                     break;
             } 
+        }
+
+        if(levelChange) {
+            if(secondsSinceStart - secondsSnapshot > 2) {
+                this.ball.setFrozen(false);
+                levelChange = false;
+            }
         }
         
         if(!entitiesToDelete.isEmpty()) {
