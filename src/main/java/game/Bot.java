@@ -9,7 +9,6 @@ import entity.Racquet;
 import entity.Tile;
 import utils.Timer;
 import utils.Utils;
-import window.MainMenu;
 
 public final class Bot {
     

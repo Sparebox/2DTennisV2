@@ -9,7 +9,6 @@ import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -74,7 +73,6 @@ public final class Game implements Runnable {
     private Racquet cpuRacquet;
     private Ball ball;
     private Timer secTimer;
-    private Timer levelChangeTimer;
     private int ticks;
     private int score;
     private int secondsSinceStart;
@@ -92,7 +90,6 @@ public final class Game implements Runnable {
         nsPerUpdate = 1e9 / MainMenu.fpsTarget;
         this.keyManager = new KeyManager(this);
         this.secTimer = new Timer((int)1e3);
-        this.levelChangeTimer = new Timer((int)2e3);
         this.entities = new HashSet<>();
         this.entitiesToDelete = new HashSet<>();
         this.entitiesToAdd = new HashSet<>();
