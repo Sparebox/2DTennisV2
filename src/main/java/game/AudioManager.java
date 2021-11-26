@@ -58,4 +58,13 @@ public final class AudioManager {
             e.printStackTrace();
         } 
     }
+
+    public void cleanUp() {
+        for(var clip : clips) {
+            clip.close();
+        }
+        clips.clear();
+    }
+
+    
 }

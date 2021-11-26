@@ -186,6 +186,7 @@ public final class Game implements Runnable {
         running = false;
         this.frame.setVisible(false);
         this.frame.dispose();
+        audioManager.cleanUp();
         MainMenu.currentGame = null;
         Entity.setCurrentGame(null);
     }
