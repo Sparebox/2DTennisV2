@@ -128,11 +128,15 @@ public final class MainMenu extends JFrame implements ActionListener{
         gbc.gridy = 1;
         titlePanel.add(title, gbc);
 
+        gbc.insets = new Insets(50, 0, 0, 0);
+
         var welcome = new JLabel("Welcome To");
         welcome.setFont(new Font("SansSerif", Font.BOLD, 30));
         gbc.gridx = 0;
         gbc.gridy = 0;
         titlePanel.add(welcome, gbc);
+
+        gbc.insets = new Insets(25, 0, 0, 0);
 
         var v2 = new JLabel("V2");
         v2.setFont(new Font("SansSerif", Font.BOLD, 30));
@@ -140,6 +144,8 @@ public final class MainMenu extends JFrame implements ActionListener{
         gbc.gridx = 0;
         gbc.gridy = 2;
         titlePanel.add(v2, gbc);
+
+        gbc.insets = new Insets(0, 0, 0, 0);
 
         start = new JButton("Start");
         setButtonSettings(start, "start");
