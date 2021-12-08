@@ -22,6 +22,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
@@ -47,10 +48,10 @@ public final class MainMenu extends JFrame implements ActionListener{
 
     private String frameTitle = "2DTennis V2 Main Menu";
     private GridBagConstraints gbc;
-    private JPanel buttonsPanel, titlePanel, creditPanel, settingsPanel; //tutorialPanel;
+    private JPanel buttonsPanel, titlePanel, creditPanel, settingsPanel, tutorialPanel;
     private JButton start, settings, tutorial, exit;
     private JLabel title, author;
-    //private JTextArea tutorialText;
+    private JTextArea tutorialText;
     private Dimension buttonDimensions = new Dimension(300, 70);
     private KeyManager keyManager;
     private boolean settingsVisible;
@@ -241,6 +242,11 @@ public final class MainMenu extends JFrame implements ActionListener{
                 buttonsPanel.setVisible(false);
                 showSettings();
                 break;
+            case "tutorial" :
+                titlePanel.setVisible(false);
+                buttonsPanel.setVisible(false);
+                showTutorial();
+                break;
             case "exit" :
                 System.exit(0);
         }
@@ -425,6 +431,46 @@ public final class MainMenu extends JFrame implements ActionListener{
         btnPanel.add(nextB, gbc);
         this.add(settingsPanel, BorderLayout.CENTER);
         this.requestFocusInWindow();
+    }
+
+    private void showTutorial() {
+        tutorialPanel = new JPanel(new GridBagLayout());
+        tutorialPanel.setBackground(BACKGROUND_COLOR);
+
+        var header = new JLabel("Tutorial");
+        header.setFont(FONT);
+        header.setForeground(Color.ORANGE);
+
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        tutorialPanel.add(header, gbc);
+
+        String text = "Left: A / <-\nRight: D / ->\nJump: space\nBoost: shift\nRoll left: q /,\nRoll right: e /.";
+        tutorialText = new JTextArea(text, 10, 50);
+        tutorialText.setEditable(false);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        tutorialPanel.add(tutorialText, gbc);
+        
+        var back = new JButton("Back");
+        back.setBackground(Color.BLACK);
+        back.setFocusPainted(false);
+        back.setFont(FONT);
+        back.setPreferredSize(buttonDimensions);
+        back.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tutorialPanel.setVisible(false);
+                titlePanel.setVisible(true);
+                buttonsPanel.setVisible(true);
+            }
+        });
+        gbc.insets = new Insets(20, 0, 0, 0);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        tutorialPanel.add(back, gbc);
+
+        this.add(tutorialPanel, BorderLayout.CENTER);
     }
 
     public boolean isSettingsVisible() {
