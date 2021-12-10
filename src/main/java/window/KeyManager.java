@@ -5,7 +5,9 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 
 import game.Game;
-
+/**
+ * Manages the key presses in-game and in the main menu
+ */
 public final class KeyManager extends KeyAdapter {
 
     private HashMap<Integer, Boolean> keys = new HashMap<>();
@@ -27,11 +29,17 @@ public final class KeyManager extends KeyAdapter {
         this.keys.put(KeyEvent.VK_Q, false);
         this.keys.put(KeyEvent.VK_E, false);
     }
-
+    /**
+     * Constructor meant for use in the MainMenu class
+     * @param menu the instance of the MainMenu class
+     */
     public KeyManager(MainMenu menu) {
         this.menu = menu;
     }
-
+    /**
+     * Constructor meant for use in the GameSummary class
+     * @param summary the instance of the GameSummary class
+     */
     public KeyManager(GameSummary summary) {
         this.summary = summary;
     }
@@ -73,6 +81,8 @@ public final class KeyManager extends KeyAdapter {
     public void keyReleased(KeyEvent e) {
         keys.put(e.getKeyCode(), false);
     }
+
+    // Getters and setters
 
     public HashMap<Integer, Boolean> getKeys() {
         return keys;

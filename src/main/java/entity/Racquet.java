@@ -14,7 +14,9 @@ import game.Game;
 import game.GameMode;
 import utils.Utils;
 import window.MainMenu;
-
+/**
+ * Physics racquet
+ */
 public class Racquet extends Entity {
 
     public static final int ROTATION = 5;
@@ -28,6 +30,12 @@ public class Racquet extends Entity {
     private boolean rightPressed;
     private boolean cpuOwned;
    
+    /**
+     * Creates and initializes JBox2D physics for a new racquet with a predetermined y-coordinate
+     * @param x the initial x-coordinate
+     * @param width the width of the racquet in pixels
+     * @param height the height of the racquet in pixels
+     */
     public Racquet(int x, int width, int height) {
         this.width = Utils.toWorld(width);
         this.height = Utils.toWorld(height);
@@ -48,6 +56,13 @@ public class Racquet extends Entity {
         this.fd.filter.categoryBits = CollisionCategory.RACQUET.BIT;
     }
 
+    /**
+     * Creates and initializes JBox2D physics for a new racquet
+     * @param x the initial x-coordinate
+     * @param y the initial y-coordinate
+     * @param width the width of the racquet in pixels
+     * @param height the height of the racquet in pixels
+     */
     public Racquet(int x, int y, int width, int height) {
         this.width = Utils.toWorld(width);
         this.height = Utils.toWorld(height);
@@ -112,6 +127,12 @@ public class Racquet extends Entity {
             body.setTransform(body.getPosition(), 0f);
     }
 
+    // Racquet controlling
+
+    /**
+     * Moves the racquet left with specified speed
+     * @param speed the speed to move with
+     */
     public void left(int speed) {
         leftPressed = true;
         if(Utils.toPixel(body.getPosition().x - width/2) > 0)
@@ -120,6 +141,10 @@ public class Racquet extends Entity {
             body.setTransform(body.getPosition(), 0f);
     }
 
+    /**
+     * Moves the racquet right with specified speed
+     * @param speed the speed to move with
+     */
     public void right(int speed) {
         rightPressed = true;
         if(Utils.toPixel(body.getPosition().x + width/2) < Game.WIDTH - 1)
@@ -128,6 +153,9 @@ public class Racquet extends Entity {
             body.setTransform(body.getPosition(), 0f);
     }
 
+    /**
+     * Rotates the racquet counter clockwise
+     */
     public void rotateL() {
         if(cpuOwned && Game.currentGameMode == GameMode.VERSUS)
             body.setTransform(body.getPosition(), (float) Math.toRadians(ROTATION));
@@ -135,12 +163,17 @@ public class Racquet extends Entity {
             body.setTransform(body.getPosition(), (float) Math.toRadians(-ROTATION));
     }
 
+    /**
+     * Rotates the racquet clockwise
+     */
     public void rotateR() {
         if(cpuOwned && Game.currentGameMode == GameMode.VERSUS)
             body.setTransform(body.getPosition(), (float) Math.toRadians(-ROTATION));
         else
             body.setTransform(body.getPosition(), (float) Math.toRadians(ROTATION));
     }
+
+    // Getters and setters
 
     public boolean isLeftPressed() {
         return leftPressed;

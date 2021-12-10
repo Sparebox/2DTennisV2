@@ -15,7 +15,9 @@ import org.jbox2d.dynamics.FixtureDef;
 
 import game.AreaQueryCallback;
 import utils.Utils;
-
+/**
+ * Physics object for the rocket pickup
+ */
 public final class Rocket extends Entity{
 
     public static final int BLAST_RADIUS = 100; // In pixels
@@ -26,6 +28,13 @@ public final class Rocket extends Entity{
     private PolygonShape ps;
     private Polygon polygon = new Polygon();
 
+    /**
+     * Creates and initializes JBox2D physics for a new rocket 
+     * @param x the initial x-coordinate
+     * @param y the initial y-coordinate
+     * @param width the width of the rocket in pixels
+     * @param height the height of the rocket in pixels
+     */
     public Rocket(int x, int y, int width, int height) {
         this.width = Utils.toWorld(width);
         this.height = Utils.toWorld(height);
@@ -80,6 +89,11 @@ public final class Rocket extends Entity{
         
     }
 
+    /**
+     * Explodes the rocket and affects physics tiles in the vicinity
+     * <p>
+     * Deletes the rocket entity from the game
+     */
     public void explode() {
         AreaQueryCallback callBack = new AreaQueryCallback();
         AABB area = new AABB(body.getPosition().sub(new Vec2(Utils.toWorld(BLAST_RADIUS), Utils.toWorld(BLAST_RADIUS))),
@@ -91,19 +105,9 @@ public final class Rocket extends Entity{
             Vec2 bCOM = b.getPosition().add(new Vec2(0.1f, 0));
             if(bCOM.sub(this.body.getPosition()).length() >= Utils.toWorld(BLAST_RADIUS))
                 continue;
-            applyBlast(b, this.body.getPosition(), bCOM, BLAST_POWER);
+            Utils.applyForce(b, this.body.getPosition(), bCOM, BLAST_POWER);
         }
         currentGame.getEntitiesToDelete().add(this);
-    }
-
-    private void applyBlast(Body b, Vec2 blastCenter, Vec2 applyPoint, float blastPower) {
-        Vec2 blastDir = applyPoint.sub(blastCenter);
-        float distance = blastDir.normalize();
-        if(distance == 0)
-            return;
-        float invDistance = 1 / distance;
-        float impulseMag = blastPower * invDistance * invDistance;
-        b.applyLinearImpulse(blastDir.mul(impulseMag), applyPoint);
     }
     
 }

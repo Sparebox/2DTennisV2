@@ -9,7 +9,9 @@ import entity.Racquet;
 import entity.Tile;
 import utils.Timer;
 import utils.Utils;
-
+/**
+ * Responsible for the computer player logic
+ */
 public final class Bot {
     
     public static final int SPEED = Racquet.MOVE_SPEED * Racquet.BOOST;
@@ -29,6 +31,12 @@ public final class Bot {
     private Timer aimTimeout;
     private int lastTileCount;
 
+    /**
+     * Creates a computer player for the specified game instance
+     * @param currentGame the current game instance
+     * @param ball a reference to the ball in the current game
+     * @param cpuRacquet a reference to the racquet given to the computer player
+     */
     public Bot(Game currentGame, Ball ball, Racquet cpuRacquet) {
         this.currentGame = currentGame;
         this.ball = ball;
@@ -37,6 +45,9 @@ public final class Bot {
         this.predictedBallPos = new Vec2();
     }
 
+    /**
+     * Updates computer player decision-making and calculates the predicted ball path
+     */
     public void update() {
         if(initialUpdate) {
             this.cpuRacquetPos = this.cpuRacquet.getBody().getPosition();
@@ -47,7 +58,7 @@ public final class Bot {
         predictedBallDir.normalize();
         predictedBallPos = ballPos.clone();
 
-        // Ray casting //
+        // Ball path ray casting //
         if(Game.currentGameMode == GameMode.CPU) { 
             while(predictedBallPos.y < cpuRacquetPos.y && predictedBallDir.y > 0f) {
                 if((predictedBallPos.x < 0f || predictedBallPos.x > Utils.toWorld(Game.WIDTH))
@@ -81,7 +92,7 @@ public final class Bot {
             }
         }
         
-        // Avoid x velocity stall
+        // Avoid ball x velocity stall
         if(ball.getBody().getLinearVelocity().abs().x < 0.01f) {
             if(cpuRacquetPos.x - cpuRacquet.getWidth()/3 > predictedBallPos.x) {
                 cpuRacquet.left(SPEED);
@@ -108,6 +119,9 @@ public final class Bot {
         }
     }
 
+    /**
+     * Computer player tries to get a pickup when it's favorable
+     */
     private void considerPickup() {
         Pickup pickup = null;
         if(ballPos.y < Utils.toWorld(Game.HEIGHT / 2) && predictedBallDir.y < 0f) {
@@ -128,6 +142,9 @@ public final class Bot {
             cpuRacquet.left(SPEED);
     }
 
+    /**
+     * Computer player tries to aim the ball at average position of tiles when it's allowed
+     */
     private void considerAiming() {
         int tileCount = Game.tileAmount - currentGame.getScore();
         if(tileCount < 21) {
@@ -166,6 +183,8 @@ public final class Bot {
         }
     }
 
+    // Getters and setters
+    
     public Vec2 getPredictedBallPos() {
         return predictedBallPos;
     }

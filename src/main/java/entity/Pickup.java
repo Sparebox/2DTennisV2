@@ -15,13 +15,23 @@ import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
 import utils.Utils;
-
+/**
+ * Physics pickup
+ */
 public class Pickup extends Entity {
 
     private PickUpType pickUpType;
     private PolygonShape ps;
     private BufferedImage icon;
 
+    /**
+     * Creates and initializes JBox2D physics for a new pickup
+     * @param x the initial x-coordinate
+     * @param y the initial y-coordinate
+     * @param width the width of the pickup in pixels
+     * @param height the height of the pickup in pixels
+     * @param pickUpType the effect of this pickup
+     */
     public Pickup(int x, int y, int width, int height, PickUpType pickUpType) {
         this.pickUpType = pickUpType;
         try {
@@ -69,6 +79,8 @@ public class Pickup extends Entity {
         if(Utils.toPixel(body.getPosition().y - height/2) > Game.HEIGHT)
             currentGame.getEntitiesToDelete().add(this);
     }
+
+    // Getters and setters
 
     public PickUpType getPickUpType() {
         return pickUpType;

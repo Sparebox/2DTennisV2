@@ -13,12 +13,21 @@ import org.jbox2d.dynamics.FixtureDef;
 import game.Game;
 import utils.Utils;
 import window.MainMenu;
-
+/**
+ * Physics tile
+ */
 public class Tile extends Entity {
     
     private PolygonShape ps;
     private boolean dropped;
 
+    /**
+     * Creates and initializes JBox2D physics for a new tile
+     * @param x the initial x-coordinate of the tile
+     * @param y the initial y-coordinate of the tile
+     * @param width the width of the tile in pixels
+     * @param height the height of the tile in pixels
+     */
     public Tile(int x, int y, int width, int height) {
         this.width = Utils.toWorld(width);
         this.height = Utils.toWorld(height);

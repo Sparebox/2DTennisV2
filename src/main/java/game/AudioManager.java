@@ -12,7 +12,9 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-
+/**
+ * Responsible for the game sound effects
+ */
 public final class AudioManager {
 
     public final File BALL_HIT;
@@ -25,6 +27,10 @@ public final class AudioManager {
 
     private Set<Clip> clips;
 
+    /**
+     * Creates an audio manager
+     * @throws URISyntaxException
+     */
     public AudioManager() throws URISyntaxException {
         this.clips = new HashSet<>();
         BALL_HIT = new File(getClass().getResource("/clack.wav").toURI());
@@ -35,7 +41,10 @@ public final class AudioManager {
         VORTEX = new File(getClass().getResource("/vortex.wav").toURI());
         WHOOSH= new File(getClass().getResource("/whoosh.wav").toURI());
     }
-
+    /**
+     * Plays the specified audio file and closes all open audio streams
+     * @param audioFile the audio file to be played
+     */
     public void playSound(File audioFile) {
         if(!clips.isEmpty()) {
             var toRemove = new HashSet<Clip>();
@@ -59,6 +68,9 @@ public final class AudioManager {
         } 
     }
 
+    /**
+     * Closes all audio streams that are left open
+     */
     public void cleanUp() {
         if(clips.isEmpty())
             return;

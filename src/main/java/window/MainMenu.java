@@ -33,7 +33,9 @@ import game.AudioManager;
 import game.Game;
 import game.GameMode;
 import game.Level;
-
+/**
+ * The MainMenu class is the base class where games are started and where ended games lead back to
+ */
 public final class MainMenu extends JFrame implements ActionListener{
     
     public static Game currentGame;
@@ -57,6 +59,9 @@ public final class MainMenu extends JFrame implements ActionListener{
     private boolean settingsVisible;
     private Settings settingsData;
 
+    /**
+     * Creates the main menu window and displays the main menu
+     */
     public MainMenu() {
         this.keyManager = new KeyManager(this);
         try {
@@ -71,6 +76,11 @@ public final class MainMenu extends JFrame implements ActionListener{
         loadSettings();
     }
 
+    /**
+     * Starts a new game in the selected game mode
+     * <p>
+     * If no game mode is selected, the "single" game mode is the default
+     */
     public void startGame() {
         if(Game.currentGameMode == null)
             Game.currentGameMode = game.GameMode.SINGLE;
@@ -78,6 +88,10 @@ public final class MainMenu extends JFrame implements ActionListener{
         MainMenu.currentGame.start();
     }
 
+    /**
+     * Calculates the highest tile row possible for current game window dimensions
+     * @return calculated max row
+     */
     public static int calculateMaxRow() {
         int tileGap = 10;
         int lastX = Game.TILE_WIDTH/2;
@@ -113,7 +127,9 @@ public final class MainMenu extends JFrame implements ActionListener{
         this.setVisible(true);
         this.gbc = new GridBagConstraints();
     }
-
+    /**
+     * Creates the Swing GUI components for the main menu and requests focus in window
+     */
     private void createMainMenu() {
 
         titlePanel = new JPanel(new GridBagLayout());
@@ -183,7 +199,11 @@ public final class MainMenu extends JFrame implements ActionListener{
         this.add(creditPanel, BorderLayout.PAGE_END);
         this.requestFocusInWindow();
     }
-
+    /**
+     * Attempts to load saved settings from disk
+     * <p>
+     * If this is unsuccessful it is ignored 
+     */
     private void loadSettings() {
         try {
             FileInputStream fileIn = new FileInputStream("./settings.set");
@@ -205,7 +225,9 @@ public final class MainMenu extends JFrame implements ActionListener{
             }
         } catch (IOException | ClassNotFoundException | NumberFormatException e) {}
     }
-
+    /**
+     * Saves current settings to disk in a "settings.set" file
+     */
     private void saveSettings() {
         this.settingsData.put(Settings.ROW, Integer.toString(Game.rowAmount));
         this.settingsData.put(Settings.FPS, Integer.toString(fpsTarget));
@@ -219,7 +241,11 @@ public final class MainMenu extends JFrame implements ActionListener{
             fileOut.close();
          } catch (IOException e) {}
     }
-
+    /**
+     * Initialize the specified button with general settings
+     * @param button the button to initialize
+     * @param actionCommand the command for the button
+     */
     private void setButtonSettings(JButton button, String actionCommand) {
         button.setBackground(Color.BLACK);
         button.setFocusPainted(false);
@@ -251,21 +277,26 @@ public final class MainMenu extends JFrame implements ActionListener{
                 System.exit(0);
         }
     }
-
+    /**
+     * Opens the settings view
+     */
     private void showSettings() {
         settingsVisible = true;
         int maxWidth = (int) buttonDimensions.getWidth();
         settingsPanel = new JPanel();
         settingsPanel.setBackground(BACKGROUND_COLOR);
         settingsPanel.setLayout(new GridBagLayout());
+
         JPanel firstPanel = new JPanel();
         firstPanel.setLayout(new GridBagLayout());
         firstPanel.setBackground(BACKGROUND_COLOR);
         firstPanel.setVisible(true);
+
         JPanel nextPanel = new JPanel();
         nextPanel.setLayout(new GridBagLayout());
         nextPanel.setBackground(BACKGROUND_COLOR);
         nextPanel.setVisible(false);
+
         JPanel btnPanel = new JPanel();
         btnPanel.setLayout(new GridBagLayout());
         btnPanel.setBackground(BACKGROUND_COLOR);
@@ -274,6 +305,7 @@ public final class MainMenu extends JFrame implements ActionListener{
         gbc.gridx = 0;
         gbc.gridy = 1;
         settingsPanel.add(btnPanel, gbc);
+
         Font font = new Font("SansSerif", Font.PLAIN, 30);
         JLabel fps = new JLabel("Target FPS");
         fps.setForeground(Color.ORANGE);
@@ -432,7 +464,9 @@ public final class MainMenu extends JFrame implements ActionListener{
         this.add(settingsPanel, BorderLayout.CENTER);
         this.requestFocusInWindow();
     }
-
+    /**
+     * Opens the tutorial view
+     */
     private void showTutorial() {
         tutorialPanel = new JPanel(new GridBagLayout());
         tutorialPanel.setBackground(BACKGROUND_COLOR);
@@ -472,6 +506,8 @@ public final class MainMenu extends JFrame implements ActionListener{
 
         this.add(tutorialPanel, BorderLayout.CENTER);
     }
+
+    // Getters and setters
 
     public boolean isSettingsVisible() {
         return settingsVisible;

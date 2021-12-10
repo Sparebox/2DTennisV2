@@ -9,11 +9,20 @@ import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
 import utils.Utils;
-
+/**
+ * Static physics box boundary
+ */
 public final class BoxBoundary extends Entity {
 
     private PolygonShape ps;
 
+    /**
+     * Creates and initializes JBox2D physics for a new box boundary
+     * @param x the initial x-coordinate
+     * @param y the initial y-coordinate
+     * @param width the width of the box in pixels
+     * @param height the height of the box in pixels
+     */
     public BoxBoundary(int x, int y, int width, int height) {
         this.width = Utils.toWorld(width);
         this.height = Utils.toWorld(height);

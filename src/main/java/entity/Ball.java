@@ -23,6 +23,9 @@ import game.PickupGen;
 import utils.Timer;
 import utils.Utils;
 
+/**
+ * Physics ball
+ */
 public final class Ball extends Entity {
 
     public static final float BOOST_F = 1.5f;
@@ -48,6 +51,12 @@ public final class Ball extends Entity {
     private Timer bubbleFlashTimer;
     private int bubbleSeconds;
 
+    /**
+     * Creates and initializes JBox2D physics for a new ball
+     * @param x the initial x-coordinate
+     * @param y the initial y-coordinate
+     * @param radius the radius of the ball in pixels
+     */
     public Ball(int x, int y, int radius) {
         this.vortexTimer = new Timer(100);
         this.secTimer = new Timer((int) 1e3);
@@ -162,6 +171,9 @@ public final class Ball extends Entity {
         
     }
 
+    /**
+     * Applies physics effects to tiles in the vicinity of the ball
+     */
     private void simulateVortex() {
         AreaQueryCallback callBack = new AreaQueryCallback();
         AABB area = new AABB(body.getPosition().sub(new Vec2(Utils.toWorld(VORTEX_AREA), Utils.toWorld(VORTEX_AREA))),
@@ -173,19 +185,11 @@ public final class Ball extends Entity {
             Vec2 bCOM = b.getPosition().add(new Vec2(0.1f, 0));
             if(bCOM.sub(this.body.getPosition()).length() >= Utils.toWorld(VORTEX_AREA))
                 continue;
-            applyVortex(b, body.getPosition(), bCOM, VORTEX_POWER);
+            Utils.applyForce(b, body.getPosition(), bCOM, VORTEX_POWER);
         }
     }
 
-    private void applyVortex(Body b, Vec2 vortexCenter, Vec2 applyPoint, float vortexPower) {
-        Vec2 vortexDir = vortexCenter.sub(applyPoint);
-        float distance = vortexDir.normalize();
-        if(distance == 0)
-            return;
-        float invDistance = 1 / distance;
-        float impulseMag = vortexPower * invDistance * invDistance;
-        b.applyLinearImpulse(vortexDir.mul(impulseMag), applyPoint);
-    }
+    // Getters and setters
 
     public void setFrozen(boolean frozen) {
         this.frozen = frozen;

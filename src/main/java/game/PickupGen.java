@@ -13,7 +13,9 @@ import entity.Pickup;
 import entity.Rocket;
 import utils.Timer;
 import utils.Utils;
-
+/**
+ * Responsible for pickup spawning and logic in-game
+ */
 public final class PickupGen {
     
     public static final int PICKUP_WIDTH = 30;
@@ -30,6 +32,10 @@ public final class PickupGen {
     private Random random;
     private Pickup pickupToBeApplied;
     
+    /**
+     * Creates a pickup generator for the specified game class instance
+     * @param currentGame the current game instance
+     */
     public PickupGen(Game currentGame) {
         PickupGen.currentGame = currentGame;
         this.random = new Random();
@@ -39,6 +45,9 @@ public final class PickupGen {
         resetEffects();
     }
 
+    /**
+     * Updates the generator logic and spawns different pickups randomly when appropriate
+     */
     public void update() {
         if(randomTimer.tick() && currentGame.getCurrentPickup() == null) {
             int x = random.nextInt(Game.WIDTH);
@@ -65,11 +74,18 @@ public final class PickupGen {
         }
     }
 
+    /**
+     * Sets new random time interval between pickup spawns
+     */
     private void setNewRandomInterval() {
         int randomTime = Math.min(MAX_INTERVAL, Math.max(random.nextInt(MAX_INTERVAL+1), MIN_INTERVAL));
         randomTimer.setIntervalMs((int) (randomTime*1e3));
     }
 
+    /**
+     * Applies the effects of the pickup collected
+     * @param pickup the pickup collected by the player
+     */
     private void applyPickup(Pickup pickup) {
         switch(pickup.getPickUpType()) {
             case ROCKET :
@@ -98,6 +114,9 @@ public final class PickupGen {
         }
     }
 
+    /**
+     * Undo any pickup effects
+     */
     private void resetEffects() {
         Ball.vel = Ball.VEL_DEFAULT;
         if(currentGame.getBall() != null)
@@ -105,6 +124,9 @@ public final class PickupGen {
         currentGame.setCurrentPickup(null);
     }
 
+    /**
+     * Creates a bubble around the ball
+     */
     private void createBubble() {
         Ball ball = currentGame.getBall();
         Vec2 destroyedPos = ball.getBody().getPosition().clone();
@@ -118,6 +140,9 @@ public final class PickupGen {
         currentGame.getBall().setInBubble(true);
     }
 
+    /**
+     * Restores the ball to its original settings
+     */
     private void restoreBall() {
         Ball ball = currentGame.getBall();
         Vec2 destroyedPos = ball.getBody().getPosition().clone();
@@ -137,6 +162,9 @@ public final class PickupGen {
         ball.setBubbleSeconds(0);
     }
 
+    /**
+     * Transforms the ball into a square shape
+     */
     private void createSquare() {
         Ball ball = currentGame.getBall();
         Vec2 destroyedPos = ball.getBody().getPosition().clone();
@@ -153,6 +181,8 @@ public final class PickupGen {
         ball.setSquare(true);
     }
 
+    // Getters and setters
+    
     public void setPickupToBeApplied(Pickup pickupToBeApplied) {
         this.pickupToBeApplied = pickupToBeApplied;
     }

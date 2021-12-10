@@ -1,5 +1,7 @@
 package entity;
-
+/**
+ * Enum class for collisions categorized by physics objects
+ */
 public enum CollisionCategory {
     
     NO_COLLISION(0),

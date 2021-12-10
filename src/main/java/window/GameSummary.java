@@ -17,7 +17,9 @@ import javax.swing.JTextArea;
 
 import game.Game;
 import game.GameMode;
-
+/**
+ * This class is responsible for the summary at the end of each game
+ */
 public class GameSummary extends JFrame implements ActionListener {
     
     private static final String FRAME_TITLE = "Game Summary";
@@ -29,6 +31,11 @@ public class GameSummary extends JFrame implements ActionListener {
     private KeyManager keyManager;
     private boolean won;
 
+    /**
+     * Creates a new game summary window with the summary
+     * @param currentGame the instance of the Game class
+     * @param won true if the game was won and false if it was lost
+     */
     public GameSummary(Game currentGame, boolean won) {
         this.currentGame = currentGame;
         this.won = won;
@@ -49,7 +56,9 @@ public class GameSummary extends JFrame implements ActionListener {
         this.gbc = new GridBagConstraints();
         this.font = new Font("SansSerif", Font.PLAIN, 20);
     }
-
+    /**
+     * Creates the needed Swing GUI elements
+     */
     private void createSummary() {
         summaryPanel = new JPanel(new GridBagLayout());
         summaryPanel.setBackground(MainMenu.BACKGROUND_COLOR);
@@ -107,7 +116,7 @@ public class GameSummary extends JFrame implements ActionListener {
         this.setVisible(true);
         this.requestFocusInWindow();
     }
-
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         switch(e.getActionCommand()) {

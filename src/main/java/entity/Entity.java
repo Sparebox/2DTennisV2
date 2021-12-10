@@ -8,6 +8,9 @@ import org.jbox2d.dynamics.FixtureDef;
 
 import game.Game;
 
+/**
+ * Base class for all entities
+ */
 public abstract class Entity {
     
     protected static Game currentGame;
@@ -18,9 +21,18 @@ public abstract class Entity {
     protected float width; // In meters
     protected float height; // In meters
 
+    /**
+     * Renders this entity
+     * @param g the graphics context to be used
+     */
     public abstract void render(Graphics2D g);
 
+    /**
+     * Updates this entity
+     */
     public abstract void update();
+
+    // Getters and setters
 
     public Body getBody() {
         return body;

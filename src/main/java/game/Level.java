@@ -1,5 +1,7 @@
 package game;
-
+/**
+ * Enum class for game levels
+ */
 public enum Level {
     LEVEL1(4, "Level 1"),
     LEVEL2(6, "Level 2"),

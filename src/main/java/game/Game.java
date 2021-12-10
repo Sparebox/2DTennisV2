@@ -29,7 +29,9 @@ import utils.Utils;
 import window.GameSummary;
 import window.KeyManager;
 import window.MainMenu;
-
+/**
+ * Responsible for handling the game functionality, rendering and updating
+ */
 public final class Game implements Runnable {
 
     public static final Color BACKGROUND_COLOR = Color.BLACK;
@@ -40,12 +42,12 @@ public final class Game implements Runnable {
     public static final int FPS_DEFAULT = 60;
     public static final int VEL_ITERATIONS = 6;
     public static final int POS_ITERATIONS = 3;
-    public static final Vec2 GRAVITY = new Vec2(0, 9.81f);
     public static final int DEFAULT_ROWS = 4;
     public static final int TILE_WIDTH = 40;
     public static final int TILE_HEIGTH = 20;
     public static final int BALL_RADIUS = 20;
-    public static final double UPDATE_INTERVAL = 1e9 / 80f; // Nanoseconds
+    public static final double UPDATE_INTERVAL = 1e9 / 80f; // In nanoseconds
+    public static final Vec2 GRAVITY = new Vec2(0, 9.81f);
     
     public static GameMode currentGameMode = GameMode.SINGLE;
     public static Level currentLevel = Level.LEVEL1;
@@ -76,7 +78,7 @@ public final class Game implements Runnable {
     private int ticks;
     private int score;
     private int secondsSinceStart;
-    private int secondsSnapshot;
+    private int secondsSnapshot; // Used for level change timing
     private int pickupsPickedup;
     private Bot bot;
     private BufferedImage arrowLeft;
@@ -85,7 +87,9 @@ public final class Game implements Runnable {
     public Game() {
         init();
     }
-
+    /**
+     * Initialize variables and JBox2D physics world
+     */
     private void init() {
         nsPerUpdate = 1e9 / MainMenu.fpsTarget;
         this.keyManager = new KeyManager(this);
@@ -140,11 +144,6 @@ public final class Game implements Runnable {
                 entitiesToAdd.add(ball);
                 this.bot = new Bot(this, this.ball, this.cpuRacquet);
                 break;
-            // case TUTORIAL :
-            //     this.pickUpGen = new PickupGen(this);
-            //     this.arrowLeft = new ImageIcon(getClass().getResource("/leftkey.png")).getImage();
-            //     this.arrowRight = new ImageIcon(getClass().getResource("/rightkey.png")).getImage();
-            //     break;
         }
     }
 
@@ -172,6 +171,9 @@ public final class Game implements Runnable {
         this.canvas.requestFocusInWindow();
     }
 
+    /**
+     * Start the game
+     */
     public synchronized void start() {
         if(running)
             return;
@@ -180,6 +182,9 @@ public final class Game implements Runnable {
         gameThread.start();
     }
 
+    /**
+     * Stop the game
+     */
     public synchronized void stop() {
         if(!running)
             return;
@@ -191,6 +196,10 @@ public final class Game implements Runnable {
         Entity.setCurrentGame(null);
     }
 
+    /**
+     * End game based on the outcome of the game
+     * @param won true if the game was won, false if lost
+     */
     public void endGame(boolean won) {
         if(!running)
             return;
@@ -198,6 +207,9 @@ public final class Game implements Runnable {
         new GameSummary(this, won);
     }
 
+    /**
+     * Remove all tiles from the game world
+     */
     public void destroyTiles() {
         for(Entity e : entities) {
             if(e instanceof Tile) {
@@ -206,6 +218,7 @@ public final class Game implements Runnable {
         }
     }
 
+    // The game loop that is run on a thread
     @Override
     public void run() {
         double delta = 0;
@@ -220,7 +233,7 @@ public final class Game implements Runnable {
             updateAccumulator += delta;
             lastTime = now;
             while(accumulator >= nsPerUpdate) {
-                physWorld.step(1f/MainMenu.fpsTarget, VEL_ITERATIONS, POS_ITERATIONS);
+                physWorld.step(1f/MainMenu.fpsTarget, VEL_ITERATIONS, POS_ITERATIONS); // Update the JBox2D physics world
                 update();
                 while(updateAccumulator >= UPDATE_INTERVAL) {
                     update();
@@ -238,6 +251,9 @@ public final class Game implements Runnable {
         }
     }
 
+    /**
+     * Steps the game logic forward and updates all entities
+     */
     private void update() {
         if(!running)
             return;
@@ -280,20 +296,20 @@ public final class Game implements Runnable {
         }
 
         if(levelChange) {
-            if(secondsSinceStart - secondsSnapshot > 2) {
+            if(secondsSinceStart - secondsSnapshot > 2) { // Pause the game for 2 seconds after level change
                 this.ball.setFrozen(false);
                 levelChange = false;
             }
         }
         
-        if(!entitiesToDelete.isEmpty()) {
+        if(!entitiesToDelete.isEmpty()) { // Delete entities that are waiting for deletion
             for(Entity e : entitiesToDelete) {
                 physWorld.destroyBody(e.getBody());
                 entities.remove(e);
             }
             entitiesToDelete.clear();
         }
-        if(!entitiesToAdd.isEmpty()) {
+        if(!entitiesToAdd.isEmpty()) { // Add entities that are waiting for creation
             for(Entity e : entitiesToAdd) {
                 e.setBody(physWorld.createBody(e.getBd()));
                 e.getBody().createFixture(e.getFd());
@@ -309,7 +325,9 @@ public final class Game implements Runnable {
         if(bot != null)
             bot.update();
     }       
-
+    /**
+     * Renders and updates the screen
+     */
     private void render() {
         if(!running)
             return;
@@ -327,8 +345,8 @@ public final class Game implements Runnable {
         g.drawString(fpsString, 10, 20);
         g.drawString("Score: "+score+"/"+tileAmount, 10, 40);
         g.drawString(currentLevel.toString(), 10, 60);
-        //g.drawOval(Utils.toPixel(bot.getPredictedBallPos().x), Utils.toPixel(bot.getPredictedBallPos().y), 5, 5); // Display ball prediction
-        if(currentGameMode == GameMode.CPU) {
+        
+        if(currentGameMode == GameMode.CPU) { // Arrow icons for when the bot is playing
             if(cpuRacquet.isLeftPressed())
                 g.drawImage(arrowLeft, 
                 Game.WIDTH - arrowLeft.getWidth(null) - 50, 
@@ -340,9 +358,9 @@ public final class Game implements Runnable {
                 Game.HEIGHT - arrowLeft.getHeight(null) - 50,
                 50, 50, null);
         }
-        
+
         bs.show();
-        g.dispose();
+        g.dispose(); // Release resources used for graphics
     }
 
     private void renderEntities(Graphics2D g) {
@@ -350,7 +368,10 @@ public final class Game implements Runnable {
             e.render(g);
         }
     }
-
+    /**
+     * Creates JBox2D physics objects to act as game world boundaries
+     * @param visible true if boundaries are to be visible and false if invisible
+     */
     private void createBoundaries(boolean visible) {
         Entity leftWall = null;
         Entity rightWall = null;
@@ -374,12 +395,6 @@ public final class Game implements Runnable {
                 rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
                 ground = new LineBoundary(0, HEIGHT, WIDTH, HEIGHT, visible);
                 break;
-            // case TUTORIAL :
-            //     leftWall = new LineBoundary(0, 0, 0, HEIGHT, visible);
-            //     rightWall = new LineBoundary(WIDTH, 0, WIDTH, HEIGHT, visible);
-            //     ceil = new LineBoundary(0, 0, WIDTH, 0, visible);
-            //     ground = new LineBoundary(0, HEIGHT, WIDTH, HEIGHT, visible);
-            //     break;
         }
         if(leftWall != null)
             entitiesToAdd.add(leftWall);
@@ -390,7 +405,11 @@ public final class Game implements Runnable {
         if(ground != null)
             entitiesToAdd.add(ground);
     }
-
+    /**
+     * Creates the specified amount of rows of new tiles
+     * @param rows the number of tile rows to create
+     * @return an array where the first index holds the Y-coordinate of the last tile and the second index holds the total number of tiles
+     */
     private int[] createTiles(int rows) {
         int tileGap = 10;
         int lastX = TILE_WIDTH/2;
@@ -410,6 +429,8 @@ public final class Game implements Runnable {
         while(row < rows);
         return new int[]{lastY, tiles};
     }
+
+    // Getters and setters
 
     public Bot getBot() {
         return bot;

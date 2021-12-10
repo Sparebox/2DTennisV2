@@ -8,11 +8,17 @@ import org.jbox2d.dynamics.contacts.Contact;
 import entity.CollisionCategory;
 import entity.Pickup;
 import entity.Rocket;
-
+/**
+ * Implementation for the JBox2D ContactListener which handles pickup collisions
+ */
 public class CustomContactListener implements ContactListener{
 
     private Game currentGame;
 
+    /**
+     * Creates the contact listener for the specified game class instance
+     * @param currentGame the instance of the current game 
+     */
     public CustomContactListener(Game currentGame) {
         this.currentGame = currentGame;
     }

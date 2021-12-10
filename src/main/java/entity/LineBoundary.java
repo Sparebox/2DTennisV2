@@ -10,7 +10,9 @@ import org.jbox2d.dynamics.BodyType;
 import org.jbox2d.dynamics.FixtureDef;
 
 import utils.Utils;
-
+/**
+ * Static physics line boundary
+ */
 public class LineBoundary extends Entity {
 
     private boolean visible;
@@ -18,6 +20,14 @@ public class LineBoundary extends Entity {
     private Vec2 start;
     private Vec2 end;
 
+    /**
+     * Creates and initializes JBox2D physics for a new line boundary
+     * @param x1 start x-coordinate
+     * @param y1 start y-coordinate
+     * @param x2 end x-coordinate
+     * @param y2 end y-coordinate
+     * @param visible true if the line is visible, false if not
+     */
     public LineBoundary(int x1, int y1, int x2, int y2, boolean visible) {
         this.start = new Vec2(Utils.toWorld(x1), Utils.toWorld(y1));
         this.end = new Vec2(Utils.toWorld(x2), Utils.toWorld(y2));
@@ -48,6 +58,8 @@ public class LineBoundary extends Entity {
     public void update() {
         
     }
+
+    // Getters and setters
 
     public void setVisible(boolean visible) {
         this.visible = visible;
