@@ -29,6 +29,12 @@
             <systemPath>${basedir}/src/main/resources/Timer.jar</systemPath>
         </dependency>
 
+        <dependency>
+            <groupId>org.urish.openal</groupId>
+            <artifactId>java-openal</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
