@@ -30,9 +30,8 @@ public final class AudioManager {
 
     /**
      * Creates an audio manager
-     * @throws URISyntaxException
      */
-    public AudioManager() throws URISyntaxException {
+    public AudioManager() {
         this.sources = new HashMap<>();
         try {
             this.openal = new OpenAL();
@@ -55,49 +54,17 @@ public final class AudioManager {
     public void playSound(URL audioFile) {
         try {
             this.sources.get(audioFile).play();
-        } catch (ALException e) {
-            e.printStackTrace();
-        };
-        // if(!clips.isEmpty()) {
-        //     var toRemove = new HashSet<Clip>();
-        //     for(var clip : clips) {
-        //         if(!clip.isRunning()) {
-        //             clip.close();
-        //             toRemove.add(clip);
-        //         }
-        //     }
-        //     clips.removeAll(toRemove);
-        //     toRemove.clear();
-        // }
-        // try {
-        //     AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
-        //     Clip clip = AudioSystem.getClip();
-        //     clips.add(clip);
-        //     clip.open(audioStream);
-        //     clip.start();
-        // } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-        //     e.printStackTrace();
-        // } 
+        } catch (ALException e) {};
     }
 
     /**
      * Closes all audio streams that are left open
      */
-    // public void cleanUp() {
-    //     if(clips.isEmpty())
-    //         return;
-    //     for(var clip : clips) {
-    //         clip.close();
-    //     }
-    //     clips.clear();
-    // }
-
     public void cleanUp() {
-        if(sources.isEmpty())
-            return;
         for(var entry : sources.entrySet()) {
             entry.getValue().close();
         }
+        openal.close();
         sources.clear();
     }
 

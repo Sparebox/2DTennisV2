@@ -54,7 +54,6 @@ public final class Game implements Runnable {
     public static double nsPerUpdate;
     public static int rowAmount = DEFAULT_ROWS;
     public static int tileAmount;
-    public static AudioManager audioManager;
 
     private Pickup currentPickup;
     private World physWorld;
@@ -62,6 +61,7 @@ public final class Game implements Runnable {
     private JFrame frame;
     private Canvas canvas;
     private KeyManager keyManager;
+    private AudioManager audioManager;
     private CustomContactListener customContactListener;
     private PickupGen pickUpGen;
     private boolean running;
@@ -93,14 +93,17 @@ public final class Game implements Runnable {
     private void init() {
         nsPerUpdate = 1e9 / MainMenu.fpsTarget;
         this.keyManager = new KeyManager(this);
+        this.audioManager = new AudioManager();
         this.secTimer = new Timer((int)1e3);
         this.entities = new HashSet<>();
         this.entitiesToDelete = new HashSet<>();
         this.entitiesToAdd = new HashSet<>();
         this.customContactListener = new CustomContactListener(this);
+
         physWorld = new World(GRAVITY);
         physWorld.setAllowSleep(true);
         physWorld.setContactListener(this.customContactListener);
+
         Entity.setCurrentGame(this);
         initFrame();
         initCanvas();
@@ -172,7 +175,7 @@ public final class Game implements Runnable {
     }
 
     /**
-     * Start the game
+     * Starts the game
      */
     public synchronized void start() {
         if(running)
@@ -183,7 +186,7 @@ public final class Game implements Runnable {
     }
 
     /**
-     * Stop the game
+     * Stops the game
      */
     public synchronized void stop() {
         if(!running)
@@ -197,7 +200,7 @@ public final class Game implements Runnable {
     }
 
     /**
-     * End game based on the outcome of the game
+     * Ends game based on the outcome of the game
      * @param won true if the game was won, false if lost
      */
     public void endGame(boolean won) {
@@ -208,7 +211,7 @@ public final class Game implements Runnable {
     }
 
     /**
-     * Remove all tiles from the game world
+     * Removes all tiles from the game world
      */
     public void destroyTiles() {
         for(Entity e : entities) {
@@ -234,7 +237,7 @@ public final class Game implements Runnable {
             lastTime = now;
             while(accumulator >= nsPerUpdate) {
                 physWorld.step(1f/MainMenu.fpsTarget, VEL_ITERATIONS, POS_ITERATIONS); // Update the JBox2D physics world
-                update();
+                //update();
                 while(updateAccumulator >= UPDATE_INTERVAL) {
                     update();
                     updateAccumulator -= UPDATE_INTERVAL;
@@ -526,6 +529,10 @@ public final class Game implements Runnable {
 
     public KeyManager getKeyManager() {
         return keyManager;
+    }
+
+    public AudioManager getAudioManager() {
+        return audioManager;
     }
 
     public Set<Entity> getEntities() {

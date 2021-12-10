@@ -14,6 +14,7 @@ import entity.Rocket;
 public class CustomContactListener implements ContactListener{
 
     private Game currentGame;
+    private AudioManager audioManager;
 
     /**
      * Creates the contact listener for the specified game class instance
@@ -21,6 +22,7 @@ public class CustomContactListener implements ContactListener{
      */
     public CustomContactListener(Game currentGame) {
         this.currentGame = currentGame;
+        this.audioManager = currentGame.getAudioManager();
     }
 
     @Override
@@ -40,15 +42,15 @@ public class CustomContactListener implements ContactListener{
         if(a == CollisionCategory.ROCKET.BIT && b == CollisionCategory.TILE.BIT) {
             Rocket r = (Rocket) contact.getFixtureA().getBody().getUserData();
             r.explode();
-            Game.audioManager.playSound(Game.audioManager.EXPLOSION);
+            audioManager.playSound(audioManager.EXPLOSION);
         } else if(a == CollisionCategory.TILE.BIT && b == CollisionCategory.ROCKET.BIT) {
             Rocket r = (Rocket) contact.getFixtureB().getBody().getUserData();
             r.explode();
-            Game.audioManager.playSound(Game.audioManager.EXPLOSION);
+            audioManager.playSound(audioManager.EXPLOSION);
         }
 
         if(a == CollisionCategory.BALL.BIT || b == CollisionCategory.BALL.BIT) {
-            Game.audioManager.playSound(Game.audioManager.BALL_HIT);
+            audioManager.playSound(audioManager.BALL_HIT);
         }
             
     }

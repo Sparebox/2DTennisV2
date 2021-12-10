@@ -87,29 +87,30 @@ public final class PickupGen {
      * @param pickup the pickup collected by the player
      */
     private void applyPickup(Pickup pickup) {
+        var audioManager = currentGame.getAudioManager();
         switch(pickup.getPickUpType()) {
             case ROCKET :
                 Entity rocket = new Rocket(Utils.toPixel(pickup.getBody().getPosition().x), Utils.toPixel(pickup.getBody().getPosition().y),
                 Rocket.WIDTH, Rocket.HEIGHT);
                 currentGame.getEntitiesToAdd().add(rocket);
-                Game.audioManager.playSound(Game.audioManager.SHOOT);
+                audioManager.playSound(audioManager.SHOOT);
                 break;
             case BOOST :
                 Ball.vel = Ball.VEL_DEFAULT * Ball.BOOST_F;
-                Game.audioManager.playSound(Game.audioManager.WHOOSH);
+                audioManager.playSound(audioManager.WHOOSH);
                 break;
             case BUBBLE :
                 createBubble();
                 Ball.vel = Ball.VEL_DEFAULT * Ball.BOOST_F * 1.5f;
-                Game.audioManager.playSound(Game.audioManager.POP);
+                audioManager.playSound(audioManager.POP);
                 break;
             case VORTEX :
                 currentGame.getBall().setInVortex(true);
-                Game.audioManager.playSound(Game.audioManager.VORTEX);
+                audioManager.playSound(audioManager.VORTEX);
                 break;
             case SQUARE :
                 createSquare();
-                Game.audioManager.playSound(Game.audioManager.CREAK);
+                audioManager.playSound(audioManager.CREAK);
                 break;
         }
     }

@@ -64,12 +64,6 @@ public final class MainMenu extends JFrame implements ActionListener{
      */
     public MainMenu() {
         this.keyManager = new KeyManager(this);
-        try {
-            Game.audioManager = new AudioManager();
-        } catch (URISyntaxException e1) {
-            System.out.println("Cannot find sound files");
-            e1.printStackTrace();
-        }
         this.settingsData = new Settings();
         initFrame();
         createMainMenu();
