@@ -60,6 +60,8 @@ public final class AudioManager {
     }
 
     public void cleanUp() {
+        if(clips.isEmpty())
+            return;
         for(var clip : clips) {
             clip.close();
         }

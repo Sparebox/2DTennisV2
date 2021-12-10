@@ -445,7 +445,7 @@ public final class MainMenu extends JFrame implements ActionListener{
         gbc.gridy = 0;
         tutorialPanel.add(header, gbc);
 
-        String text = "Left: A / <-\nRight: D / ->\nJump: space\nBoost: shift\nRoll left: q /,\nRoll right: e /.";
+        String text = "Left: A / <-\nRight: D / ->\nJump: space\nBoost: shift\nRoll left: Q /,\nRoll right: E /.";
         tutorialText = new JTextArea(text, 10, 50);
         tutorialText.setEditable(false);
         gbc.gridx = 0;
