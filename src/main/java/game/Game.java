@@ -150,6 +150,9 @@ public final class Game implements Runnable {
         }
     }
 
+    /**
+     * Initializes the window 
+     */
     private void initFrame() {
         this.frame = new JFrame();
         this.frame.setSize(WIDTH, HEIGHT);
@@ -162,6 +165,9 @@ public final class Game implements Runnable {
         this.frame.setVisible(true);
     }
 
+    /**
+     * Initializes the Swing canvas graphics component
+     */
     private void initCanvas() {
         this.canvas = new Canvas();
         this.canvas.setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -175,7 +181,7 @@ public final class Game implements Runnable {
     }
 
     /**
-     * Starts the game
+     * Starts the game loop
      */
     public synchronized void start() {
         if(running)
@@ -186,7 +192,7 @@ public final class Game implements Runnable {
     }
 
     /**
-     * Stops the game
+     * Stops the game loop
      */
     public synchronized void stop() {
         if(!running)
@@ -206,6 +212,13 @@ public final class Game implements Runnable {
     public void endGame(boolean won) {
         if(!running)
             return;
+        if(won) 
+            audioManager.playSound(AudioManager.WON);
+        else 
+            audioManager.playSound(AudioManager.LOST);
+        try {
+            Thread.sleep(2000); // Wait for 2 seconds after ending game
+        } catch (InterruptedException e) {}
         stop();
         new GameSummary(this, won);
     }
@@ -336,7 +349,7 @@ public final class Game implements Runnable {
             return;
         bs = canvas.getBufferStrategy();
         if(bs == null) {
-            canvas.createBufferStrategy(3);
+            canvas.createBufferStrategy(3); // Create buffer strategy for the first time
             return;
         }
         Graphics2D g = (Graphics2D) bs.getDrawGraphics();

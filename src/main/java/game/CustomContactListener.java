@@ -42,15 +42,15 @@ public class CustomContactListener implements ContactListener{
         if(a == CollisionCategory.ROCKET.BIT && b == CollisionCategory.TILE.BIT) {
             Rocket r = (Rocket) contact.getFixtureA().getBody().getUserData();
             r.explode();
-            audioManager.playSound(audioManager.EXPLOSION);
+            audioManager.playSound(AudioManager.EXPLOSION);
         } else if(a == CollisionCategory.TILE.BIT && b == CollisionCategory.ROCKET.BIT) {
             Rocket r = (Rocket) contact.getFixtureB().getBody().getUserData();
             r.explode();
-            audioManager.playSound(audioManager.EXPLOSION);
+            audioManager.playSound(AudioManager.EXPLOSION);
         }
 
         if(a == CollisionCategory.BALL.BIT || b == CollisionCategory.BALL.BIT) {
-            audioManager.playSound(audioManager.BALL_HIT);
+            audioManager.playSound(AudioManager.BALL_HIT);
         }
             
     }

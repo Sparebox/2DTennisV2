@@ -184,7 +184,7 @@ public final class MainMenu extends JFrame implements ActionListener{
         buttonsPanel.add(exit, gbc);
         gbc.insets = new Insets(0, 0, 0, 0);
 
-        author = new JLabel("Oskari Ojamaa 2021");
+        author = new JLabel("Copyright 2021 Oskari Ojamaa");
         author.setFont(new Font("SansSerif", Font.PLAIN, 10));
         creditPanel.add(author, BorderLayout.CENTER);
 

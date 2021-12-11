@@ -1,8 +1,6 @@
 package game;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -17,13 +15,15 @@ import org.urish.openal.Source;
  */
 public final class AudioManager {
 
-    public final URL BALL_HIT = getClass().getResource("/clack.wav");
-    public final URL SHOOT = getClass().getResource("/rocket_shoot.wav");
-    public final URL EXPLOSION = getClass().getResource("/explosion.wav");
-    public final URL POP = getClass().getResource("/pop.wav");
-    public final URL CREAK = getClass().getResource("/creak.wav");
-    public final URL VORTEX = getClass().getResource("/vortex.wav");
-    public final URL WHOOSH = getClass().getResource("/whoosh.wav");
+    public static final URL BALL_HIT = AudioManager.class.getResource("/clack.wav");
+    public static final URL SHOOT = AudioManager.class.getResource("/rocket_shoot.wav");
+    public static final URL EXPLOSION = AudioManager.class.getResource("/explosion.wav");
+    public static final URL POP = AudioManager.class.getResource("/pop.wav");
+    public static final URL CREAK = AudioManager.class.getResource("/creak.wav");
+    public static final URL VORTEX = AudioManager.class.getResource("/vortex.wav");
+    public static final URL WHOOSH = AudioManager.class.getResource("/whoosh.wav");
+    public static final URL LOST = AudioManager.class.getResource("/game_over.wav");
+    public static final URL WON = AudioManager.class.getResource("/game_win.wav");
 
     private HashMap<URL, Source> sources;
     private OpenAL openal;
@@ -42,6 +42,8 @@ public final class AudioManager {
             this.sources.put(CREAK, openal.createSource(CREAK));
             this.sources.put(VORTEX, openal.createSource(VORTEX));
             this.sources.put(WHOOSH, openal.createSource(WHOOSH));
+            this.sources.put(LOST, openal.createSource(LOST));
+            this.sources.put(WON, openal.createSource(WON));
         } catch (ALException | IOException | UnsupportedAudioFileException e) {
             e.printStackTrace();
         }
@@ -53,8 +55,10 @@ public final class AudioManager {
      */
     public void playSound(URL audioFile) {
         try {
-            this.sources.get(audioFile).play();
-        } catch (ALException e) {};
+            var source = this.sources.get(audioFile);
+            source.stop();
+            source.play();
+        } catch (ALException e) {e.printStackTrace();}
     }
 
     /**
