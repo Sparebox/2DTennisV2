@@ -4,4 +4,4 @@ A freetime project to make a better version of an earlier tennis game called 2DT
 The Windows platfrom is the only one supported right now
 
 ## How To Launch
-Open the `build` directory and run the `launch.bat` script
+Download the `2DTennisV2Build.zip` from releases, extract it and run the `launch.bat` script
