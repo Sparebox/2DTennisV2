@@ -2,13 +2,13 @@ package game;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
-
-import org.urish.openal.ALException;
-import org.urish.openal.OpenAL;
-import org.urish.openal.Source;
 
 /**
  * Responsible for the game sound effects
@@ -25,51 +25,51 @@ public final class AudioManager {
     public static final URL LOST = AudioManager.class.getResource("/game_over.wav");
     public static final URL WON = AudioManager.class.getResource("/game_win.wav");
 
-    private HashMap<URL, Source> sources;
-    private OpenAL openal;
+    private Set<Clip> clips;
 
     /**
      * Creates an audio manager
      */
     public AudioManager() {
-        this.sources = new HashMap<>();
-        try {
-            this.openal = new OpenAL();
-            this.sources.put(BALL_HIT, openal.createSource(BALL_HIT));
-            this.sources.put(SHOOT, openal.createSource(SHOOT));
-            this.sources.put(EXPLOSION, openal.createSource(EXPLOSION));
-            this.sources.put(POP, openal.createSource(POP));
-            this.sources.put(CREAK, openal.createSource(CREAK));
-            this.sources.put(VORTEX, openal.createSource(VORTEX));
-            this.sources.put(WHOOSH, openal.createSource(WHOOSH));
-            this.sources.put(LOST, openal.createSource(LOST));
-            this.sources.put(WON, openal.createSource(WON));
-        } catch (ALException | IOException | UnsupportedAudioFileException e) {
-            e.printStackTrace();
-        }
+        this.clips = new HashSet<>();
+        
         
     }
     /**
-     * Plays the specified audio file
+     * Plays the specified audio file and closes previously opened clips
      * @param audioFile the URL of an audio file to be played
      */
     public void playSound(URL audioFile) {
+        if(clips.size() > 10) {
+            var clipsToRemove = new HashSet<Clip>();
+            for(var clip : clips) {
+                if(!clip.isRunning()) {
+                    clip.close();
+                    clipsToRemove.add(clip);
+                }
+            }
+            clips.removeAll(clipsToRemove);
+        }
         try {
-            var source = this.sources.get(audioFile);
-            source.stop();
-            source.play();
-        } catch (ALException e) {e.printStackTrace();}
+            var in = AudioSystem.getAudioInputStream(audioFile);
+            var clip = AudioSystem.getClip();
+            clips.add(clip);
+            clip.open(in);
+            clip.start();
+            in.close();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
-     * Closes all audio streams that are left open
+     * Closes all clips that are left open
      */
     public void cleanUp() {
-        for(var entry : sources.entrySet()) {
-            entry.getValue().close();
+        for(var clip : clips) {
+            clip.close();
         }
-        openal.close();
-        sources.clear();
+        clips.clear();
     }
 
     
