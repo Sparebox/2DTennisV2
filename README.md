@@ -13,6 +13,6 @@ SINGLE is the default game mode where you try to clear all the tiles to win the 
 
 CPU is like a spectator mode where you can see the computer do its best to win the game for you.
 
-VERSUS means that you challange the computer to duel! The computer controls a racquet on the top. Try to win by getting the ball past the upper racquet.
+VERSUS means that you challange the computer to a duel! The computer controls a racquet on the top. Try to win by getting the ball past the upper racquet.
 
 You can always exit a game by pressing ESCAPE any time
