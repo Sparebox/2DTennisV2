@@ -9,10 +9,10 @@ Download the `2DTennisV2Build.zip` from releases, extract it and run the `launch
 ## How To Play
 See the controls in the Tutorial view from the main menu. In Settings you can change the target FPS. You can change the tile rows if you have the CPU game mode selected. By pressing the Next button in settings you can choose the game mode between SINGLE, CPU and VERSUS. 
 
-SINGLE is the default game mode where you try to clear all the tiles to win the game. 
+- SINGLE is the default game mode where you try to clear all the tiles to win the game. 
 
-CPU is like a spectator mode where you can see the computer do its best to win the game for you.
+- CPU is like a spectator mode where you can see the computer do its best to win the game for you.
 
-VERSUS means that you challange the computer to a duel! The computer controls a racquet on the top. Try to win by getting the ball past the upper racquet.
+- VERSUS means that you challange the computer to a duel! The computer controls a racquet on the top. Try to win by getting the ball past the upper racquet.
 
 You can always exit a game by pressing ESCAPE any time
